@@ -17,8 +17,13 @@
         android:background="#9000"
         android:weightSum="1">
 
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.03" />
+
         <ImageView
-            android:layout_weight="0.10"
+            android:layout_weight="0.07"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
@@ -39,7 +44,8 @@
             android:layout_weight="0.5"
             android:text="set"
             android:background="#9000"
-            android:textColor="#ffff" />
+            android:textColor="#ffff"
+            android:onClick="onSet" />
 
         <Button
             android:id="@+id/download_btn"

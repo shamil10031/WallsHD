@@ -8,7 +8,8 @@
         android:id="@+id/category_item_tv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="30sp"
-        android:paddingLeft="10dp" />
+        android:textSize="27sp"
+        android:paddingLeft="40dp"
+        android:textColor="#FFFF" />
 
 </LinearLayout>
