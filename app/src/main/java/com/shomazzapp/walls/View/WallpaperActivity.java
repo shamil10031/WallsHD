@@ -8,6 +8,7 @@ import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -25,18 +26,25 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLDecoder;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class WallpaperActivity extends AppCompatActivity {
 
-    private ImageView imView;
+    @BindView(R.id.tag_tv)
+    TextView tagsView;
+
+    @BindView(R.id.wallpaper_iview)
+    ImageView imView;
+
     private VKApiPhoto wallpaper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wallpaper);
-        imView = (ImageView) findViewById(R.id.wallpaper_iview);
+        ButterKnife.bind(this);
         wallpaper = getIntent().getParcelableExtra(Constants.EXTRA_WALL);
-
         Glide.with(this)
                 .load(wallpaper.photo_2560).asBitmap()
                 .format(DecodeFormat.PREFER_ARGB_8888)
@@ -45,6 +53,7 @@ public class WallpaperActivity extends AppCompatActivity {
                 .skipMemoryCache(true)
                 .into(imView);
         System.out.println(wallpaper.photo_2560);
+        tagsView.setText(wallpaper.text);
     }
 
     public void onDownload(View v) {

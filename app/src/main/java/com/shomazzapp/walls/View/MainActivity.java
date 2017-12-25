@@ -1,7 +1,9 @@
 package com.shomazzapp.walls.View;
 
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.app.FragmentTransaction;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -52,9 +54,31 @@ public class MainActivity extends AppCompatActivity {
         wallsListFragment.setAlbumID(albums.get(Constants.ALBUM_POSITION).id);
         loadCurrentFragment();
         CURRENT_CATEGORY = albums.get(Constants.ALBUM_POSITION).title;
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
         setToolbarTitle();
     }
 
+    @Override
+    public void onBackPressed() {
+        AlertDialog.Builder ab = new AlertDialog.Builder(MainActivity.this);
+        ab.setTitle("Exit");
+        ab.setMessage(Constants.EXIT_CONFIRMATION_MSG);
+        ab.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                android.os.Process.killProcess(android.os.Process.myPid());
+                System.exit(1);
+            }
+        });
+        ab.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        ab.show();
+    }
 
     private void setUpNavigationView() {
         setSupportActionBar(toolbar);

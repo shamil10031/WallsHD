@@ -14,49 +14,77 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="#9000"
+        android:background="#0000"
         android:weightSum="1">
 
         <View
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="0.03" />
+            android:layout_weight="0.04" />
 
         <ImageView
-            android:layout_weight="0.07"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            android:src="@mipmap/ic_keyboard_arrow_left_white_24dp"
-            android:onClick="onBackClick" />
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_weight="0.05"
+            android:onClick="onBackClick"
+            android:src="@mipmap/arrow_back" />
 
     </LinearLayout>
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_alignParentBottom="true">
+        android:layout_height="101dp"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/bw_gradient_walls">
 
-        <Button
-            android:id="@+id/set_btn"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="0.5"
-            android:text="set"
-            android:background="#9000"
-            android:textColor="#ffff"
-            android:onClick="onSet" />
+        <TextView
+            android:id="@+id/tag_tv"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_above="@id/splash_line"
+            android:textColor="#fff"
+            android:gravity="bottom|center_horizontal"
+            android:padding="7dp"
+            android:textSize="15sp" />
 
-        <Button
-            android:id="@+id/download_btn"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="0.5"
-            android:text="download"
-            android:background="#9000"
-            android:textColor="#ffff"
-            android:onClick="onDownload" />
+        <View
+            android:id="@+id/splash_line"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_above="@id/lay"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:background="@color/vk_share_gray_line" />
 
-    </LinearLayout>
+        <LinearLayout
+            android:id="@+id/lay"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_alignParentBottom="true">
 
+            <Button
+                android:id="@+id/set_btn"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"
+                android:background="#0000"
+                android:onClick="onSet"
+                android:text="set"
+                android:textColor="#ffff"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/download_btn"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"
+                android:background="#0000"
+                android:onClick="onDownload"
+                android:text="download"
+                android:textColor="#ffff"
+                android:textSize="16sp" />
+        </LinearLayout>
+    </RelativeLayout>
 </RelativeLayout>
