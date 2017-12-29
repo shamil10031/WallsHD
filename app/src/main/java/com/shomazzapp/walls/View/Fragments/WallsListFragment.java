@@ -1,8 +1,8 @@
 package com.shomazzapp.walls.View.Fragments;
 
+import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 
 import com.shomazzapp.walls.Presenter.WallsListPresenter;
 import com.shomazzapp.walls.R;
+import com.shomazzapp.walls.Utils.FragmentChanger;
 import com.shomazzapp.walls.View.Adapters.WallsViewAdapter;
 import com.vk.sdk.api.model.VKApiPhoto;
 
@@ -23,25 +24,45 @@ public class WallsListFragment extends Fragment {
 
     private int albumID;
 
+    private FragmentChanger fragmentChanger;
+
     @BindView(R.id.walls_view)
     RecyclerView recyclerView;
     private WallsViewAdapter adapter;
     private Context context;
     private WallsListPresenter presenter;
+    private WallpaperFragment wallpaperFragment = new WallpaperFragment();
+    private View mainView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.context = getContext();
+        this.context = getActivity().getApplicationContext();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_walls_list, container, false);
-        ButterKnife.bind(this, view);
-        init();
-        return view;
+        if (mainView == null) {
+            mainView = inflater.inflate(R.layout.fragment_walls_list, container, false);
+            ButterKnife.bind(this, mainView);
+            init();
+        }
+        return mainView;
+    }
+
+    public void setFragmentChanger(FragmentChanger changer) {
+        this.fragmentChanger = changer;
+    }
+
+    public FragmentChanger getFragmentChanger() {
+        return fragmentChanger;
+    }
+
+    public void openWallpaperFragment(ArrayList<VKApiPhoto> wallpapers, int position) {
+        wallpaperFragment.setWalls(wallpapers);
+        wallpaperFragment.setCurrentPosition(position);
+        fragmentChanger.changeFragment(wallpaperFragment);
     }
 
     public void updateData(ArrayList<VKApiPhoto> walls) {
@@ -58,7 +79,7 @@ public class WallsListFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
         presenter = new WallsListPresenter(this);
 
-        adapter = new WallsViewAdapter(this.context, presenter.getWallsByAlbumID(albumID));
+        adapter = new WallsViewAdapter(this.context, presenter.getWallsByAlbumID(albumID), this);
         recyclerView.setAdapter(adapter);
     }
 

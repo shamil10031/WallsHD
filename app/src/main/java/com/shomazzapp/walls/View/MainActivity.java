@@ -2,6 +2,7 @@ package com.shomazzapp.walls.View;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
+import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
@@ -19,7 +20,9 @@ import android.widget.TextView;
 import com.shomazzapp.walls.R;
 import com.shomazzapp.walls.Requests.AlbumsRequest;
 import com.shomazzapp.walls.Utils.Constants;
+import com.shomazzapp.walls.Utils.FragmentChanger;
 import com.shomazzapp.walls.View.Adapters.CategoriesAdapter;
+import com.shomazzapp.walls.View.Fragments.WallpaperFragment;
 import com.shomazzapp.walls.View.Fragments.WallsListFragment;
 import com.vk.sdk.api.model.VKApiPhotoAlbum;
 
@@ -28,9 +31,12 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements FragmentChanger {
 
     private WallsListFragment wallsListFragment = new WallsListFragment();
+    private WallpaperFragment wallpaperFragment = new WallpaperFragment();
+
+    private Fragment currentFragment;
 
     @BindView(R.id.toolbar_title)
     TextView toolbar_title;
@@ -40,7 +46,8 @@ public class MainActivity extends AppCompatActivity {
     Toolbar toolbar;
 
     private ArrayList<VKApiPhotoAlbum> albums;
-    private String CURRENT_CATEGORY = "Newest";
+    private String currentCategoryTitle = "Random";
+    private int currentCategory = Constants.ALBUM_POSITION;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,33 +58,40 @@ public class MainActivity extends AppCompatActivity {
         albums = new AlbumsRequest().getAlbums();
         setUpNavigationView();
 
-        wallsListFragment.setAlbumID(albums.get(Constants.ALBUM_POSITION).id);
-        loadCurrentFragment();
-        CURRENT_CATEGORY = albums.get(Constants.ALBUM_POSITION).title;
+        wallsListFragment.setAlbumID(albums.get(currentCategory).id);
+        wallsListFragment.setFragmentChanger(this);
+        loadFragment(wallsListFragment);
+        currentCategoryTitle = albums.get(currentCategory).title;
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         setToolbarTitle();
     }
 
     @Override
     public void onBackPressed() {
-        AlertDialog.Builder ab = new AlertDialog.Builder(MainActivity.this);
-        ab.setTitle("Exit");
-        ab.setMessage(Constants.EXIT_CONFIRMATION_MSG);
-        ab.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                android.os.Process.killProcess(android.os.Process.myPid());
-                System.exit(1);
-            }
-        });
-        ab.setNegativeButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-        ab.show();
+        // TODO: save fragment state instead of loading wall everytime onBackPressed()
+        if (currentFragment instanceof WallpaperFragment) {
+            loadFragment(wallsListFragment);
+            //loadCategoryToFragment(currentCategory);
+        } else {
+            AlertDialog.Builder ab = new AlertDialog.Builder(MainActivity.this);
+            ab.setTitle("Exit");
+            ab.setMessage(Constants.EXIT_CONFIRMATION_MSG);
+            ab.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                    android.os.Process.killProcess(android.os.Process.myPid());
+                    System.exit(1);
+                }
+            });
+            ab.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            ab.show();
+        }
     }
 
     private void setUpNavigationView() {
@@ -108,22 +122,38 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void loadCategoryToFragment(int position) {
-        CURRENT_CATEGORY = albums.get(position).title;
+        currentCategory = position;
+        currentCategoryTitle = albums.get(currentCategory).title;
         setToolbarTitle();
-        wallsListFragment.loadAlbum(albums.get(position).id);
+        wallsListFragment.setAlbumID(albums.get(currentCategory).id);
+        wallsListFragment.loadAlbum(albums.get(currentCategory).id);
         drawer.closeDrawers();
     }
 
-    public void loadCurrentFragment() {
-        final android.support.v4.app.FragmentTransaction transaction
-                = getSupportFragmentManager().beginTransaction();
+    public void loadFragment(Fragment fragment) {
+        final FragmentTransaction transaction = getFragmentManager().beginTransaction();
         transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        transaction.replace(R.id.frame, wallsListFragment);
+        transaction.replace(R.id.frame, fragment);
         transaction.commit();
+        if (fragment instanceof WallpaperFragment) {
+            getSupportActionBar().hide();
+            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            //TODO: wallpaperFragment != real wallpaperFragment, it's empty; Fix it!
+            currentFragment = wallpaperFragment;
+        } else {
+            getSupportActionBar().show();
+            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+            currentFragment = wallsListFragment;
+        }
+    }
+
+    @Override
+    public void changeFragment(Fragment fragment) {
+        loadFragment(fragment);
     }
 
     public void setToolbarTitle() {
-        toolbar_title.setText(CURRENT_CATEGORY);
+        toolbar_title.setText(currentCategoryTitle);
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {

@@ -6,7 +6,7 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.widget.Toast;
 
-import com.shomazzapp.walls.View.WallpaperActivity;
+import com.shomazzapp.walls.View.Fragments.WallpaperFragment;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -67,7 +67,7 @@ public class DownloadAsyncTask extends AsyncTask<String, Integer, File> {
             urlConnection.setDoOutput(true);
             urlConnection.connect();
 
-            file = new File(folder, WallpaperActivity.getFileNameFromURL(params[0]));
+            file = new File(folder, WallpaperFragment.getFileNameFromURL(params[0]));
             System.out.println(file.getAbsolutePath());
             file.createNewFile();
 
