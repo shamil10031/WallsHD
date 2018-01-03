@@ -8,6 +8,7 @@ import com.vk.sdk.api.VKRequest;
 import com.vk.sdk.api.VKResponse;
 import com.vk.sdk.api.model.VKApiComment;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class CommentRequset {
@@ -30,8 +31,11 @@ public class CommentRequset {
             public void onComplete(VKResponse response) {
                 super.onComplete(response);
                 try {
-                    comment = new VKApiComment((JSONObject) response.json.getJSONObject("response")
-                            .getJSONArray("items").get(0));
+                    JSONArray jsonArray = response.json.getJSONObject("response")
+                            .getJSONArray("items");
+                    if (jsonArray.length() > 0)
+                        comment = new VKApiComment((JSONObject) jsonArray.get(0));
+                    else comment = null;
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

@@ -29,9 +29,11 @@ public class AlbumsRequest {
             public void onComplete(VKResponse response) {
                 super.onComplete(response);
                 try {
-                    for (int i = 0; i < response.json.getJSONObject("response").getInt("count"); i++)
-                        albums.add(new VKApiPhotoAlbum((JSONObject) response.json.getJSONObject("response")
-                                .getJSONArray("items").get(i)));
+                    for (int i = 0; i < response.json.getJSONObject("response").getInt("count"); i++) {
+                        VKApiPhotoAlbum a = new VKApiPhotoAlbum((JSONObject) response.json.getJSONObject("response")
+                                .getJSONArray("items").get(i));
+                        if (a.size > 0) albums.add(a);
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

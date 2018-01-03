@@ -34,9 +34,10 @@ public class PhotosRequest {
             public void onComplete(VKResponse response) {
                 super.onComplete(response);
                 try {
-                    for (int i = 0; i < response.json.getJSONObject("response").getInt("count"); i++)
+                    int count = response.json.getJSONObject("response").getInt("count");
+                    for (int i = 0; i < count; i++)
                         photos.add(new VKApiPhoto((JSONObject) response.json.getJSONObject("response")
-                                .getJSONArray("items").get(i)));
+                                .getJSONArray("items").get(count - i - 1)));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

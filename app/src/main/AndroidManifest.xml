@@ -29,6 +29,11 @@
             android:label="ServiceActivity"
             android:screenOrientation="portrait"
             android:theme="@style/VK.Transparent" />
+        <activity
+            android:name=".View.WallpaperActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_wallpaper"
+            android:theme="@style/FullscreenTheme"></activity>
     </application>
 
 </manifest>

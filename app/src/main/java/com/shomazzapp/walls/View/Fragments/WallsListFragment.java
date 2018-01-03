@@ -31,7 +31,6 @@ public class WallsListFragment extends Fragment {
     private WallsViewAdapter adapter;
     private Context context;
     private WallsListPresenter presenter;
-    private WallpaperFragment wallpaperFragment = new WallpaperFragment();
     private View mainView;
 
     @Override
@@ -55,15 +54,11 @@ public class WallsListFragment extends Fragment {
         this.fragmentChanger = changer;
     }
 
-    public FragmentChanger getFragmentChanger() {
-        return fragmentChanger;
-    }
-
-    public void openWallpaperFragment(ArrayList<VKApiPhoto> wallpapers, int position) {
+    /*public void openWallpaperFragment(ArrayList<VKApiPhoto> wallpapers, int position) {
         wallpaperFragment.setWalls(wallpapers);
         wallpaperFragment.setCurrentPosition(position);
         fragmentChanger.changeFragment(wallpaperFragment);
-    }
+    }*/
 
     public void updateData(ArrayList<VKApiPhoto> walls) {
         adapter.updateData(walls);

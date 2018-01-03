@@ -22,7 +22,6 @@ import com.shomazzapp.walls.Requests.AlbumsRequest;
 import com.shomazzapp.walls.Utils.Constants;
 import com.shomazzapp.walls.Utils.FragmentChanger;
 import com.shomazzapp.walls.View.Adapters.CategoriesAdapter;
-import com.shomazzapp.walls.View.Fragments.WallpaperFragment;
 import com.shomazzapp.walls.View.Fragments.WallsListFragment;
 import com.vk.sdk.api.model.VKApiPhotoAlbum;
 
@@ -34,7 +33,6 @@ import butterknife.ButterKnife;
 public class MainActivity extends AppCompatActivity implements FragmentChanger {
 
     private WallsListFragment wallsListFragment = new WallsListFragment();
-    private WallpaperFragment wallpaperFragment = new WallpaperFragment();
 
     private Fragment currentFragment;
 
@@ -59,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements FragmentChanger {
         setUpNavigationView();
 
         wallsListFragment.setAlbumID(albums.get(currentCategory).id);
-        wallsListFragment.setFragmentChanger(this);
+        //    wallsListFragment.setFragmentChanger(this);
         loadFragment(wallsListFragment);
         currentCategoryTitle = albums.get(currentCategory).title;
         getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -68,30 +66,24 @@ public class MainActivity extends AppCompatActivity implements FragmentChanger {
 
     @Override
     public void onBackPressed() {
-        // TODO: save fragment state instead of loading wall everytime onBackPressed()
-        if (currentFragment instanceof WallpaperFragment) {
-            loadFragment(wallsListFragment);
-            //loadCategoryToFragment(currentCategory);
-        } else {
-            AlertDialog.Builder ab = new AlertDialog.Builder(MainActivity.this);
-            ab.setTitle("Exit");
-            ab.setMessage(Constants.EXIT_CONFIRMATION_MSG);
-            ab.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                    android.os.Process.killProcess(android.os.Process.myPid());
-                    System.exit(1);
-                }
-            });
-            ab.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                }
-            });
-            ab.show();
-        }
+        AlertDialog.Builder ab = new AlertDialog.Builder(MainActivity.this);
+        ab.setTitle("Exit");
+        ab.setMessage(Constants.EXIT_CONFIRMATION_MSG);
+        ab.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                android.os.Process.killProcess(android.os.Process.myPid());
+                System.exit(1);
+            }
+        });
+        ab.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        ab.show();
     }
 
     private void setUpNavigationView() {
@@ -135,16 +127,14 @@ public class MainActivity extends AppCompatActivity implements FragmentChanger {
         transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         transaction.replace(R.id.frame, fragment);
         transaction.commit();
-        if (fragment instanceof WallpaperFragment) {
+        /*if (fragment instanceof WallpaperFragment) {
             getSupportActionBar().hide();
             drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-            //TODO: wallpaperFragment != real wallpaperFragment, it's empty; Fix it!
             currentFragment = wallpaperFragment;
-        } else {
-            getSupportActionBar().show();
-            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-            currentFragment = wallsListFragment;
-        }
+        } else {*/
+        getSupportActionBar().show();
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+        currentFragment = wallsListFragment; // }
     }
 
     @Override
@@ -163,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements FragmentChanger {
         }
     }
 
-    // Permission settings
+    // ----- Permission settings ----- //
 
     private boolean canMakeSmores() {
         return (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1);
