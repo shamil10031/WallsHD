@@ -8,15 +8,14 @@
     <uses-permission android:name="android.permission.SET_WALLPAPER" />
 
     <application
-        android:name=".Utils.Application"
+        android:name="com.shomazzapp.vavilonWalls.Utils.Application"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/icon"
         android:label="Vavilon Walls"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
         <activity
-            android:name=".View.MainActivity"
+            android:name="com.shomazzapp.vavilonWalls.View.MainActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -30,7 +29,7 @@
             android:screenOrientation="portrait"
             android:theme="@style/VK.Transparent" />
         <activity
-            android:name=".View.WallpaperActivity"
+            android:name="com.shomazzapp.vavilonWalls.View.WallpaperActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_wallpaper"
             android:theme="@style/FullscreenTheme"></activity>

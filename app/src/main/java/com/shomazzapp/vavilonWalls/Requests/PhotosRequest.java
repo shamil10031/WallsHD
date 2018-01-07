@@ -1,6 +1,6 @@
-package com.shomazzapp.walls.Requests;
+package com.shomazzapp.vavilonWalls.Requests;
 
-import com.shomazzapp.walls.Utils.Constants;
+import com.shomazzapp.vavilonWalls.Utils.Constants;
 import com.vk.sdk.api.VKApiConst;
 import com.vk.sdk.api.VKError;
 import com.vk.sdk.api.VKParameters;

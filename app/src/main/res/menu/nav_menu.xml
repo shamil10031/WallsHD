@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/drawer_categories"
+            android:checked="true"
+            android:title="@string/categories" />
+
+        <item
+            android:id="@+id/drawer_saved_walls"
+            android:title="@string/saved_walls" />
+
+        <item
+            android:id="@+id/drawer_remove_ad"
+            android:title="@string/remove_ad" />
+
+        <item
+            android:id="@+id/drawer_rate_app"
+            android:title="@string/rate_app" />
+
+        <item
+            android:id="@+id/drawer_share"
+            android:title="@string/share" />
+
+        <item
+            android:id="@+id/drawer_feedback"
+            android:title="@string/feedback" />
+
+        <item
+            android:id="@+id/drawer_about_info"
+            android:title="@string/about_info" />
+
+    </group>
+</menu>

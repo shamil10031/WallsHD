@@ -1,12 +1,13 @@
-package com.shomazzapp.walls.Utils;
+package com.shomazzapp.vavilonWalls.Utils;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.widget.Toast;
 
-import com.shomazzapp.walls.View.WallpaperActivity;
+import com.shomazzapp.vavilonWalls.View.WallpaperActivity;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -40,6 +41,12 @@ public class DownloadAsyncTask extends AsyncTask<String, Integer, File> {
         progressDialog.setMax(100);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         progressDialog.show();
+        progressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                cancel(false);
+            }
+        });
     }
 
     @Override
@@ -98,8 +105,16 @@ public class DownloadAsyncTask extends AsyncTask<String, Integer, File> {
         progressDialog.setProgress((int) ((values[0] / (float) values[1]) * 100));
     }
 
+    //TODO: fix cancel
+    @Override
+    protected void onCancelled() {
+        super.onCancelled();
+        System.out.println("onCancelled");
+    }
+
     @Override
     protected void onPostExecute(File file) {
+        System.out.println("onPostExecute");
         if (m_error != null) {
             m_error.printStackTrace();
             Toast.makeText(context, Constants.ERROR_DOWNLOAD_MSG, Toast.LENGTH_SHORT).show();

@@ -1,4 +1,4 @@
-package com.shomazzapp.walls.View;
+package com.shomazzapp.vavilonWalls.View;
 
 import android.annotation.SuppressLint;
 import android.app.WallpaperManager;
@@ -29,11 +29,11 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.shomazzapp.vavilonWalls.Requests.CommentRequset;
+import com.shomazzapp.vavilonWalls.Requests.DocumentRequest;
+import com.shomazzapp.vavilonWalls.Utils.Constants;
+import com.shomazzapp.vavilonWalls.Utils.DownloadAsyncTask;
 import com.shomazzapp.walls.R;
-import com.shomazzapp.walls.Requests.CommentRequset;
-import com.shomazzapp.walls.Requests.DocumentRequest;
-import com.shomazzapp.walls.Utils.Constants;
-import com.shomazzapp.walls.Utils.DownloadAsyncTask;
 import com.vk.sdk.api.model.VKApiComment;
 import com.vk.sdk.api.model.VKApiPhoto;
 
@@ -96,12 +96,7 @@ public class WallpaperActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_wallpaper);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            Window w = getWindow();
-            w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_IN_OVERSCAN, WindowManager.LayoutParams.FLAG_LAYOUT_IN_OVERSCAN);
-        }
         mVisible = true;
         ButterKnife.bind(this);
         wallpapers = (ArrayList<VKApiPhoto>) getIntent().getSerializableExtra(Constants.EXTRA_WALLS);
@@ -115,6 +110,10 @@ public class WallpaperActivity extends AppCompatActivity {
                 .getIntExtra(Constants.EXTRA_WALL_POSITION, 0));
         fadeout = AnimationUtils.loadAnimation(this, R.anim.fadeout);
         fadein = AnimationUtils.loadAnimation(this, R.anim.fadein);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            Window w = getWindow();
+            w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_IN_OVERSCAN, WindowManager.LayoutParams.FLAG_LAYOUT_IN_OVERSCAN);
+        }
     }
 
     private void toggle() {

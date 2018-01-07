@@ -1,4 +1,4 @@
-package com.shomazzapp.walls.View.Adapters;
+package com.shomazzapp.vavilonWalls.View.Adapters;
 
 import android.content.Context;
 import android.content.Intent;
@@ -16,10 +16,10 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
+import com.shomazzapp.vavilonWalls.Utils.Constants;
+import com.shomazzapp.vavilonWalls.View.Fragments.WallsListFragment;
+import com.shomazzapp.vavilonWalls.View.WallpaperActivity;
 import com.shomazzapp.walls.R;
-import com.shomazzapp.walls.Utils.Constants;
-import com.shomazzapp.walls.View.Fragments.WallsListFragment;
-import com.shomazzapp.walls.View.WallpaperActivity;
 import com.vk.sdk.api.model.VKApiPhoto;
 
 import java.util.ArrayList;
@@ -73,18 +73,19 @@ public class WallsViewAdapter extends RecyclerView.Adapter<WallsViewAdapter.View
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Glide.with(context)
-                .load(wallpapers.get(position).photo_604)
-                .transition(withCrossFade())
-                .thumbnail(0.17f)
-                .listener(requestListener)
-                .apply(options)
-                .into(holder.imageView);
+        if (wallpapers != null)
+            Glide.with(context)
+                    .load(wallpapers.get(position).photo_604)
+                    .transition(withCrossFade())
+                    .thumbnail(0.17f)
+                    .listener(requestListener)
+                    .apply(options)
+                    .into(holder.imageView);
     }
 
     @Override
     public int getItemCount() {
-        return (wallpapers.size());
+        return wallpapers == null ? 0 : wallpapers.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -106,8 +107,6 @@ public class WallsViewAdapter extends RecyclerView.Adapter<WallsViewAdapter.View
                 intent.putExtra(Constants.EXTRA_WALL_POSITION, position);
                 context.startActivity(intent);
             }
-            /*if (position != RecyclerView.NO_POSITION)
-                wallsListFragment.openWallpaperFragment(wallpapers, position);*/
         }
     }
 }

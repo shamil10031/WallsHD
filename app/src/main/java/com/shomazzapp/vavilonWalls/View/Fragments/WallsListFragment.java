@@ -1,18 +1,19 @@
-package com.shomazzapp.walls.View.Fragments;
+package com.shomazzapp.vavilonWalls.View.Fragments;
 
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.shomazzapp.walls.Presenter.WallsListPresenter;
+import com.shomazzapp.vavilonWalls.Presenter.WallsListPresenter;
+import com.shomazzapp.vavilonWalls.Utils.FragmentRegulator;
+import com.shomazzapp.vavilonWalls.View.Adapters.WallsViewAdapter;
 import com.shomazzapp.walls.R;
-import com.shomazzapp.walls.Utils.FragmentChanger;
-import com.shomazzapp.walls.View.Adapters.WallsViewAdapter;
 import com.vk.sdk.api.model.VKApiPhoto;
 
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ public class WallsListFragment extends Fragment {
 
     private int albumID;
 
-    private FragmentChanger fragmentChanger;
+    private FragmentRegulator fragmentRegulator;
 
     @BindView(R.id.walls_view)
     RecyclerView recyclerView;
@@ -33,59 +34,72 @@ public class WallsListFragment extends Fragment {
     private WallsListPresenter presenter;
     private View mainView;
 
+    public static String log = "wallslist";
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.context = getActivity().getApplicationContext();
+        Log.d(log, "---------- onCreated() called");
+        this.context = getActivity();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Log.d(log, "---------- onCreateView() called");
         if (mainView == null) {
+            Log.d(log, "                mianView == null");
             mainView = inflater.inflate(R.layout.fragment_walls_list, container, false);
             ButterKnife.bind(this, mainView);
             init();
         }
+        loadAlbum(albumID);
         return mainView;
     }
 
-    public void setFragmentChanger(FragmentChanger changer) {
-        this.fragmentChanger = changer;
+    public void setFragmentRegulator(FragmentRegulator changer) {
+        this.fragmentRegulator = changer;
     }
 
     /*public void openWallpaperFragment(ArrayList<VKApiPhoto> wallpapers, int position) {
         wallpaperFragment.setWalls(wallpapers);
         wallpaperFragment.setCurrentPosition(position);
-        fragmentChanger.changeFragment(wallpaperFragment);
+        fragmentRegulator.changeFragment(wallpaperFragment);
     }*/
 
+    public void loadAlbum(int albumID) {
+        Log.d(log, "---------- loadAlbum() (presenter " + (presenter == null ? "is" : "not") + " null)");
+        if (presenter != null)
+            presenter.loadWallByCategory(albumID);
+    }
+
     public void updateData(ArrayList<VKApiPhoto> walls) {
+        Log.d(log, "---------- updateData() called");
         adapter.updateData(walls);
         recyclerView.scrollToPosition(0);
     }
 
-    public void loadAlbum(int albumID) {
-        presenter.loadWallByCategory(albumID);
-    }
-
     public void init() {
+        Log.d(log, "---------- init() called");
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(context, 3);
         recyclerView.setLayoutManager(layoutManager);
         presenter = new WallsListPresenter(this);
 
-        adapter = new WallsViewAdapter(this.context, presenter.getWallsByAlbumID(albumID), this);
+        // adapter = new WallsViewAdapter(getActivity(), presenter.getWallsByAlbumID(albumID), this);
+        adapter = new WallsViewAdapter(context, null, this);
         recyclerView.setAdapter(adapter);
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        Log.d(log, "---------- onAttach() called");
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        Log.d(log, "---------- onDetach() called");
     }
 
     public void setAlbumID(int id) {

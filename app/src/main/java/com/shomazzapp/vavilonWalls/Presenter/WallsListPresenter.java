@@ -1,7 +1,9 @@
-package com.shomazzapp.walls.Presenter;
+package com.shomazzapp.vavilonWalls.Presenter;
 
-import com.shomazzapp.walls.Requests.PhotosRequest;
-import com.shomazzapp.walls.View.Fragments.WallsListFragment;
+import android.util.Log;
+
+import com.shomazzapp.vavilonWalls.Requests.PhotosRequest;
+import com.shomazzapp.vavilonWalls.View.Fragments.WallsListFragment;
 import com.vk.sdk.api.model.VKApiPhoto;
 
 import java.util.ArrayList;
@@ -15,6 +17,7 @@ public class WallsListPresenter {
     }
 
     public void loadWallByCategory(int albumID) {
+        Log.d(WallsListFragment.log, "---------- loadWallsByCategory() from presenter called");
         fragment.updateData(getWallsByAlbumID(albumID));
     }
 
@@ -23,10 +26,4 @@ public class WallsListPresenter {
         System.out.println("Album size : " + walls.size() + "  id: " + albumID);
         return walls;
     }
-
-  /*  public ArrayList<VKApiPhoto> getWalls() {
-        ArrayList<VKApiPhoto> walls = new PhotosRequest(fragment.getAlbumID()).getPhotos();
-        System.out.println("Album size : " + walls.size() + "  id: " + fragment.getAlbumID());
-        return walls;
-    }*/
 }
