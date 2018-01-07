@@ -14,17 +14,26 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
+import com.shomazzapp.vavilonWalls.Presenter.WallsListPresenter;
 import com.shomazzapp.vavilonWalls.Utils.Constants;
 import com.shomazzapp.vavilonWalls.Utils.FragmentRegulator;
 import com.shomazzapp.vavilonWalls.Utils.RoboErrorReporter;
 import com.shomazzapp.vavilonWalls.View.Fragments.CategoriesFragment;
 import com.shomazzapp.vavilonWalls.View.Fragments.WallsListFragment;
 import com.shomazzapp.walls.R;
+import com.vk.sdk.api.model.VKApiPhoto;
+
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -45,6 +54,8 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
     @BindView(R.id.nav_view)
     NavigationView navView;
 
+    private String log = "mainActivity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         RoboErrorReporter.bindReporter(this);
@@ -56,7 +67,6 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
         requestPermissionIfNeed();
         setUpNavigationView();
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-        setToolbarTitle("Categories");
         loadCategoriesFragment();
         setFragmentChangers();
     }
@@ -68,7 +78,8 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
 
     @Override
     public void setToolbarTitle(String title) {
-        toolbar.setTitle(title);
+        Log.d(log, " setToolbarTitle (  " + title + "  )!");
+        toolbar_title.setText(title);
     }
 
     @Override
@@ -96,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
     }
 
     private void setUpNavigationView() {
+        loadHeaderBackground();
         setSupportActionBar(toolbar);
         ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawer, toolbar, 0, 0) {
             @Override
@@ -110,54 +122,42 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
         };
         drawer.setDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
-        navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.drawer_categories:
-                        loadFragment(categoriesFragment);
-                        drawer.closeDrawers();
-                        break;
-                    case R.id.drawer_saved_walls:
-                        //TODO: display saved walls
-                        Toast.makeText(MainActivity.this, "Saved Walls", Toast.LENGTH_SHORT)
-                                .show();
-                        drawer.closeDrawers();
-                        break;
-                    case R.id.drawer_remove_ad:
-                        Toast.makeText(MainActivity.this, "Remove Ad!", Toast.LENGTH_SHORT)
-                                .show();
-                        drawer.closeDrawers();
-                        break;
-                    case R.id.drawer_rate_app:
-                        Toast.makeText(MainActivity.this, "Rate App!", Toast.LENGTH_SHORT)
-                                .show();
-                        drawer.closeDrawers();
-                        break;
-                    case R.id.drawer_share:
-                        Toast.makeText(MainActivity.this, "Share!", Toast.LENGTH_SHORT)
-                                .show();
-                        drawer.closeDrawers();
-                        break;
-                    case R.id.drawer_feedback:
-                        Toast.makeText(MainActivity.this, "Feedback!", Toast.LENGTH_SHORT)
-                                .show();
-                        drawer.closeDrawers();
-                        break;
-                    case R.id.drawer_about_info:
-                        Toast.makeText(MainActivity.this, "About Info!", Toast.LENGTH_SHORT)
-                                .show();
-                        drawer.closeDrawers();
-                        break;
-                }
-                item.setChecked(true);
-                return true;
-            }
-        });
+        navView.setNavigationItemSelectedListener(navClickListenner);
     }
 
+    public void loadHeaderBackground() {
+        try {
+            ImageView im = navView.getHeaderView(0).findViewById(R.id.nav_header_bg);
+            ArrayList<VKApiPhoto> walls = WallsListPresenter.getWallsByAlbumID(Constants.NAVHEADER_ALBUM_ID);
+            VKApiPhoto vkApiPhoto = walls.get(walls.size() - 1);
+            Glide.with(drawer)
+                    .load(getPhotoMaxQualityLink(vkApiPhoto))
+                    .apply(options)
+                    .into(im);
+            //        Log.d(log, "maxQuality = " + getPhotoMaxQualityLink(vkApiPhoto));
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
+            Log.d(log, "can't load header background!");
+        }
+    }
+
+    public static String getPhotoMaxQualityLink(VKApiPhoto vkApiPhoto) {
+        String links = vkApiPhoto.photo_2560 + vkApiPhoto.photo_1280 + vkApiPhoto.photo_807
+                + vkApiPhoto.photo_604 + vkApiPhoto.photo_130 + vkApiPhoto.photo_75;
+        System.out.println(links);
+        int index = links.indexOf(".jpg");
+        if (index < 1) return "";
+        else return links.substring(0, index + ".jpg".length());
+    }
+
+    private RequestOptions options = new RequestOptions()
+            .diskCacheStrategy(DiskCacheStrategy.NONE)
+            .placeholder(R.mipmap.header_background)
+            .error(R.mipmap.header_background);
+
+
     public void loadFragment(Fragment fragment) {
-        System.out.println("From MainActivity loadFragment : " + fragment.getClass().getSimpleName());
+        Log.d(log, "loadFragment : " + fragment.getClass().getSimpleName());
         final FragmentTransaction transaction = getFragmentManager().beginTransaction();
         transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         transaction.replace(R.id.frame, fragment);
@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
     @Override
     public void loadWallsListFragment(int albumId, String category) {
         currentFragment = wallsListFragment;
-        getSupportActionBar().setTitle(category);
+        setToolbarTitle(category);
         wallsListFragment.setAlbumID(albumId);
         loadFragment(wallsListFragment);
     }
@@ -180,6 +180,52 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
         setToolbarTitle("Categories");
         loadFragment(categoriesFragment);
     }
+
+    NavigationView.OnNavigationItemSelectedListener navClickListenner =
+            new NavigationView.OnNavigationItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                    switch (item.getItemId()) {
+                        case R.id.drawer_categories:
+                            loadFragment(categoriesFragment);
+                            drawer.closeDrawers();
+                            break;
+                        case R.id.drawer_saved_walls:
+                            //TODO: display saved walls
+                            Toast.makeText(MainActivity.this, "Saved Walls", Toast.LENGTH_SHORT)
+                                    .show();
+                            drawer.closeDrawers();
+                            break;
+                        case R.id.drawer_remove_ad:
+                            Toast.makeText(MainActivity.this, "Remove Ad!", Toast.LENGTH_SHORT)
+                                    .show();
+                            drawer.closeDrawers();
+                            break;
+                        case R.id.drawer_rate_app:
+                            Toast.makeText(MainActivity.this, "Rate App!", Toast.LENGTH_SHORT)
+                                    .show();
+                            drawer.closeDrawers();
+                            break;
+                        case R.id.drawer_share:
+                            Toast.makeText(MainActivity.this, "Share!", Toast.LENGTH_SHORT)
+                                    .show();
+                            drawer.closeDrawers();
+                            break;
+                        case R.id.drawer_feedback:
+                            Toast.makeText(MainActivity.this, "Feedback!", Toast.LENGTH_SHORT)
+                                    .show();
+                            drawer.closeDrawers();
+                            break;
+                        case R.id.drawer_about_info:
+                            Toast.makeText(MainActivity.this, "About Info!", Toast.LENGTH_SHORT)
+                                    .show();
+                            drawer.closeDrawers();
+                            break;
+                    }
+                    item.setChecked(true);
+                    return true;
+                }
+            };
 
     // ----- Permission settings ----- //
 

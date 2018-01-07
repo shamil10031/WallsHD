@@ -76,7 +76,7 @@ public class WallsListFragment extends Fragment {
     public void updateData(ArrayList<VKApiPhoto> walls) {
         Log.d(log, "---------- updateData() called");
         adapter.updateData(walls);
-        recyclerView.scrollToPosition(0);
+        recyclerView.smoothScrollToPosition(0);
     }
 
     public void init() {

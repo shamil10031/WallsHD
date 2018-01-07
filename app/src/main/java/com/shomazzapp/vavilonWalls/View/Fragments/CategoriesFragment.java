@@ -41,7 +41,8 @@ public class CategoriesFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        fragmentRegulator.setToolbarTitle("Categories");
+        if (fragmentRegulator != null)
+            fragmentRegulator.setToolbarTitle("Categories");
         if (mainView == null) {
             mainView = inflater.inflate(R.layout.fragment_categories, container, false);
             ButterKnife.bind(this, mainView);

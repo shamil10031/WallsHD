@@ -3,11 +3,11 @@ package com.shomazzapp.vavilonWalls.Utils;
 public class Constants {
 
     public static final int COMMUNITY_ID = -115406832;
-    public static final String ACCES_TOKEN = "b3eaba0d39270e783acbb541edd140de5aac79bcfe2a15fc87f88783fbb817768d9e79873369109638b54";
+    public static final String ACCES_TOKEN = "8d15cf4a01e5531d7c0698e2ab175b4afd1e9fc7e6777abff21d503942e02780b0c3eece5408a1e4a5c0c";
     public static final String EXTRA_WALLS = "walls";
     public static final String EXTRA_WALL_POSITION = "wPos";
     public static final String FOLDER_NAME = "Vavilon Walls";
-    public static final int ALBUM_POSITION = 1;
+    public static final int NAVHEADER_ALBUM_ID = 250371492;
 
     public static final String ERROR_DOWNLOAD_MSG = "Try download later :(";
     public static final String ERROR_SETTING_WALL_MSG = "Try to set later :(";

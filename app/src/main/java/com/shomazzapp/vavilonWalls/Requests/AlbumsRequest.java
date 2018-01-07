@@ -23,7 +23,9 @@ public class AlbumsRequest {
 
     public void loadAlbums() {
         VKRequest request = new VKRequest("photos.getAlbums", VKParameters.from(
-                VKApiConst.OWNER_ID, Constants.COMMUNITY_ID, VKApiConst.ACCESS_TOKEN, Constants.ACCES_TOKEN));
+                VKApiConst.OWNER_ID, Constants.COMMUNITY_ID,
+                "need_covers", 1,
+                VKApiConst.ACCESS_TOKEN, Constants.ACCES_TOKEN));
         request.executeSyncWithListener(new VKRequest.VKRequestListener() {
             @Override
             public void onComplete(VKResponse response) {
@@ -32,7 +34,7 @@ public class AlbumsRequest {
                     for (int i = 0; i < response.json.getJSONObject("response").getInt("count"); i++) {
                         VKApiPhotoAlbum a = new VKApiPhotoAlbum((JSONObject) response.json.getJSONObject("response")
                                 .getJSONArray("items").get(i));
-                        if (a.size > 0) albums.add(a);
+                        if (a.size > 0 && !a.title.equals("navHeader")) albums.add(a);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

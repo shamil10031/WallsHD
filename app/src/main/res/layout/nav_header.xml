@@ -2,19 +2,21 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/main_activity_drawer"
     android:layout_width="match_parent"
-    android:layout_height="200dp"
+    android:layout_height="175dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
     <ImageView
+        android:id="@+id/nav_header_bg"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/header_background"
+        android:src="@mipmap/header_background"
         android:scaleType="centerCrop" />
 
     <ImageView
-        android:layout_width="200dp"
-        android:layout_height="150dp"
-        android:src="@drawable/header_icon_label"
-        android:layout_gravity="center" />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/header_icon_label"
+        android:layout_gravity="center_horizontal"
+        android:paddingTop="10dp" />
 
 </FrameLayout>

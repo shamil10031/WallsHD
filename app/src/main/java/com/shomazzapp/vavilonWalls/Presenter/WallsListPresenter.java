@@ -21,7 +21,7 @@ public class WallsListPresenter {
         fragment.updateData(getWallsByAlbumID(albumID));
     }
 
-    public ArrayList<VKApiPhoto> getWallsByAlbumID(int albumID) {
+    public static ArrayList<VKApiPhoto> getWallsByAlbumID(int albumID) {
         ArrayList<VKApiPhoto> walls = new PhotosRequest(albumID).getPhotos();
         System.out.println("Album size : " + walls.size() + "  id: " + albumID);
         return walls;
