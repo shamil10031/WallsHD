@@ -84,26 +84,31 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
 
     @Override
     public void onBackPressed() {
-        if (currentFragment instanceof CategoriesFragment) {
-            AlertDialog.Builder ab = new AlertDialog.Builder(MainActivity.this);
-            ab.setTitle("Exit");
-            ab.setMessage(Constants.EXIT_CONFIRMATION_MSG);
-            ab.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                    android.os.Process.killProcess(android.os.Process.myPid());
-                    System.exit(1);
-                }
-            });
-            ab.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                }
-            });
-            ab.show();
-        } else loadCategoriesFragment();   // instanceof WallsListFragment
+        try {
+            if (currentFragment instanceof CategoriesFragment) {
+                AlertDialog.Builder ab = new AlertDialog.Builder(MainActivity.this);
+                ab.setTitle("Exit");
+                ab.setMessage(Constants.EXIT_CONFIRMATION_MSG);
+                ab.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        android.os.Process.killProcess(android.os.Process.myPid());
+                        System.exit(1);
+                    }
+                });
+                ab.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                ab.show();
+            } else loadCategoriesFragment();   // instanceof WallsListFragment
+        } catch (IllegalStateException e) {
+            System.out.println("EEEEEEEEEEERRRRRRRORRRRRRR");
+            e.printStackTrace();
+        }
     }
 
     private void setUpNavigationView() {

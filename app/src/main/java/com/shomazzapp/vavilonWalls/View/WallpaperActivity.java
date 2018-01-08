@@ -102,7 +102,7 @@ public class WallpaperActivity extends AppCompatActivity {
         wallpapers = (ArrayList<VKApiPhoto>) getIntent().getSerializableExtra(Constants.EXTRA_WALLS);
         currentWallpaper = wallpapers.get(getIntent()
                 .getIntExtra(Constants.EXTRA_WALL_POSITION, 0));
-        tagsView.setText(currentWallpaper.text);
+        tagsView.setText(addSpaces(currentWallpaper.text));
         myViewPagerAdapter = new MyViewPagerAdapter();
         viewPager.setAdapter(myViewPagerAdapter);
         viewPager.addOnPageChangeListener(viewPagerPageChangeListener);
@@ -197,7 +197,7 @@ public class WallpaperActivity extends AppCompatActivity {
     }
 
     private void displayWallpaperInfo(int position) {
-        tagsView.setText(wallpapers.get(position).text);
+        tagsView.setText(addSpaces(wallpapers.get(position).text));
     }
 
     private void downloadFile(String url, DownloadAsyncTask.AsyncResponse delegate) {
@@ -230,6 +230,21 @@ public class WallpaperActivity extends AppCompatActivity {
             else return urlString.substring(urlString.length() - 4 - Constants.FILE_NAME_LENGHT,
                     urlString.length() - 4) + Constants.FILE_ADDICTION;
         } else return null;
+    }
+
+    public static String addSpaces(String oldString) {
+        String newString = oldString;
+        StringBuilder builder = new StringBuilder(newString);
+        int i = 1;
+        while (i < newString.length()) {
+            if (builder.charAt(i) == ' '
+                    && builder.charAt(i - 1) != ' ') {
+                i++;
+                builder.insert(i, "   ");
+            }
+            i++;
+        }
+        return builder.toString();
     }
 
 

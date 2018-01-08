@@ -3,6 +3,8 @@ package com.shomazzapp.vavilonWalls.View.Fragments;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,10 +22,12 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class CategoriesFragment extends Fragment {
+public class CategoriesFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     @BindView(R.id.categories_listview)
     ListView categoriesListView;
+    @BindView(R.id.swipe_to_refresh_categories)
+    SwipeRefreshLayout swipeRefreshLayout;
 
     private CategoriesAdapter adapter;
     private Context context;
@@ -56,6 +60,10 @@ public class CategoriesFragment extends Fragment {
     }
 
     public void init() {
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.pink_color),
+                getResources().getColor(R.color.blue_color));
+        swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.app_overlay);
         albums = new AlbumsRequest().getAlbums();
         adapter = new CategoriesAdapter(getActivity(), albums);
         categoriesListView.setAdapter(adapter);
@@ -88,5 +96,21 @@ public class CategoriesFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
+    }
+
+    @Override
+    public void onRefresh() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                updateData();
+                swipeRefreshLayout.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                }, 1000);
+            }
+        }, 500);
     }
 }

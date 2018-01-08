@@ -17,7 +17,6 @@ import com.vk.sdk.api.model.VKApiPhotoAlbum;
 
 import java.util.ArrayList;
 
-
 public class CategoriesAdapter extends BaseAdapter {
 
     private ArrayList<VKApiPhotoAlbum> albums;
@@ -58,7 +57,7 @@ public class CategoriesAdapter extends BaseAdapter {
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
         Holder holder = new Holder();
-        View v = inflater.inflate(R.layout.nav_menu_item, null);
+        View v = inflater.inflate(R.layout.category_item, null);
         holder.textView = (TextView) v.findViewById(R.id.category_item_tv);
         holder.imageView = (CircularImageView) v.findViewById(R.id.category_item_imv);
         holder.textView.setText(albums.get(i).title);
@@ -66,6 +65,7 @@ public class CategoriesAdapter extends BaseAdapter {
         Glide.with(context)
                 .load(albums.get(i).thumb_src)
                 .apply(options)
+                .thumbnail(0.3f)
                 .into(holder.imageView);
         return v;
     }

@@ -4,5 +4,10 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
 
+    <color name="app_background">#414141</color>
+    <color name="app_overlay">#282828</color>
+    <color name="pink_color">#cc0099</color>
+    <color name="blue_color">#33aaff</color>
+
     <color name="black_overlay">#66000000</color>
 </resources>

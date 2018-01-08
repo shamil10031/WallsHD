@@ -2,17 +2,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.shomazzapp.vavilonWalls.View.Fragments.WallsListFragment">
+    tools:context="com.shomazzapp.vavilonWalls.View.Fragments.WallsListFragment"
+    android:background="@color/app_overlay">
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/walls_view"
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/swipe_to_refresh_walls"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent">
 
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/walls_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingBottom="@dimen/walls_view_margins"
+                android:paddingEnd="@dimen/walls_view_margins" />
+
+        </android.support.v4.widget.SwipeRefreshLayout>
     </FrameLayout>
-
 </FrameLayout>

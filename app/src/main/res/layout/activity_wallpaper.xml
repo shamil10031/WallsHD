@@ -31,7 +31,7 @@
         <RelativeLayout
             android:id="@+id/bottom_control_panel"
             android:layout_width="match_parent"
-            android:layout_height="105dp"
+            android:layout_height="145dp"
             android:layout_gravity="bottom"
             android:background="@drawable/bw_gradient_walls">
 
@@ -43,7 +43,7 @@
                 android:gravity="bottom|center_horizontal"
                 android:padding="10dp"
                 android:textColor="#fff"
-                android:textSize="15sp" />
+                android:textSize="20sp" />
 
             <View
                 android:id="@+id/splash_line"
@@ -69,7 +69,8 @@
                     android:onClick="onSet"
                     android:text="set"
                     android:textColor="#ffff"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    android:textStyle="normal" />
 
                 <Button
                     android:id="@+id/download_btn"
@@ -80,7 +81,8 @@
                     android:onClick="onDownload"
                     android:text="download"
                     android:textColor="#ffff"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    android:textStyle="normal" />
             </LinearLayout>
         </RelativeLayout>
     </FrameLayout>

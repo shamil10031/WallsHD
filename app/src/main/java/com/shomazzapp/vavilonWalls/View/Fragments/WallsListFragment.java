@@ -3,6 +3,8 @@ package com.shomazzapp.vavilonWalls.View.Fragments;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -21,7 +23,7 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class WallsListFragment extends Fragment {
+public class WallsListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     private int albumID;
 
@@ -29,6 +31,8 @@ public class WallsListFragment extends Fragment {
 
     @BindView(R.id.walls_view)
     RecyclerView recyclerView;
+    @BindView(R.id.swipe_to_refresh_walls)
+    SwipeRefreshLayout swipeRefreshLayout;
     private WallsViewAdapter adapter;
     private Context context;
     private WallsListPresenter presenter;
@@ -82,12 +86,17 @@ public class WallsListFragment extends Fragment {
     public void init() {
         Log.d(log, "---------- init() called");
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(context, 3);
+        layoutManager.setAutoMeasureEnabled(true);
         recyclerView.setLayoutManager(layoutManager);
         presenter = new WallsListPresenter(this);
 
         // adapter = new WallsViewAdapter(getActivity(), presenter.getWallsByAlbumID(albumID), this);
         adapter = new WallsViewAdapter(context, null, this);
         recyclerView.setAdapter(adapter);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.pink_color),
+                getResources().getColor(R.color.blue_color));
+        swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.app_overlay);
     }
 
     @Override
@@ -108,5 +117,21 @@ public class WallsListFragment extends Fragment {
 
     public int getAlbumID() {
         return albumID;
+    }
+
+    @Override
+    public void onRefresh() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                loadAlbum(albumID);
+                swipeRefreshLayout.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                }, 1000);
+            }
+        }, 500);
     }
 }
