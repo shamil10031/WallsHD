@@ -28,7 +28,8 @@ public class PhotosRequest {
         VKRequest request = new VKRequest("photos.get", VKParameters.from(
                 VKApiConst.OWNER_ID, Constants.COMMUNITY_ID,
                 VKApiConst.ACCESS_TOKEN, Constants.ACCES_TOKEN,
-                VKApiConst.ALBUM_ID, album_id));
+                VKApiConst.ALBUM_ID, album_id,
+                "extended", 1));
         request.executeSyncWithListener(new VKRequest.VKRequestListener() {
             @Override
             public void onComplete(VKResponse response) {

@@ -2,13 +2,27 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.shomazzapp.vavilonWalls.View.WallpaperActivity">
+    tools:context="com.shomazzapp.vavilonWalls.View.WallpaperActivity"
+    android:background="#0000"
+    android:id="@+id/wallpaper_activity_main_frame">
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/viewpager"
+    <View
+        android:id="@+id/wallpaper_activity_back_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:keepScreenOn="false" />
+        android:background="#0000" />
+
+    <ooo.oxo.library.widget.PullBackLayout
+        android:id="@+id/puller"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/viewpager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:keepScreenOn="false" />
+    </ooo.oxo.library.widget.PullBackLayout>
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -21,12 +35,12 @@
             android:layout_height="50dp"
             android:background="#0000"
             android:onClick="onBack"
+            android:paddingBottom="13dp"
             android:paddingEnd="20dp"
             android:paddingStart="16dp"
             android:paddingTop="13dp"
-            android:paddingBottom="13dp"
-            android:src="@mipmap/arrow_back"
-            android:scaleType="centerInside" />
+            android:scaleType="centerInside"
+            android:src="@mipmap/arrow_back" />
 
         <RelativeLayout
             android:id="@+id/bottom_control_panel"
@@ -49,13 +63,13 @@
                 android:id="@+id/splash_line"
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
-                android:layout_above="@id/lay"
+                android:layout_above="@id/wallpaper_buttons_lay"
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
                 android:background="@color/vk_share_gray_line" />
 
             <LinearLayout
-                android:id="@+id/lay"
+                android:id="@+id/wallpaper_buttons_lay"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_alignParentBottom="true">
@@ -66,7 +80,6 @@
                     android:layout_height="match_parent"
                     android:layout_weight="0.5"
                     android:background="#0000"
-                    android:onClick="onSet"
                     android:text="set"
                     android:textColor="#ffff"
                     android:textSize="16sp"
@@ -78,7 +91,6 @@
                     android:layout_height="match_parent"
                     android:layout_weight="0.5"
                     android:background="#0000"
-                    android:onClick="onDownload"
                     android:text="download"
                     android:textColor="#ffff"
                     android:textSize="16sp"

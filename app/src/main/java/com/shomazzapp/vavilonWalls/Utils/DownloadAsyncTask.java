@@ -109,12 +109,10 @@ public class DownloadAsyncTask extends AsyncTask<String, Integer, File> {
     @Override
     protected void onCancelled() {
         super.onCancelled();
-        System.out.println("onCancelled");
     }
 
     @Override
     protected void onPostExecute(File file) {
-        System.out.println("onPostExecute");
         if (m_error != null) {
             m_error.printStackTrace();
             Toast.makeText(context, Constants.ERROR_DOWNLOAD_MSG, Toast.LENGTH_SHORT).show();

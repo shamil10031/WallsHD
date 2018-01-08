@@ -17,13 +17,12 @@ public class WallsListPresenter {
     }
 
     public void loadWallByCategory(int albumID) {
-        Log.d(WallsListFragment.log, "---------- loadWallsByCategory() from presenter called");
         fragment.updateData(getWallsByAlbumID(albumID));
     }
 
     public static ArrayList<VKApiPhoto> getWallsByAlbumID(int albumID) {
         ArrayList<VKApiPhoto> walls = new PhotosRequest(albumID).getPhotos();
-        System.out.println("Album size : " + walls.size() + "  id: " + albumID);
+        Log.d(WallsListFragment.log, "Album size : " + walls.size() + "  id: " + albumID);
         return walls;
     }
 }

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +36,7 @@ public class CategoriesFragment extends Fragment implements SwipeRefreshLayout.O
     public ArrayList<VKApiPhotoAlbum> albums;
 
     private FragmentRegulator fragmentRegulator;
+    private String log = "CategoriesFragment";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -70,7 +72,7 @@ public class CategoriesFragment extends Fragment implements SwipeRefreshLayout.O
         categoriesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                System.out.println("CategoriesFragment omClick! " + adapter.getAlbums().get(i).title);
+                Log.d(log, "omClick: " + adapter.getAlbums().get(i).title);
                 fragmentRegulator.loadWallsListFragment(adapter.getAlbums().get(i).id,
                         adapter.getAlbums().get(i).title);
             }

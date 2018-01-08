@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="walls_view_margins">0.1dp</dimen>
+
+    <integer name="touch_anim_to_y">6</integer>
+    <integer name="touch_anim_duration">300</integer>
+    <dimen name="touch_anim_scale">0.9</dimen>
+
+</resources>

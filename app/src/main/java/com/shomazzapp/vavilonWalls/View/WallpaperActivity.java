@@ -1,53 +1,91 @@
 package com.shomazzapp.vavilonWalls.View;
 
 import android.annotation.SuppressLint;
-import android.app.WallpaperManager;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.Target;
 import com.shomazzapp.vavilonWalls.Requests.CommentRequset;
 import com.shomazzapp.vavilonWalls.Requests.DocumentRequest;
 import com.shomazzapp.vavilonWalls.Utils.Constants;
 import com.shomazzapp.vavilonWalls.Utils.DownloadAsyncTask;
+import com.shomazzapp.vavilonWalls.Utils.SetWallpaperAsyncTask;
 import com.shomazzapp.walls.R;
 import com.vk.sdk.api.model.VKApiComment;
 import com.vk.sdk.api.model.VKApiPhoto;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import ooo.oxo.library.widget.PullBackLayout;
 
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 
-public class WallpaperActivity extends AppCompatActivity {
+public class WallpaperActivity extends AppCompatActivity implements PullBackLayout.Callback {
+    @Override
+    public void onPullStart() {
+        hide(true);
+        Log.d(log, "onPullStart called");
+    }
 
+    @Override
+    public void onPull(float v) {
+        Log.d(log, "onPull called, v = " + v);
+        /*if (v <= 0.7)
+            backView.setAlpha(0.7f - v);*/
+
+        mainFrame.setScaleX(1 - v * 0.3f);
+        mainFrame.setScaleY(1 - v * 0.3f);
+    }
+
+    @Override
+    public void onPullCancel() {
+        Log.d(log, "onPullCancel called");
+        show();
+    }
+
+    @Override
+    public void onPullComplete() {
+        supportFinishAfterTransition();
+    }
+
+    @BindView(R.id.wallpaper_activity_main_frame)
+    FrameLayout mainFrame;
     @BindView(R.id.tag_tv)
     TextView tagsView;
     @BindView(R.id.viewpager)
@@ -56,6 +94,16 @@ public class WallpaperActivity extends AppCompatActivity {
     ImageButton backBtn;
     @BindView(R.id.bottom_control_panel)
     RelativeLayout bottomControlPanel;
+    @BindView(R.id.wallpaper_buttons_lay)
+    LinearLayout buttonsLay;
+    @BindView(R.id.puller)
+    PullBackLayout puller;
+    @BindView(R.id.wallpaper_activity_back_view)
+    View backView;
+    @BindView(R.id.set_btn)
+    Button setButton;
+    @BindView(R.id.download_btn)
+    Button downloadButton;
 
     private Animation fadeout;
     private Animation fadein;
@@ -63,20 +111,10 @@ public class WallpaperActivity extends AppCompatActivity {
     private VKApiPhoto currentWallpaper;
     private MyViewPagerAdapter myViewPagerAdapter;
 
-    private static final int UI_ANIMATION_DELAY = 300;
+    private static final String log = "WallpaperActivity";
+
     private final Handler mHideHandler = new Handler();
-    private final Runnable mHidePart2Runnable = new Runnable() {
-        @SuppressLint("InlinedApi")
-        @Override
-        public void run() {
-            viewPager.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
-                    | View.SYSTEM_UI_FLAG_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-        }
-    };
+
     private final Runnable mShowPart2Runnable = new Runnable() {
         @Override
         public void run() {
@@ -97,31 +135,74 @@ public class WallpaperActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wallpaper);
-        mVisible = true;
         ButterKnife.bind(this);
+        init();
+        puller.setCallback(this);
+    }
+
+    private void init() {
+        mVisible = true;
         wallpapers = (ArrayList<VKApiPhoto>) getIntent().getSerializableExtra(Constants.EXTRA_WALLS);
         currentWallpaper = wallpapers.get(getIntent()
                 .getIntExtra(Constants.EXTRA_WALL_POSITION, 0));
         tagsView.setText(addSpaces(currentWallpaper.text));
+
         myViewPagerAdapter = new MyViewPagerAdapter();
         viewPager.setAdapter(myViewPagerAdapter);
         viewPager.addOnPageChangeListener(viewPagerPageChangeListener);
         viewPager.setCurrentItem(getIntent()
                 .getIntExtra(Constants.EXTRA_WALL_POSITION, 0));
+
         fadeout = AnimationUtils.loadAnimation(this, R.anim.fadeout);
         fadein = AnimationUtils.loadAnimation(this, R.anim.fadein);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             Window w = getWindow();
             w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_IN_OVERSCAN, WindowManager.LayoutParams.FLAG_LAYOUT_IN_OVERSCAN);
         }
+        setOnTouchListenners();
+    }
+
+    private void setOnTouchListenners() {
+        final View.OnTouchListener onTouchListener = new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN)
+                    ((Button) view).setTextSize(12);
+                if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    ((Button) view).setTextSize(16);
+                    switch (view.getId()) {
+                        case R.id.download_btn:
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    onDownload();
+                                }
+                            }, 300);
+                            break;
+                        case R.id.set_btn:
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    onSet();
+                                }
+                            }, 300);
+                            break;
+                    }
+                }
+                return false;
+            }
+        };
+        downloadButton.setOnTouchListener(onTouchListener);
+        setButton.setOnTouchListener(onTouchListener);
     }
 
     private void toggle() {
-        if (mVisible) hide();
+        if (mVisible) hide(false);
         else show();
     }
 
-    private void hide() {
+    private void hide(boolean onlyControlPanels) {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.hide();
@@ -131,10 +212,15 @@ public class WallpaperActivity extends AppCompatActivity {
         backBtn.startAnimation(fadeout);
         backBtn.setVisibility(View.GONE);
         mVisible = false;
-
-        // Schedule a runnable to remove the status and navigation bar after a delay
+        if (!onlyControlPanels) {
+            viewPager.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
+                    | View.SYSTEM_UI_FLAG_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+        }
         mHideHandler.removeCallbacks(mShowPart2Runnable);
-        mHideHandler.postDelayed(mHidePart2Runnable, UI_ANIMATION_DELAY);
     }
 
     @SuppressLint("InlinedApi")
@@ -145,63 +231,56 @@ public class WallpaperActivity extends AppCompatActivity {
         mVisible = true;
 
         // Schedule a runnable to display UI elements after a delay
-        mHideHandler.removeCallbacks(mHidePart2Runnable);
-        mHideHandler.postDelayed(mShowPart2Runnable, UI_ANIMATION_DELAY);
+        mHideHandler.postDelayed(mShowPart2Runnable, 0);
     }
 
     public void onBack(View v) {
         onBackPressed();
     }
 
-    public void onSet(View v) {
-        String url;
-        VKApiComment comment = new CommentRequset(currentWallpaper.id).getComment();
-        if (comment != null && comment.attachments.get(0) != null)
-            url = new DocumentRequest(comment.attachments.get(0).toAttachmentString()
-                    .toString()).getAddress();
-        else url = currentWallpaper.photo_2560;
+    public void onSet() {
+        String url = getAviableLink(currentWallpaper);
         if (getDestinationFileFromUrl(url).exists())
-            setWallpaper(getDestinationFileFromUrl(url));
+            setWallpaper(getDestinationFileFromUrl(url), null);
         else {
             downloadFile(url, new DownloadAsyncTask.AsyncResponse() {
                 @Override
                 public void processFinish(File file) {
-                    setWallpaper(file);
+                    setWallpaper(file, null);
                 }
             });
         }
     }
 
-    public void onDownload(View v) {
-        String url;
-        VKApiComment comment = new CommentRequset(currentWallpaper.id).getComment();
-        if (comment != null && comment.attachments.get(0) != null)
-            url = new DocumentRequest(comment.attachments.get(0).toAttachmentString()
-                    .toString()).getAddress();
-        else url = currentWallpaper.photo_2560;
+    public void onDownload() {
+        String url = getAviableLink(currentWallpaper);
         if (!getDestinationFileFromUrl(url).exists()) downloadFile(url, null);
         else Toast.makeText(this, Constants.FILE_EXISTS_MSG, Toast.LENGTH_SHORT).show();
     }
 
-    public void setWallpaper(File f) {
-        String path = f.getAbsolutePath();
-        Bitmap bmp = BitmapFactory.decodeFile(path);
-        WallpaperManager m = WallpaperManager.getInstance(this);
-        try {
-            m.setBitmap(bmp);
-            Toast.makeText(this, Constants.SUCCES_MSG, Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(this, Constants.ERROR_SETTING_WALL_MSG, Toast.LENGTH_SHORT).show();
-        }
+    public static String getAviableLink(VKApiPhoto currentWallpaper) {
+        String url;
+        Log.d(log, "Comments amount == " + currentWallpaper.comments);
+        if (currentWallpaper.comments > 0) {
+            VKApiComment comment = new CommentRequset(currentWallpaper.id).getComment();
+            if (comment.attachments.get(0) != null)
+                url = new DocumentRequest(comment.attachments.get(0).toAttachmentString()
+                        .toString()).getAddress();
+            else url = MainActivity.getPhotoMaxQualityLink(currentWallpaper);
+        } else url = MainActivity.getPhotoMaxQualityLink(currentWallpaper);
+        return url;
     }
 
-    private void displayWallpaperInfo(int position) {
-        tagsView.setText(addSpaces(wallpapers.get(position).text));
+    public void setWallpaper(File f, SetWallpaperAsyncTask.AsyncResponse delegate) {
+        new SetWallpaperAsyncTask(this, delegate).execute(f);
     }
 
     private void downloadFile(String url, DownloadAsyncTask.AsyncResponse delegate) {
         new DownloadAsyncTask(this, delegate).execute(url);
+    }
+
+    private void displayWallpaperInfo(int position) {
+        tagsView.setText(addSpaces(wallpapers.get(position).text));
     }
 
     public File getDestinationFileFromUrl(String url) {
@@ -212,17 +291,8 @@ public class WallpaperActivity extends AppCompatActivity {
     }
 
     public static String getFileNameFromURL(String urlString) {
-        System.out.println("!!!!!!!!!!!!!!!!!!! TUTTTTUUT: " + urlString);
+        Log.d(log, "Get file name from " + urlString);
         if (urlString != null) {
-            /*try {
-                URL url = new URL(urlString);
-                return URLDecoder.decode(url.getFile(), "UTF-8").
-                        replaceAll("[^A-Za-z0-9_/\\.]", "")
-                        .substring(17, 21) + Constants.FILE_ADDICTION;
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }*/
             if (urlString.startsWith("https://vk"))
                 return urlString.substring(urlString.indexOf("?hash=") + "?hash=".length(),
                         urlString.indexOf("?hash=") + "?hash=".length() + Constants.FILE_NAME_LENGHT)
@@ -283,9 +353,12 @@ public class WallpaperActivity extends AppCompatActivity {
         public Object instantiateItem(ViewGroup container, int position) {
             View view = layoutInflater.inflate(R.layout.image_fullscreen_preview, container, false);
             ImageView imView = view.findViewById(R.id.wallpaper_preview);
+            ProgressBar progressBar = view.findViewById(R.id.progress_bar_fullscreen);
+            progressBar.setVisibility(View.VISIBLE);
             Glide.with(WallpaperActivity.this)
                     .load(wallpapers.get(position).photo_2560)
                     .transition(withCrossFade())
+                    .listener(new MyRequestListenner(progressBar))
                     .thumbnail(0.25f)
                     //.error(R.drawable.ic_ab_app)
                     .apply(options)
@@ -316,4 +389,30 @@ public class WallpaperActivity extends AppCompatActivity {
             container.removeView((View) object);
         }
     }
+
+    private class MyRequestListenner implements RequestListener<Drawable> {
+
+        ProgressBar progressBar;
+        Context context;
+
+        public MyRequestListenner(/*Context context,*/ ProgressBar progressBar) {
+            this.progressBar = progressBar;
+            //this.context = context;
+        }
+
+        @Override
+        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
+            //TODO: Обьявить об ошибке!!
+            System.out.println("Exception ! Model : " + model);
+            e.printStackTrace();
+            return false;
+        }
+
+        @Override
+        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+            progressBar.setVisibility(View.GONE);
+            return false;
+        }
+    }
+
 }

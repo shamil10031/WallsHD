@@ -13,7 +13,7 @@
         android:icon="@mipmap/icon"
         android:label="Vavilon Walls"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat.NoActionBar">
+        android:theme="@style/MainAppTheme">
         <activity
             android:name="com.shomazzapp.vavilonWalls.View.MainActivity"
             android:screenOrientation="portrait">
@@ -33,7 +33,7 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_wallpaper"
             android:screenOrientation="portrait"
-            android:theme="@style/FullscreenTheme" />
+            android:theme="@style/TranscluentTheme" />
     </application>
 
 </manifest>
