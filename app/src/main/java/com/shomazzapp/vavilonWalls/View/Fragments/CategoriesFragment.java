@@ -11,9 +11,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.shomazzapp.vavilonWalls.Requests.AlbumsRequest;
+import com.shomazzapp.vavilonWalls.Utils.Constants;
 import com.shomazzapp.vavilonWalls.Utils.FragmentRegulator;
+import com.shomazzapp.vavilonWalls.Utils.NetworkHelper;
 import com.shomazzapp.vavilonWalls.View.Adapters.CategoriesAdapter;
 import com.shomazzapp.walls.R;
 import com.vk.sdk.api.model.VKApiPhotoAlbum;
@@ -29,6 +33,8 @@ public class CategoriesFragment extends Fragment implements SwipeRefreshLayout.O
     ListView categoriesListView;
     @BindView(R.id.swipe_to_refresh_categories)
     SwipeRefreshLayout swipeRefreshLayout;
+    @BindView(R.id.network_lay)
+    RelativeLayout network_lay;
 
     private CategoriesAdapter adapter;
     private Context context;
@@ -49,12 +55,42 @@ public class CategoriesFragment extends Fragment implements SwipeRefreshLayout.O
                              Bundle savedInstanceState) {
         if (fragmentRegulator != null)
             fragmentRegulator.setToolbarTitle("Categories");
-        if (mainView == null) {
-            mainView = inflater.inflate(R.layout.fragment_categories, container, false);
-            ButterKnife.bind(this, mainView);
-            init();
+        if (NetworkHelper.isOnLine(context)) {
+            if (mainView == null) {
+                initMainView(inflater, container);
+                init();
+            }
+            onNetworkChanged(true);
+        } else {
+            initMainView(inflater, container);
+            onNetworkChanged(false);
         }
         return mainView;
+    }
+
+    public void initMainView(LayoutInflater inflater, ViewGroup container) {
+        mainView = inflater.inflate(R.layout.fragment_categories, container, false);
+        ButterKnife.bind(this, mainView);
+        network_lay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (NetworkHelper.isOnLine(context)) {
+                    onNetworkChanged(true);
+                    init();
+                } else
+                    Toast.makeText(context, Constants.ERROR_NETWORK_MSG, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public void onNetworkChanged(boolean succes) {
+        if (succes) {
+            network_lay.setVisibility(View.GONE);
+            swipeRefreshLayout.setVisibility(View.VISIBLE);
+        } else {
+            network_lay.setVisibility(View.VISIBLE);
+            swipeRefreshLayout.setVisibility(View.GONE);
+        }
     }
 
     public void loadAlbums() {
@@ -84,10 +120,13 @@ public class CategoriesFragment extends Fragment implements SwipeRefreshLayout.O
     }
 
     public void updateData() {
-        loadAlbums();
-        adapter.setAlbums(albums);
-        adapter.notifyDataSetChanged();
-        categoriesListView.smoothScrollToPosition(0);
+        if (NetworkHelper.isOnLine(context)) {
+            onNetworkChanged(true);
+            loadAlbums();
+            adapter.setAlbums(albums);
+            adapter.notifyDataSetChanged();
+            categoriesListView.smoothScrollToPosition(0);
+        } else onNetworkChanged(false);
     }
 
     @Override

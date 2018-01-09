@@ -42,6 +42,7 @@ import com.shomazzapp.vavilonWalls.Requests.CommentRequset;
 import com.shomazzapp.vavilonWalls.Requests.DocumentRequest;
 import com.shomazzapp.vavilonWalls.Utils.Constants;
 import com.shomazzapp.vavilonWalls.Utils.DownloadAsyncTask;
+import com.shomazzapp.vavilonWalls.Utils.NetworkHelper;
 import com.shomazzapp.vavilonWalls.Utils.SetWallpaperAsyncTask;
 import com.shomazzapp.walls.R;
 import com.vk.sdk.api.model.VKApiComment;
@@ -135,9 +136,14 @@ public class WallpaperActivity extends AppCompatActivity implements PullBackLayo
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wallpaper);
-        ButterKnife.bind(this);
-        init();
-        puller.setCallback(this);
+        if (NetworkHelper.isOnLine(this)) {
+            ButterKnife.bind(this);
+            init();
+            puller.setCallback(this);
+        } else {
+            Toast.makeText(this, Constants.ERROR_NETWORK_MSG, Toast.LENGTH_SHORT).show();
+            onBackPressed();
+        }
     }
 
     private void init() {
@@ -239,23 +245,33 @@ public class WallpaperActivity extends AppCompatActivity implements PullBackLayo
     }
 
     public void onSet() {
-        String url = getAviableLink(currentWallpaper);
-        if (getDestinationFileFromUrl(url).exists())
-            setWallpaper(getDestinationFileFromUrl(url), null);
-        else {
-            downloadFile(url, new DownloadAsyncTask.AsyncResponse() {
-                @Override
-                public void processFinish(File file) {
-                    setWallpaper(file, null);
-                }
-            });
+        if (NetworkHelper.isOnLine(this)) {
+            String url = getAviableLink(currentWallpaper);
+            if (getDestinationFileFromUrl(url).exists())
+                setWallpaper(getDestinationFileFromUrl(url), null);
+            else {
+                downloadFile(url, new DownloadAsyncTask.AsyncResponse() {
+                    @Override
+                    public void processFinish(File file) {
+                        setWallpaper(file, null);
+                    }
+                });
+            }
+        } else {
+            Toast.makeText(this, Constants.ERROR_NETWORK_MSG, Toast.LENGTH_SHORT).show();
+            onBackPressed();
         }
     }
 
     public void onDownload() {
-        String url = getAviableLink(currentWallpaper);
-        if (!getDestinationFileFromUrl(url).exists()) downloadFile(url, null);
-        else Toast.makeText(this, Constants.FILE_EXISTS_MSG, Toast.LENGTH_SHORT).show();
+        if (NetworkHelper.isOnLine(this)) {
+            String url = getAviableLink(currentWallpaper);
+            if (!getDestinationFileFromUrl(url).exists()) downloadFile(url, null);
+            else Toast.makeText(this, Constants.FILE_EXISTS_MSG, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, Constants.ERROR_NETWORK_MSG, Toast.LENGTH_SHORT).show();
+            onBackPressed();
+        }
     }
 
     public static String getAviableLink(VKApiPhoto currentWallpaper) {
@@ -322,8 +338,13 @@ public class WallpaperActivity extends AppCompatActivity implements PullBackLayo
 
         @Override
         public void onPageSelected(int position) {
-            currentWallpaper = wallpapers.get(position);
-            displayWallpaperInfo(position);
+            if (NetworkHelper.isOnLine(WallpaperActivity.this)) {
+                currentWallpaper = wallpapers.get(position);
+                displayWallpaperInfo(position);
+            } else {
+                Toast.makeText(WallpaperActivity.this, Constants.ERROR_NETWORK_MSG, Toast.LENGTH_SHORT).show();
+                onBack(null);
+            }
         }
 
         @Override
@@ -358,7 +379,7 @@ public class WallpaperActivity extends AppCompatActivity implements PullBackLayo
             Glide.with(WallpaperActivity.this)
                     .load(wallpapers.get(position).photo_2560)
                     .transition(withCrossFade())
-                    .listener(new MyRequestListenner(progressBar))
+                    .listener(new MyRequestListenner(view.getContext(), progressBar))
                     .thumbnail(0.25f)
                     //.error(R.drawable.ic_ab_app)
                     .apply(options)
@@ -395,16 +416,20 @@ public class WallpaperActivity extends AppCompatActivity implements PullBackLayo
         ProgressBar progressBar;
         Context context;
 
-        public MyRequestListenner(/*Context context,*/ ProgressBar progressBar) {
+        public MyRequestListenner(Context context, ProgressBar progressBar) {
             this.progressBar = progressBar;
-            //this.context = context;
+            this.context = context;
         }
 
         @Override
         public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
-            //TODO: Обьявить об ошибке!!
             System.out.println("Exception ! Model : " + model);
             e.printStackTrace();
+            /*String s;
+            if (NetworkHelper.isOnLine(context)) s = Constants.ERROR_LOAD_MSG;
+            else s = Constants.ERROR_NETWORK_MSG;
+            Toast.makeText(context, s, Toast.LENGTH_SHORT).show();*/
+            progressBar.setVisibility(View.GONE);
             return false;
         }
 

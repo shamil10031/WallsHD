@@ -116,12 +116,12 @@ public class DownloadAsyncTask extends AsyncTask<String, Integer, File> {
         if (m_error != null) {
             m_error.printStackTrace();
             Toast.makeText(context, Constants.ERROR_DOWNLOAD_MSG, Toast.LENGTH_SHORT).show();
-            return;
         } else {
             Toast.makeText(context, Constants.SUCCES_MSG, Toast.LENGTH_SHORT).show();
             if (delegate != null)
                 delegate.processFinish(file);
         }
         progressDialog.hide();
+        return;
     }
 }

@@ -10,9 +10,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.shomazzapp.vavilonWalls.Presenter.WallsListPresenter;
+import com.shomazzapp.vavilonWalls.Utils.Constants;
 import com.shomazzapp.vavilonWalls.Utils.FragmentRegulator;
+import com.shomazzapp.vavilonWalls.Utils.NetworkHelper;
 import com.shomazzapp.vavilonWalls.View.Adapters.WallsViewAdapter;
 import com.shomazzapp.walls.R;
 import com.vk.sdk.api.model.VKApiPhoto;
@@ -73,8 +76,10 @@ public class WallsListFragment extends Fragment implements SwipeRefreshLayout.On
     }
 
     public void updateData(ArrayList<VKApiPhoto> walls) {
-        adapter.updateData(walls);
-        recyclerView.smoothScrollToPosition(0);
+        if (NetworkHelper.isOnLine(this.context)) {
+            adapter.updateData(walls);
+            recyclerView.smoothScrollToPosition(0);
+        } else Toast.makeText(this.context, Constants.ERROR_NETWORK_MSG, Toast.LENGTH_SHORT).show();
     }
 
     public void init() {

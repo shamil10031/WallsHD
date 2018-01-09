@@ -64,12 +64,12 @@ public class SetWallpaperAsyncTask extends AsyncTask<File, Void, Void> {
         if (m_error != null) {
             m_error.printStackTrace();
             Toast.makeText(context, Constants.ERROR_SETTING_WALL_MSG, Toast.LENGTH_SHORT).show();
-            return;
         } else {
             Toast.makeText(context, Constants.SUCCES_MSG, Toast.LENGTH_SHORT).show();
             if (delegate != null)
                 delegate.processFinish();
         }
         progressDialog.hide();
+        return;
     }
 }

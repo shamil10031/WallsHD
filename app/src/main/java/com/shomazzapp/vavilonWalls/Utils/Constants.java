@@ -9,6 +9,8 @@ public class Constants {
     public static final String FOLDER_NAME = "Vavilon Walls";
     public static final int NAVHEADER_ALBUM_ID = 250371492;
 
+    public static final String ERROR_NETWORK_MSG = "Connect to the internet!";
+    public static final String ERROR_LOAD_MSG = "Unable to load wallpaper :(";
     public static final String ERROR_DOWNLOAD_MSG = "Try download later :(";
     public static final String ERROR_SETTING_WALL_MSG = "Try to set later :(";
     public static final String SUCCES_MSG = "Succes!";
