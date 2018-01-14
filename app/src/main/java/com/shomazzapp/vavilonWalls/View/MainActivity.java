@@ -94,7 +94,9 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                         android.os.Process.killProcess(android.os.Process.myPid());
-                        System.exit(1);
+                        finish();
+                        finishAffinity();
+                        System.exit(0);
                     }
                 });
                 ab.setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -106,7 +108,6 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
                 ab.show();
             } else loadCategoriesFragment();   // instanceof WallsListFragment
         } catch (IllegalStateException e) {
-            System.out.println("EEEEEEEEEEERRRRRRRORRRRRRR");
             e.printStackTrace();
         }
     }
@@ -173,10 +174,13 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
 
     @Override
     public void loadWallsListFragment(int albumId, String category) {
+        Log.d(log, albumId + "   " + category);
+        wallsListFragment.setForSavedWalls(false);
         currentFragment = wallsListFragment;
         setToolbarTitle(category);
         wallsListFragment.setAlbumID(albumId);
         loadFragment(wallsListFragment);
+        wallsListFragment.changeToInternetWalls();
     }
 
     @Override
@@ -184,6 +188,7 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
         currentFragment = categoriesFragment;
         setToolbarTitle("Categories");
         loadFragment(categoriesFragment);
+        navView.setCheckedItem(R.id.drawer_categories);
     }
 
     NavigationView.OnNavigationItemSelectedListener navClickListenner =
@@ -196,9 +201,12 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
                             drawer.closeDrawers();
                             break;
                         case R.id.drawer_saved_walls:
-                            //TODO: display saved walls
-                            Toast.makeText(MainActivity.this, "Saved Walls", Toast.LENGTH_SHORT)
-                                    .show();
+                            currentFragment = wallsListFragment;
+                            loadFragment(wallsListFragment);
+                            wallsListFragment.setForSavedWalls(true);
+                            wallsListFragment.changeToSavedWalls();
+                            wallsListFragment.loadSavedWalls();
+                            setToolbarTitle("Saved");
                             drawer.closeDrawers();
                             break;
                         case R.id.drawer_remove_ad:

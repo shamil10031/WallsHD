@@ -20,16 +20,16 @@ import com.shomazzapp.vavilonWalls.Utils.Constants;
 import com.shomazzapp.vavilonWalls.View.Fragments.WallsListFragment;
 import com.shomazzapp.vavilonWalls.View.WallpaperActivity;
 import com.shomazzapp.walls.R;
-import com.vk.sdk.api.model.VKApiPhoto;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 
-public class WallsViewAdapter extends RecyclerView.Adapter<WallsViewAdapter.ViewHolder> {
+public class SavedWallsViewAdapter extends RecyclerView.Adapter<SavedWallsViewAdapter.ViewHolder> {
 
     private Context context;
-    private ArrayList<VKApiPhoto> wallpapers;
+    private ArrayList<File> wallpapers;
     private WallsListFragment wallsListFragment;
 
     private RequestOptions options = new RequestOptions()
@@ -52,13 +52,13 @@ public class WallsViewAdapter extends RecyclerView.Adapter<WallsViewAdapter.View
         }
     };
 
-    public WallsViewAdapter(Context context, ArrayList<VKApiPhoto> wallpapers, WallsListFragment fragment) {
+    public SavedWallsViewAdapter(Context context, ArrayList<File> wallpapers, WallsListFragment fragment) {
         this.context = context;
         this.wallsListFragment = fragment;
         this.wallpapers = wallpapers;
     }
 
-    public void updateData(ArrayList<VKApiPhoto> walls) {
+    public void updateData(ArrayList<File> walls) {
         this.wallpapers = walls;
         notifyDataSetChanged();
     }
@@ -75,7 +75,7 @@ public class WallsViewAdapter extends RecyclerView.Adapter<WallsViewAdapter.View
     public void onBindViewHolder(ViewHolder holder, int position) {
         if (wallpapers != null)
             Glide.with(context)
-                    .load(wallpapers.get(position).photo_604)
+                    .load(wallpapers.get(position))
                     .transition(withCrossFade())
                     .thumbnail(0.17f)
                     .listener(requestListener)
@@ -105,7 +105,7 @@ public class WallsViewAdapter extends RecyclerView.Adapter<WallsViewAdapter.View
                 Intent intent = new Intent(context, WallpaperActivity.class);
                 intent.putExtra(Constants.EXTRA_WALLS, wallpapers);
                 intent.putExtra(Constants.EXTRA_WALL_POSITION, position);
-                intent.putExtra(Constants.EXTRA_IS_FOR_SAVED_WALLS, false);
+                intent.putExtra(Constants.EXTRA_IS_FOR_SAVED_WALLS, true);
                 context.startActivity(intent);
             }
         }

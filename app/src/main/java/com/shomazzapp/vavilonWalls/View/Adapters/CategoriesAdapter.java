@@ -71,7 +71,7 @@ public class CategoriesAdapter extends BaseAdapter {
     }
 
     private RequestOptions options = new RequestOptions()
-            .diskCacheStrategy(DiskCacheStrategy.NONE)
+            .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
             .placeholder(R.mipmap.icon)
             .error(R.mipmap.icon);
 

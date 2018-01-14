@@ -5,7 +5,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +20,9 @@ import com.shomazzapp.vavilonWalls.Utils.NetworkHelper;
 import com.shomazzapp.vavilonWalls.View.Adapters.CategoriesAdapter;
 import com.shomazzapp.walls.R;
 import com.vk.sdk.api.model.VKApiPhotoAlbum;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -44,10 +46,18 @@ public class CategoriesFragment extends Fragment implements SwipeRefreshLayout.O
     private FragmentRegulator fragmentRegulator;
     private String log = "CategoriesFragment";
 
+    private VKApiPhotoAlbum newAlbum;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.context = getActivity();
+        try {
+            newAlbum = new VKApiPhotoAlbum(new JSONObject(
+                    "{ \n\"id\": " + Constants.NEW_WALLS_ALBUM_ID + ", \n\"title\": \"New\"}"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -95,6 +105,7 @@ public class CategoriesFragment extends Fragment implements SwipeRefreshLayout.O
 
     public void loadAlbums() {
         this.albums = new AlbumsRequest().getAlbums();
+        albums.add(0, newAlbum);
     }
 
     public void init() {
@@ -102,13 +113,13 @@ public class CategoriesFragment extends Fragment implements SwipeRefreshLayout.O
         swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.pink_color),
                 getResources().getColor(R.color.blue_color));
         swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.app_overlay);
-        albums = new AlbumsRequest().getAlbums();
+
+        loadAlbums();
         adapter = new CategoriesAdapter(getActivity(), albums);
         categoriesListView.setAdapter(adapter);
         categoriesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Log.d(log, "omClick: " + adapter.getAlbums().get(i).title);
                 fragmentRegulator.loadWallsListFragment(adapter.getAlbums().get(i).id,
                         adapter.getAlbums().get(i).title);
             }

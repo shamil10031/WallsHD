@@ -58,32 +58,6 @@ import ooo.oxo.library.widget.PullBackLayout;
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 
 public class WallpaperActivity extends AppCompatActivity implements PullBackLayout.Callback {
-    @Override
-    public void onPullStart() {
-        hide(true);
-        Log.d(log, "onPullStart called");
-    }
-
-    @Override
-    public void onPull(float v) {
-        Log.d(log, "onPull called, v = " + v);
-        /*if (v <= 0.7)
-            backView.setAlpha(0.7f - v);*/
-
-        mainFrame.setScaleX(1 - v * 0.3f);
-        mainFrame.setScaleY(1 - v * 0.3f);
-    }
-
-    @Override
-    public void onPullCancel() {
-        Log.d(log, "onPullCancel called");
-        show();
-    }
-
-    @Override
-    public void onPullComplete() {
-        supportFinishAfterTransition();
-    }
 
     @BindView(R.id.wallpaper_activity_main_frame)
     FrameLayout mainFrame;
@@ -106,16 +80,18 @@ public class WallpaperActivity extends AppCompatActivity implements PullBackLayo
     @BindView(R.id.download_btn)
     Button downloadButton;
 
+    private boolean isForSavedWalls;
     private Animation fadeout;
     private Animation fadein;
     private ArrayList<VKApiPhoto> wallpapers;
     private VKApiPhoto currentWallpaper;
+    private ArrayList<File> savedWallpapers;
+    private int currentSavedWallPosition;
     private MyViewPagerAdapter myViewPagerAdapter;
 
     private static final String log = "WallpaperActivity";
 
     private final Handler mHideHandler = new Handler();
-
     private final Runnable mShowPart2Runnable = new Runnable() {
         @Override
         public void run() {
@@ -136,6 +112,7 @@ public class WallpaperActivity extends AppCompatActivity implements PullBackLayo
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wallpaper);
+        isForSavedWalls = getIntent().getBooleanExtra(Constants.EXTRA_IS_FOR_SAVED_WALLS, true);
         if (NetworkHelper.isOnLine(this)) {
             ButterKnife.bind(this);
             init();
@@ -148,16 +125,23 @@ public class WallpaperActivity extends AppCompatActivity implements PullBackLayo
 
     private void init() {
         mVisible = true;
-        wallpapers = (ArrayList<VKApiPhoto>) getIntent().getSerializableExtra(Constants.EXTRA_WALLS);
-        currentWallpaper = wallpapers.get(getIntent()
-                .getIntExtra(Constants.EXTRA_WALL_POSITION, 0));
-        tagsView.setText(addSpaces(currentWallpaper.text));
-
         myViewPagerAdapter = new MyViewPagerAdapter();
+        if (!isForSavedWalls) {
+            wallpapers = (ArrayList<VKApiPhoto>) getIntent().getSerializableExtra(Constants.EXTRA_WALLS);
+            currentWallpaper = wallpapers.get(getIntent()
+                    .getIntExtra(Constants.EXTRA_WALL_POSITION, 0));
+            tagsView.setText(addSpaces(currentWallpaper.text));
+            downloadButton.setVisibility(View.VISIBLE);
+            viewPager.addOnPageChangeListener(viewPagerPageChangeListener);
+        } else {
+            savedWallpapers = (ArrayList<File>) getIntent().getSerializableExtra(Constants.EXTRA_WALLS);
+            downloadButton.setVisibility(View.GONE);
+            viewPager.addOnPageChangeListener(viewPagerPageChangeListenerSaved);
+        }
+        currentSavedWallPosition = getIntent()
+                .getIntExtra(Constants.EXTRA_WALL_POSITION, 0);
         viewPager.setAdapter(myViewPagerAdapter);
-        viewPager.addOnPageChangeListener(viewPagerPageChangeListener);
-        viewPager.setCurrentItem(getIntent()
-                .getIntExtra(Constants.EXTRA_WALL_POSITION, 0));
+        viewPager.setCurrentItem(currentSavedWallPosition);
 
         fadeout = AnimationUtils.loadAnimation(this, R.anim.fadeout);
         fadein = AnimationUtils.loadAnimation(this, R.anim.fadein);
@@ -190,7 +174,8 @@ public class WallpaperActivity extends AppCompatActivity implements PullBackLayo
                             new Handler().postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
-                                    onSet();
+                                    if (!isForSavedWalls) onSet();
+                                    else onSet(savedWallpapers.get(currentSavedWallPosition));
                                 }
                             }, 300);
                             break;
@@ -199,7 +184,8 @@ public class WallpaperActivity extends AppCompatActivity implements PullBackLayo
                 return false;
             }
         };
-        downloadButton.setOnTouchListener(onTouchListener);
+        if (!isForSavedWalls)
+            downloadButton.setOnTouchListener(onTouchListener);
         setButton.setOnTouchListener(onTouchListener);
     }
 
@@ -261,6 +247,10 @@ public class WallpaperActivity extends AppCompatActivity implements PullBackLayo
             Toast.makeText(this, Constants.ERROR_NETWORK_MSG, Toast.LENGTH_SHORT).show();
             onBackPressed();
         }
+    }
+
+    public void onSet(File file) {
+        setWallpaper(file, null);
     }
 
     public void onDownload() {
@@ -333,30 +323,32 @@ public class WallpaperActivity extends AppCompatActivity implements PullBackLayo
         return builder.toString();
     }
 
+    @Override
+    public void onPullStart() {
+        hide(true);
+        Log.d(log, "onPullStart called");
+    }
 
-    ViewPager.OnPageChangeListener viewPagerPageChangeListener = new ViewPager.OnPageChangeListener() {
+    @Override
+    public void onPull(float v) {
+        Log.d(log, "onPull called, v = " + v);
+        /*if (v <= 0.7)
+            backView.setAlpha(0.7f - v);*/
 
-        @Override
-        public void onPageSelected(int position) {
-            if (NetworkHelper.isOnLine(WallpaperActivity.this)) {
-                currentWallpaper = wallpapers.get(position);
-                displayWallpaperInfo(position);
-            } else {
-                Toast.makeText(WallpaperActivity.this, Constants.ERROR_NETWORK_MSG, Toast.LENGTH_SHORT).show();
-                onBack(null);
-            }
-        }
+        mainFrame.setScaleX(1 - v * 0.3f);
+        mainFrame.setScaleY(1 - v * 0.3f);
+    }
 
-        @Override
-        public void onPageScrolled(int arg0, float arg1, int arg2) {
+    @Override
+    public void onPullCancel() {
+        Log.d(log, "onPullCancel called");
+        show();
+    }
 
-        }
-
-        @Override
-        public void onPageScrollStateChanged(int arg0) {
-
-        }
-    };
+    @Override
+    public void onPullComplete() {
+        supportFinishAfterTransition();
+    }
 
     public class MyViewPagerAdapter extends PagerAdapter {
 
@@ -377,7 +369,7 @@ public class WallpaperActivity extends AppCompatActivity implements PullBackLayo
             ProgressBar progressBar = view.findViewById(R.id.progress_bar_fullscreen);
             progressBar.setVisibility(View.VISIBLE);
             Glide.with(WallpaperActivity.this)
-                    .load(wallpapers.get(position).photo_2560)
+                    .load(isForSavedWalls ? savedWallpapers.get(position) : wallpapers.get(position).photo_2560)
                     .transition(withCrossFade())
                     .listener(new MyRequestListenner(view.getContext(), progressBar))
                     .thumbnail(0.25f)
@@ -396,7 +388,8 @@ public class WallpaperActivity extends AppCompatActivity implements PullBackLayo
 
         @Override
         public int getCount() {
-            return wallpapers.size();
+            if (isForSavedWalls) return savedWallpapers.size();
+            else return wallpapers.size();
         }
 
         @Override
@@ -439,5 +432,47 @@ public class WallpaperActivity extends AppCompatActivity implements PullBackLayo
             return false;
         }
     }
+
+    ViewPager.OnPageChangeListener viewPagerPageChangeListener = new ViewPager.OnPageChangeListener() {
+
+        @Override
+        public void onPageSelected(int position) {
+            if (NetworkHelper.isOnLine(WallpaperActivity.this)) {
+                currentWallpaper = wallpapers.get(position);
+                displayWallpaperInfo(position);
+            } else {
+                Toast.makeText(WallpaperActivity.this, Constants.ERROR_NETWORK_MSG, Toast.LENGTH_SHORT).show();
+                onBack(null);
+            }
+        }
+
+        @Override
+        public void onPageScrolled(int arg0, float arg1, int arg2) {
+
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int arg0) {
+
+        }
+    };
+
+    ViewPager.OnPageChangeListener viewPagerPageChangeListenerSaved = new ViewPager.OnPageChangeListener() {
+
+        @Override
+        public void onPageSelected(int position) {
+            currentSavedWallPosition = position;
+        }
+
+        @Override
+        public void onPageScrolled(int arg0, float arg1, int arg2) {
+
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int arg0) {
+
+        }
+    };
 
 }
