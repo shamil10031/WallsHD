@@ -45,14 +45,14 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/textView"
                 android:layout_centerHorizontal="true"
-                android:text=" Tap to reload!"
+                android:text=" Swipe to reload!"
                 android:textColor="#000000"
                 android:textSize="14sp" />
 
         </RelativeLayout>
 
         <android.support.v4.widget.SwipeRefreshLayout
-            android:visibility="gone"
+            android:visibility="visible"
             android:id="@+id/swipe_to_refresh_categories"
             android:layout_width="match_parent"
             android:layout_height="match_parent">

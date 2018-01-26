@@ -12,13 +12,17 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.shomazzapp.vavilonWalls.Presenter.WallsListPresenter;
 import com.shomazzapp.vavilonWalls.Utils.Constants;
 import com.shomazzapp.vavilonWalls.Utils.FragmentRegulator;
+import com.shomazzapp.vavilonWalls.Utils.MyOnScrollListener;
 import com.shomazzapp.vavilonWalls.Utils.NetworkHelper;
+import com.shomazzapp.vavilonWalls.Utils.WallsLoader;
 import com.shomazzapp.vavilonWalls.View.Adapters.SavedWallsViewAdapter;
 import com.shomazzapp.vavilonWalls.View.Adapters.WallsViewAdapter;
 import com.shomazzapp.walls.R;
@@ -30,24 +34,27 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class WallsListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+public class WallsListFragment extends Fragment implements WallsLoader, SwipeRefreshLayout.OnRefreshListener {
 
-    private int albumID;
-    private boolean isForSavedWalls;
-
-    private FragmentRegulator fragmentRegulator;
-
+    public static String log = "wallslist";
     @BindView(R.id.walls_view)
     RecyclerView recyclerView;
     @BindView(R.id.swipe_to_refresh_walls)
     SwipeRefreshLayout swipeRefreshLayout;
+    @BindView(R.id.network_lay_saved_walls)
+    RelativeLayout networkLay;
+    @BindView(R.id.tView)
+    TextView textView;
+    private int albumID;
+    private boolean isForSavedWalls;
+    private FragmentRegulator fragmentRegulator;
     private WallsViewAdapter wallsViewAdapter;
     private SavedWallsViewAdapter savedWallsViewAdapter;
     private Context context;
     private WallsListPresenter presenter;
     private View mainView;
-
-    public static String log = "wallslist";
+    private RecyclerView.LayoutManager layoutManager;
+    private MyOnScrollListener onScrollListener;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -64,28 +71,54 @@ public class WallsListFragment extends Fragment implements SwipeRefreshLayout.On
             init();
         }
         if (!isForSavedWalls)
-            loadAlbum(albumID);
+            loadAlbum(albumID, 0);
         else loadSavedWalls();
         return mainView;
     }
 
-    public void clearMainView() {
-        mainView = null;
+    @Override
+    public void setCurrentWalls(ArrayList<VKApiPhoto> walls) {
+        //((MainActivity) getActivity()).
+    }
+
+    @Override
+    public boolean isNewCategory() {
+        return presenter.isNewCategory();
+    }
+
+    @Override
+    public ArrayList<VKApiPhoto> getWallsByCategory(int albumID, int offset) {
+        return presenter.getWallsByCategory(albumID, offset);
+    }
+
+    public void onNetworkChanged(boolean succes) {
+        textView.setText(isForSavedWalls ? "You have no saved walls "
+                : "Something wrong with network connection :(");
+        if (succes) {
+            networkLay.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        } else {
+            networkLay.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        }
     }
 
     public void setFragmentRegulator(FragmentRegulator changer) {
         this.fragmentRegulator = changer;
     }
 
-    /*public void openWallpaperFragment(ArrayList<VKApiPhoto> wallpapers, int position) {
-        wallpaperFragment.setWalls(wallpapers);
-        wallpaperFragment.setCurrentPosition(position);
-        fragmentRegulator.changeFragment(wallpaperFragment);
-    }*/
-
-    public void loadAlbum(int albumID) {
+    public void loadAlbum(int albumID, int offset) {
         if (presenter != null)
-            presenter.loadWallByCategory(albumID);
+            presenter.loadWallByCategory(albumID, offset);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (onScrollListener != null) {
+            onScrollListener.reset(0, true);
+            Log.d(log, "onResume()!");
+        }
     }
 
     public void loadSavedWalls() {
@@ -97,16 +130,22 @@ public class WallsListFragment extends Fragment implements SwipeRefreshLayout.On
         if (NetworkHelper.isOnLine(this.context)) {
             wallsViewAdapter.updateData(walls);
             recyclerView.smoothScrollToPosition(0);
-        } else Toast.makeText(this.context, Constants.ERROR_NETWORK_MSG, Toast.LENGTH_SHORT).show();
+            onNetworkChanged(true);
+        } else {
+            onNetworkChanged(false);
+            Toast.makeText(this.context, Constants.ERROR_NETWORK_MSG, Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void updateSavedWallsData(ArrayList<File> walls) {
+        onNetworkChanged(true);
+        if (walls.size() < 1) onNetworkChanged(false);
         savedWallsViewAdapter.updateData(walls);
         recyclerView.smoothScrollToPosition(0);
     }
 
     public void init() {
-        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(context, 3);
+        layoutManager = new GridLayoutManager(context, 3);
         layoutManager.setAutoMeasureEnabled(true);
         recyclerView.setLayoutManager(layoutManager);
         presenter = new WallsListPresenter(this);
@@ -114,6 +153,13 @@ public class WallsListFragment extends Fragment implements SwipeRefreshLayout.On
         if (!isForSavedWalls) {
             wallsViewAdapter = new WallsViewAdapter(context, null, this);
             recyclerView.setAdapter(wallsViewAdapter);
+            onScrollListener = new MyOnScrollListener((GridLayoutManager) layoutManager) {
+                @Override
+                public void onLoadMore() {
+                    wallsViewAdapter.loadMore();
+                }
+            };
+            //recyclerView.setOnScrollListener(onScrollListener);
         } else {
             savedWallsViewAdapter = new SavedWallsViewAdapter(context, null, this);
             recyclerView.setAdapter(savedWallsViewAdapter);
@@ -161,7 +207,6 @@ public class WallsListFragment extends Fragment implements SwipeRefreshLayout.On
     @Override
     public void onDetach() {
         super.onDetach();
-        //mainView = null;
         isForSavedWalls = false;
         Glide.get(context).clearMemory();
         new AsyncTask<Void, Void, Void>() {
@@ -174,12 +219,12 @@ public class WallsListFragment extends Fragment implements SwipeRefreshLayout.On
         }.execute();
     }
 
-    public void setAlbumID(int id) {
-        this.albumID = id;
-    }
-
     public int getAlbumID() {
         return albumID;
+    }
+
+    public void setAlbumID(int id) {
+        this.albumID = id;
     }
 
     @Override
@@ -187,7 +232,7 @@ public class WallsListFragment extends Fragment implements SwipeRefreshLayout.On
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (!isForSavedWalls) loadAlbum(albumID);
+                if (!isForSavedWalls) loadAlbum(albumID, 0);
                 else loadSavedWalls();
                 swipeRefreshLayout.postDelayed(new Runnable() {
                     @Override

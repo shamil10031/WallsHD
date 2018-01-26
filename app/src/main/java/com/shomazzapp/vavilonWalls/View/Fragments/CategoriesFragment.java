@@ -5,13 +5,13 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import com.shomazzapp.vavilonWalls.Requests.AlbumsRequest;
 import com.shomazzapp.vavilonWalls.Utils.Constants;
@@ -31,18 +31,16 @@ import butterknife.ButterKnife;
 
 public class CategoriesFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
+    public ArrayList<VKApiPhotoAlbum> albums;
     @BindView(R.id.categories_listview)
     ListView categoriesListView;
     @BindView(R.id.swipe_to_refresh_categories)
     SwipeRefreshLayout swipeRefreshLayout;
     @BindView(R.id.network_lay)
     RelativeLayout network_lay;
-
     private CategoriesAdapter adapter;
     private Context context;
     private View mainView;
-    public ArrayList<VKApiPhotoAlbum> albums;
-
     private FragmentRegulator fragmentRegulator;
     private String log = "CategoriesFragment";
 
@@ -66,14 +64,12 @@ public class CategoriesFragment extends Fragment implements SwipeRefreshLayout.O
         if (fragmentRegulator != null)
             fragmentRegulator.setToolbarTitle("Categories");
         if (NetworkHelper.isOnLine(context)) {
-            if (mainView == null) {
-                initMainView(inflater, container);
-                init();
-            }
+            if (mainView == null) init(inflater, container);
             onNetworkChanged(true);
         } else {
             initMainView(inflater, container);
             onNetworkChanged(false);
+            initOnRefresher();
         }
         return mainView;
     }
@@ -81,41 +77,35 @@ public class CategoriesFragment extends Fragment implements SwipeRefreshLayout.O
     public void initMainView(LayoutInflater inflater, ViewGroup container) {
         mainView = inflater.inflate(R.layout.fragment_categories, container, false);
         ButterKnife.bind(this, mainView);
-        network_lay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (NetworkHelper.isOnLine(context)) {
-                    onNetworkChanged(true);
-                    init();
-                } else
-                    Toast.makeText(context, Constants.ERROR_NETWORK_MSG, Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     public void onNetworkChanged(boolean succes) {
         if (succes) {
             network_lay.setVisibility(View.GONE);
-            swipeRefreshLayout.setVisibility(View.VISIBLE);
+            categoriesListView.setVisibility(View.VISIBLE);
         } else {
             network_lay.setVisibility(View.VISIBLE);
-            swipeRefreshLayout.setVisibility(View.GONE);
+            categoriesListView.setVisibility(View.GONE);
         }
     }
 
     public void loadAlbums() {
         this.albums = new AlbumsRequest().getAlbums();
         albums.add(0, newAlbum);
+        Log.d(log, " loadAlbums : Albums size = " + albums.size());
     }
 
-    public void init() {
+    public void initOnRefresher() {
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.pink_color),
                 getResources().getColor(R.color.blue_color));
         swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.app_overlay);
+    }
 
-        loadAlbums();
-        adapter = new CategoriesAdapter(getActivity(), albums);
+    public void setListView() {
+        if (adapter == null) adapter = new CategoriesAdapter(getActivity(), albums);
+        else adapter.setAlbums(albums);
+        adapter.notifyDataSetChanged();
         categoriesListView.setAdapter(adapter);
         categoriesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -124,6 +114,14 @@ public class CategoriesFragment extends Fragment implements SwipeRefreshLayout.O
                         adapter.getAlbums().get(i).title);
             }
         });
+        categoriesListView.smoothScrollToPosition(0);
+    }
+
+    public void init(LayoutInflater inflater, ViewGroup container) {
+        initMainView(inflater, container);
+        initOnRefresher();
+        loadAlbums();
+        setListView();
     }
 
     public void setFragmentRegulator(FragmentRegulator changer) {
@@ -132,11 +130,10 @@ public class CategoriesFragment extends Fragment implements SwipeRefreshLayout.O
 
     public void updateData() {
         if (NetworkHelper.isOnLine(context)) {
-            onNetworkChanged(true);
             loadAlbums();
-            adapter.setAlbums(albums);
-            adapter.notifyDataSetChanged();
-            categoriesListView.smoothScrollToPosition(0);
+            onNetworkChanged(true);
+            setListView();
+            fragmentRegulator.reloadHeader();
         } else onNetworkChanged(false);
     }
 
@@ -152,6 +149,10 @@ public class CategoriesFragment extends Fragment implements SwipeRefreshLayout.O
 
     @Override
     public void onRefresh() {
+        if (NetworkHelper.isOnLine(context))
+            onNetworkChanged(true);
+        else onNetworkChanged(false);
+        //init();
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {

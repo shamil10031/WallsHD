@@ -41,9 +41,10 @@ import com.bumptech.glide.request.target.Target;
 import com.shomazzapp.vavilonWalls.Requests.CommentRequset;
 import com.shomazzapp.vavilonWalls.Requests.DocumentRequest;
 import com.shomazzapp.vavilonWalls.Utils.Constants;
-import com.shomazzapp.vavilonWalls.Utils.DownloadAsyncTask;
 import com.shomazzapp.vavilonWalls.Utils.NetworkHelper;
-import com.shomazzapp.vavilonWalls.Utils.SetWallpaperAsyncTask;
+import com.shomazzapp.vavilonWalls.Utils.Tasks.DeleteFileAsyncTask;
+import com.shomazzapp.vavilonWalls.Utils.Tasks.DownloadAsyncTask;
+import com.shomazzapp.vavilonWalls.Utils.Tasks.SetWallpaperAsyncTask;
 import com.shomazzapp.walls.R;
 import com.vk.sdk.api.model.VKApiComment;
 import com.vk.sdk.api.model.VKApiPhoto;
@@ -59,6 +60,8 @@ import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOption
 
 public class WallpaperActivity extends AppCompatActivity implements PullBackLayout.Callback {
 
+    private static final String log = "WallpaperActivity";
+    private final Handler mHideHandler = new Handler();
     @BindView(R.id.wallpaper_activity_main_frame)
     FrameLayout mainFrame;
     @BindView(R.id.tag_tv)
@@ -79,23 +82,13 @@ public class WallpaperActivity extends AppCompatActivity implements PullBackLayo
     Button setButton;
     @BindView(R.id.download_btn)
     Button downloadButton;
-
+    private boolean isNewCategory;
     private boolean isForSavedWalls;
     private Animation fadeout;
     private Animation fadein;
-    private ArrayList<VKApiPhoto> wallpapers;
-    private VKApiPhoto currentWallpaper;
-    private ArrayList<File> savedWallpapers;
-    private int currentSavedWallPosition;
-    private MyViewPagerAdapter myViewPagerAdapter;
-
-    private static final String log = "WallpaperActivity";
-
-    private final Handler mHideHandler = new Handler();
     private final Runnable mShowPart2Runnable = new Runnable() {
         @Override
         public void run() {
-            // Delayed display of UI elements
             ActionBar actionBar = getSupportActionBar();
             if (actionBar != null) {
                 actionBar.show();
@@ -106,36 +99,122 @@ public class WallpaperActivity extends AppCompatActivity implements PullBackLayo
             backBtn.setVisibility(View.VISIBLE);
         }
     };
+    private ArrayList<VKApiPhoto> wallpapers;
+    private VKApiPhoto currentWallpaper;
+    ViewPager.OnPageChangeListener viewPagerPageChangeListener = new ViewPager.OnPageChangeListener() {
+
+        @Override
+        public void onPageSelected(int position) {
+            if (NetworkHelper.isOnLine(WallpaperActivity.this)) {
+                currentWallpaper = wallpapers.get(position);
+                displayWallpaperInfo(position);
+            } else {
+                Toast.makeText(WallpaperActivity.this, Constants.ERROR_NETWORK_MSG, Toast.LENGTH_SHORT).show();
+                onBack(null);
+            }
+        }
+
+        @Override
+        public void onPageScrolled(int arg0, float arg1, int arg2) {
+
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int arg0) {
+
+        }
+    };
+    private ArrayList<File> savedWallpapers;
+    private int currentSavedWallPosition;
+    ViewPager.OnPageChangeListener viewPagerPageChangeListenerSaved = new ViewPager.OnPageChangeListener() {
+
+        @Override
+        public void onPageSelected(int position) {
+            currentSavedWallPosition = position;
+        }
+
+        @Override
+        public void onPageScrolled(int arg0, float arg1, int arg2) {
+
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int arg0) {
+
+        }
+    };
+    private MyViewPagerAdapter myViewPagerAdapter;
     private boolean mVisible;
+
+    public static String getAviableLink(VKApiPhoto currentWallpaper, boolean isNewCategory) {
+        String url;
+        Log.d(log, "Comments amount == " + currentWallpaper.comments
+                + "  album id = " + currentWallpaper.album_id + "  isNewCategory = " + isNewCategory);
+        if (currentWallpaper.comments > 0 || isNewCategory) {
+            VKApiComment comment = new CommentRequset(currentWallpaper.id).getComment();
+            if (comment != null && comment.attachments.get(0) != null) {
+                url = new DocumentRequest(comment.attachments.get(0).toAttachmentString()
+                        .toString()).getAddress();
+                Log.d(log, "download original photo");
+            } else url = MainActivity.getPhotoMaxQualityLink(currentWallpaper);
+        } else url = MainActivity.getPhotoMaxQualityLink(currentWallpaper);
+        return url;
+    }
+
+    public static String getFileNameFromURL(String urlString) {
+        Log.d(log, "Get file name from " + urlString);
+        if (urlString != null) {
+            if (urlString.startsWith("https://vk"))
+                return urlString.substring(urlString.indexOf("?hash=") + "?hash=".length(),
+                        urlString.indexOf("?hash=") + "?hash=".length() + Constants.FILE_NAME_LENGHT)
+                        + Constants.FILE_ADDICTION;
+            else return urlString.substring(urlString.length() - 4 - Constants.FILE_NAME_LENGHT,
+                    urlString.length() - 4) + Constants.FILE_ADDICTION;
+        } else return null;
+    }
+
+    public static String addSpaces(String oldString) {
+        String newString = oldString;
+        StringBuilder builder = new StringBuilder(newString);
+        int i = 1;
+        while (i < newString.length()) {
+            if (builder.charAt(i) == ' '
+                    && builder.charAt(i - 1) != ' ') {
+                i++;
+                builder.insert(i, "   ");
+            }
+            i++;
+        }
+        return builder.toString();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wallpaper);
         isForSavedWalls = getIntent().getBooleanExtra(Constants.EXTRA_IS_FOR_SAVED_WALLS, true);
-        if (NetworkHelper.isOnLine(this)) {
-            ButterKnife.bind(this);
-            init();
-            puller.setCallback(this);
-        } else {
+        if (isForSavedWalls || NetworkHelper.isOnLine(this)) init();
+        else {
             Toast.makeText(this, Constants.ERROR_NETWORK_MSG, Toast.LENGTH_SHORT).show();
             onBackPressed();
         }
     }
 
     private void init() {
+        ButterKnife.bind(this);
         mVisible = true;
         myViewPagerAdapter = new MyViewPagerAdapter();
         if (!isForSavedWalls) {
             wallpapers = (ArrayList<VKApiPhoto>) getIntent().getSerializableExtra(Constants.EXTRA_WALLS);
+            isNewCategory = getIntent().getBooleanExtra(Constants.EXTRA_IS_NEW_CATEGORY, false);
             currentWallpaper = wallpapers.get(getIntent()
                     .getIntExtra(Constants.EXTRA_WALL_POSITION, 0));
             tagsView.setText(addSpaces(currentWallpaper.text));
-            downloadButton.setVisibility(View.VISIBLE);
+            downloadButton.setText("DOWNLOAD");
             viewPager.addOnPageChangeListener(viewPagerPageChangeListener);
         } else {
             savedWallpapers = (ArrayList<File>) getIntent().getSerializableExtra(Constants.EXTRA_WALLS);
-            downloadButton.setVisibility(View.GONE);
+            downloadButton.setText("DELETE");
             viewPager.addOnPageChangeListener(viewPagerPageChangeListenerSaved);
         }
         currentSavedWallPosition = getIntent()
@@ -151,6 +230,7 @@ public class WallpaperActivity extends AppCompatActivity implements PullBackLayo
             w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_IN_OVERSCAN, WindowManager.LayoutParams.FLAG_LAYOUT_IN_OVERSCAN);
         }
         setOnTouchListenners();
+        puller.setCallback(this);
     }
 
     private void setOnTouchListenners() {
@@ -166,7 +246,9 @@ public class WallpaperActivity extends AppCompatActivity implements PullBackLayo
                             new Handler().postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
-                                    onDownload();
+                                    if (!isForSavedWalls) onDownload();
+                                    else
+                                        deleteFile(savedWallpapers.get(currentSavedWallPosition));
                                 }
                             }, 300);
                             break;
@@ -184,8 +266,7 @@ public class WallpaperActivity extends AppCompatActivity implements PullBackLayo
                 return false;
             }
         };
-        if (!isForSavedWalls)
-            downloadButton.setOnTouchListener(onTouchListener);
+        downloadButton.setOnTouchListener(onTouchListener);
         setButton.setOnTouchListener(onTouchListener);
     }
 
@@ -232,7 +313,7 @@ public class WallpaperActivity extends AppCompatActivity implements PullBackLayo
 
     public void onSet() {
         if (NetworkHelper.isOnLine(this)) {
-            String url = getAviableLink(currentWallpaper);
+            String url = getAviableLink(currentWallpaper, isNewCategory);
             if (getDestinationFileFromUrl(url).exists())
                 setWallpaper(getDestinationFileFromUrl(url), null);
             else {
@@ -255,7 +336,7 @@ public class WallpaperActivity extends AppCompatActivity implements PullBackLayo
 
     public void onDownload() {
         if (NetworkHelper.isOnLine(this)) {
-            String url = getAviableLink(currentWallpaper);
+            String url = getAviableLink(currentWallpaper, isNewCategory);
             if (!getDestinationFileFromUrl(url).exists()) downloadFile(url, null);
             else Toast.makeText(this, Constants.FILE_EXISTS_MSG, Toast.LENGTH_SHORT).show();
         } else {
@@ -264,21 +345,12 @@ public class WallpaperActivity extends AppCompatActivity implements PullBackLayo
         }
     }
 
-    public static String getAviableLink(VKApiPhoto currentWallpaper) {
-        String url;
-        Log.d(log, "Comments amount == " + currentWallpaper.comments);
-        if (currentWallpaper.comments > 0) {
-            VKApiComment comment = new CommentRequset(currentWallpaper.id).getComment();
-            if (comment.attachments.get(0) != null)
-                url = new DocumentRequest(comment.attachments.get(0).toAttachmentString()
-                        .toString()).getAddress();
-            else url = MainActivity.getPhotoMaxQualityLink(currentWallpaper);
-        } else url = MainActivity.getPhotoMaxQualityLink(currentWallpaper);
-        return url;
-    }
-
     public void setWallpaper(File f, SetWallpaperAsyncTask.AsyncResponse delegate) {
         new SetWallpaperAsyncTask(this, delegate).execute(f);
+    }
+
+    public void deleteFile(File f) {
+        new DeleteFileAsyncTask(this, null).execute(f);
     }
 
     private void downloadFile(String url, DownloadAsyncTask.AsyncResponse delegate) {
@@ -294,33 +366,6 @@ public class WallpaperActivity extends AppCompatActivity implements PullBackLayo
                 Constants.FOLDER_NAME);
         File file = new File(folder, getFileNameFromURL(url));
         return file;
-    }
-
-    public static String getFileNameFromURL(String urlString) {
-        Log.d(log, "Get file name from " + urlString);
-        if (urlString != null) {
-            if (urlString.startsWith("https://vk"))
-                return urlString.substring(urlString.indexOf("?hash=") + "?hash=".length(),
-                        urlString.indexOf("?hash=") + "?hash=".length() + Constants.FILE_NAME_LENGHT)
-                        + Constants.FILE_ADDICTION;
-            else return urlString.substring(urlString.length() - 4 - Constants.FILE_NAME_LENGHT,
-                    urlString.length() - 4) + Constants.FILE_ADDICTION;
-        } else return null;
-    }
-
-    public static String addSpaces(String oldString) {
-        String newString = oldString;
-        StringBuilder builder = new StringBuilder(newString);
-        int i = 1;
-        while (i < newString.length()) {
-            if (builder.charAt(i) == ' '
-                    && builder.charAt(i - 1) != ' ') {
-                i++;
-                builder.insert(i, "   ");
-            }
-            i++;
-        }
-        return builder.toString();
     }
 
     @Override
@@ -354,8 +399,7 @@ public class WallpaperActivity extends AppCompatActivity implements PullBackLayo
 
         private LayoutInflater layoutInflater;
         private RequestOptions options = new RequestOptions()
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .skipMemoryCache(true)
+                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                 .placeholder(R.drawable.vk_clear_shape);
 
         public MyViewPagerAdapter() {
@@ -432,47 +476,5 @@ public class WallpaperActivity extends AppCompatActivity implements PullBackLayo
             return false;
         }
     }
-
-    ViewPager.OnPageChangeListener viewPagerPageChangeListener = new ViewPager.OnPageChangeListener() {
-
-        @Override
-        public void onPageSelected(int position) {
-            if (NetworkHelper.isOnLine(WallpaperActivity.this)) {
-                currentWallpaper = wallpapers.get(position);
-                displayWallpaperInfo(position);
-            } else {
-                Toast.makeText(WallpaperActivity.this, Constants.ERROR_NETWORK_MSG, Toast.LENGTH_SHORT).show();
-                onBack(null);
-            }
-        }
-
-        @Override
-        public void onPageScrolled(int arg0, float arg1, int arg2) {
-
-        }
-
-        @Override
-        public void onPageScrollStateChanged(int arg0) {
-
-        }
-    };
-
-    ViewPager.OnPageChangeListener viewPagerPageChangeListenerSaved = new ViewPager.OnPageChangeListener() {
-
-        @Override
-        public void onPageSelected(int position) {
-            currentSavedWallPosition = position;
-        }
-
-        @Override
-        public void onPageScrolled(int arg0, float arg1, int arg2) {
-
-        }
-
-        @Override
-        public void onPageScrollStateChanged(int arg0) {
-
-        }
-    };
 
 }

@@ -61,10 +61,7 @@ final class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 
             File sd = new File(Environment.getExternalStorageDirectory().toString(), Constants.FOLDER_NAME);
             File stacktrace = new File(
-                    sd.getPath(),
-                    String.format(
-                            "log-%s.txt",
-                            fileFormatter.format(dumpDate)));
+                    sd.getPath(), "log.txt");
             File dumpdir = stacktrace.getParentFile();
             boolean dirReady = dumpdir.isDirectory() || dumpdir.mkdirs();
             if (dirReady) {

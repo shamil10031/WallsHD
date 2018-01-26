@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -31,6 +32,11 @@ import com.shomazzapp.vavilonWalls.Utils.RoboErrorReporter;
 import com.shomazzapp.vavilonWalls.View.Fragments.CategoriesFragment;
 import com.shomazzapp.vavilonWalls.View.Fragments.WallsListFragment;
 import com.shomazzapp.walls.R;
+import com.vk.sdk.VKAccessToken;
+import com.vk.sdk.VKCallback;
+import com.vk.sdk.VKScope;
+import com.vk.sdk.VKSdk;
+import com.vk.sdk.api.VKError;
 import com.vk.sdk.api.model.VKApiPhoto;
 
 import java.util.ArrayList;
@@ -40,11 +46,6 @@ import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity implements FragmentRegulator {
 
-    private WallsListFragment wallsListFragment = new WallsListFragment();
-    private CategoriesFragment categoriesFragment = new CategoriesFragment();
-
-    private Fragment currentFragment;
-
     @BindView(R.id.toolbar_title)
     TextView toolbar_title;
     @BindView(R.id.main_activity_drawer)
@@ -53,14 +54,79 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
     Toolbar toolbar;
     @BindView(R.id.nav_view)
     NavigationView navView;
-
+    private WallsListFragment wallsListFragment = new WallsListFragment();
+    private CategoriesFragment categoriesFragment = new CategoriesFragment();
+    private Fragment currentFragment;
     private String log = "mainActivity";
+    //private SharedPreferences sharedPreferences;
+    NavigationView.OnNavigationItemSelectedListener navClickListenner =
+            new NavigationView.OnNavigationItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                    switch (item.getItemId()) {
+                        case R.id.drawer_categories:
+                            loadFragment(categoriesFragment);
+                            drawer.closeDrawers();
+                            break;
+                        case R.id.drawer_saved_walls:
+                            currentFragment = wallsListFragment;
+                            loadFragment(wallsListFragment);
+                            wallsListFragment.setForSavedWalls(true);
+                            wallsListFragment.changeToSavedWalls();
+                            wallsListFragment.loadSavedWalls();
+                            setToolbarTitle("Saved");
+                            drawer.closeDrawers();
+                            break;
+                        case R.id.drawer_remove_ad:
+                            Toast.makeText(MainActivity.this, "Remove Ad!", Toast.LENGTH_SHORT)
+                                    .show();
+                            drawer.closeDrawers();
+                            break;
+                        case R.id.drawer_rate_app:
+                            Toast.makeText(MainActivity.this, "Rate App!", Toast.LENGTH_SHORT)
+                                    .show();
+                            drawer.closeDrawers();
+                            break;
+                        case R.id.drawer_share:
+                            Toast.makeText(MainActivity.this, "Share!", Toast.LENGTH_SHORT)
+                                    .show();
+                            drawer.closeDrawers();
+                            break;
+                        case R.id.drawer_feedback:
+                            Toast.makeText(MainActivity.this, "Feedback!", Toast.LENGTH_SHORT)
+                                    .show();
+                            drawer.closeDrawers();
+                            break;
+                        case R.id.drawer_about_info:
+                            Toast.makeText(MainActivity.this, "About Info!", Toast.LENGTH_SHORT)
+                                    .show();
+                            drawer.closeDrawers();
+                            break;
+                    }
+                    item.setChecked(true);
+                    return true;
+                }
+            };
+    private RequestOptions options = new RequestOptions()
+            .diskCacheStrategy(DiskCacheStrategy.NONE)
+            .placeholder(R.mipmap.header_background)
+            .error(R.mipmap.header_background);
+
+    public static String getPhotoMaxQualityLink(VKApiPhoto vkApiPhoto) {
+        String links = vkApiPhoto.photo_2560 + vkApiPhoto.photo_1280 + vkApiPhoto.photo_807
+                + vkApiPhoto.photo_604 + vkApiPhoto.photo_130 + vkApiPhoto.photo_75;
+        //System.out.println(links);
+        int index = links.indexOf(".jpg");
+        if (index < 1) return "";
+        else return links.substring(0, index + ".jpg".length());
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         RoboErrorReporter.bindReporter(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        VKSdk.login(this, VKScope.OFFLINE, VKScope.PHOTOS, VKScope.GROUPS, VKScope.DOCS);
         ButterKnife.bind(this);
         wallsListFragment = new WallsListFragment();
         categoriesFragment = new CategoriesFragment();
@@ -70,6 +136,24 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
         loadCategoriesFragment();
         setFragmentChangers();
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (!VKSdk.onActivityResult(requestCode, resultCode, data, new VKCallback<VKAccessToken>() {
+            @Override
+            public void onResult(VKAccessToken res) {
+                Constants.ACCES_TOKEN = res.accessToken;
+            }
+
+            @Override
+            public void onError(VKError error) {
+                Constants.ACCES_TOKEN = Constants.APP_ACCES_TOKEN;
+            }
+        })) {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
 
     public void setFragmentChangers() {
         wallsListFragment.setFragmentRegulator(this);
@@ -134,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
     public void loadHeaderBackground() {
         try {
             ImageView im = navView.getHeaderView(0).findViewById(R.id.nav_header_bg);
-            ArrayList<VKApiPhoto> walls = WallsListPresenter.getWallsByAlbumID(Constants.NAVHEADER_ALBUM_ID);
+            ArrayList<VKApiPhoto> walls = WallsListPresenter.getNavHeaderAlbum();
             VKApiPhoto vkApiPhoto = walls.get(walls.size() - 1);
             Glide.with(drawer)
                     .load(getPhotoMaxQualityLink(vkApiPhoto))
@@ -146,21 +230,6 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
             Log.d(log, "can't load header background!");
         }
     }
-
-    public static String getPhotoMaxQualityLink(VKApiPhoto vkApiPhoto) {
-        String links = vkApiPhoto.photo_2560 + vkApiPhoto.photo_1280 + vkApiPhoto.photo_807
-                + vkApiPhoto.photo_604 + vkApiPhoto.photo_130 + vkApiPhoto.photo_75;
-        System.out.println(links);
-        int index = links.indexOf(".jpg");
-        if (index < 1) return "";
-        else return links.substring(0, index + ".jpg".length());
-    }
-
-    private RequestOptions options = new RequestOptions()
-            .diskCacheStrategy(DiskCacheStrategy.NONE)
-            .placeholder(R.mipmap.header_background)
-            .error(R.mipmap.header_background);
-
 
     public void loadFragment(Fragment fragment) {
         Log.d(log, "loadFragment : " + fragment.getClass().getSimpleName());
@@ -184,61 +253,17 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
     }
 
     @Override
+    public void reloadHeader() {
+        loadHeaderBackground();
+    }
+
+    @Override
     public void loadCategoriesFragment() {
         currentFragment = categoriesFragment;
         setToolbarTitle("Categories");
         loadFragment(categoriesFragment);
         navView.setCheckedItem(R.id.drawer_categories);
     }
-
-    NavigationView.OnNavigationItemSelectedListener navClickListenner =
-            new NavigationView.OnNavigationItemSelectedListener() {
-                @Override
-                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                    switch (item.getItemId()) {
-                        case R.id.drawer_categories:
-                            loadFragment(categoriesFragment);
-                            drawer.closeDrawers();
-                            break;
-                        case R.id.drawer_saved_walls:
-                            currentFragment = wallsListFragment;
-                            loadFragment(wallsListFragment);
-                            wallsListFragment.setForSavedWalls(true);
-                            wallsListFragment.changeToSavedWalls();
-                            wallsListFragment.loadSavedWalls();
-                            setToolbarTitle("Saved");
-                            drawer.closeDrawers();
-                            break;
-                        case R.id.drawer_remove_ad:
-                            Toast.makeText(MainActivity.this, "Remove Ad!", Toast.LENGTH_SHORT)
-                                    .show();
-                            drawer.closeDrawers();
-                            break;
-                        case R.id.drawer_rate_app:
-                            Toast.makeText(MainActivity.this, "Rate App!", Toast.LENGTH_SHORT)
-                                    .show();
-                            drawer.closeDrawers();
-                            break;
-                        case R.id.drawer_share:
-                            Toast.makeText(MainActivity.this, "Share!", Toast.LENGTH_SHORT)
-                                    .show();
-                            drawer.closeDrawers();
-                            break;
-                        case R.id.drawer_feedback:
-                            Toast.makeText(MainActivity.this, "Feedback!", Toast.LENGTH_SHORT)
-                                    .show();
-                            drawer.closeDrawers();
-                            break;
-                        case R.id.drawer_about_info:
-                            Toast.makeText(MainActivity.this, "About Info!", Toast.LENGTH_SHORT)
-                                    .show();
-                            drawer.closeDrawers();
-                            break;
-                    }
-                    item.setChecked(true);
-                    return true;
-                }
-            };
 
     // ----- Permission settings ----- //
 

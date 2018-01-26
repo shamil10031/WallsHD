@@ -1,4 +1,4 @@
-package com.shomazzapp.vavilonWalls.Utils;
+package com.shomazzapp.vavilonWalls.Utils.Tasks;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.widget.Toast;
 
+import com.shomazzapp.vavilonWalls.Utils.Constants;
 import com.shomazzapp.vavilonWalls.View.WallpaperActivity;
 
 import java.io.File;

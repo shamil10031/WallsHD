@@ -1,18 +1,17 @@
-package com.shomazzapp.vavilonWalls.Utils;
+package com.shomazzapp.vavilonWalls.Utils.Tasks;
 
 import android.app.ProgressDialog;
-import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
-import java.io.File;
-import java.io.IOException;
+import com.shomazzapp.vavilonWalls.Utils.Constants;
 
-public class SetWallpaperAsyncTask extends AsyncTask<File, Void, Void> {
+import java.io.File;
+
+public class DeleteFileAsyncTask extends AsyncTask<File, Void, Void> {
 
     public interface AsyncResponse {
         void processFinish();
@@ -23,7 +22,7 @@ public class SetWallpaperAsyncTask extends AsyncTask<File, Void, Void> {
     private Context context;
     private Exception m_error = null;
 
-    public SetWallpaperAsyncTask(Context context, AsyncResponse delegate) {
+    public DeleteFileAsyncTask(Context context, AsyncResponse delegate) {
         this.delegate = delegate;
         this.context = context;
         progressDialog = new ProgressDialog(context);
@@ -31,7 +30,7 @@ public class SetWallpaperAsyncTask extends AsyncTask<File, Void, Void> {
 
     @Override
     protected void onPreExecute() {
-        progressDialog.setMessage("Setting your wallpaper ...");
+        progressDialog.setMessage("Deleting wallpaper ...");
         progressDialog.setCancelable(true);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.show();
@@ -46,12 +45,9 @@ public class SetWallpaperAsyncTask extends AsyncTask<File, Void, Void> {
 
     @Override
     protected Void doInBackground(File... files) {
-        String path = files[0].getAbsolutePath();
-        Bitmap bmp = BitmapFactory.decodeFile(path);
-        WallpaperManager m = WallpaperManager.getInstance(context);
         try {
-            m.setBitmap(bmp);
-        } catch (IOException e) {
+            files[0].delete();
+        } catch (Resources.NotFoundException e) {
             e.printStackTrace();
             m_error = e;
         }

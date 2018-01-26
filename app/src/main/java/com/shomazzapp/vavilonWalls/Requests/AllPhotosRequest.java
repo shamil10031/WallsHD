@@ -27,11 +27,13 @@ public class AllPhotosRequest {
     }
 
     public void loadPhotos() {
+        System.out.println("From All photos request : token = " + Constants.ACCES_TOKEN);
         VKRequest request = new VKRequest("photos.getAll", VKParameters.from(
                 VKApiConst.OWNER_ID, Constants.COMMUNITY_ID,
                 VKApiConst.ACCESS_TOKEN, Constants.ACCES_TOKEN,
                 VKApiConst.OFFSET, offset,
-                VKApiConst.COUNT, count));
+                VKApiConst.COUNT, count,
+                "rev", 1));
         request.executeSyncWithListener(new VKRequest.VKRequestListener() {
             @Override
             public void onComplete(VKResponse response) {
