@@ -1,7 +1,6 @@
 package com.shomazzapp.vavilonWalls.View.Adapters;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -16,9 +15,8 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
-import com.shomazzapp.vavilonWalls.Utils.Constants;
-import com.shomazzapp.vavilonWalls.View.Fragments.WallsListFragment;
-import com.shomazzapp.vavilonWalls.View.WallpaperActivity;
+import com.shomazzapp.vavilonWalls.Utils.FragmentRegulator;
+import com.shomazzapp.vavilonWalls.Utils.WallsLoader;
 import com.shomazzapp.walls.R;
 
 import java.io.File;
@@ -30,7 +28,8 @@ public class SavedWallsViewAdapter extends RecyclerView.Adapter<SavedWallsViewAd
 
     private Context context;
     private ArrayList<File> wallpapers;
-    private WallsListFragment wallsListFragment;
+    private FragmentRegulator fragmentRegulator;
+    private WallsLoader wallsLoader;
 
     private RequestOptions options = new RequestOptions()
             .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
@@ -52,10 +51,10 @@ public class SavedWallsViewAdapter extends RecyclerView.Adapter<SavedWallsViewAd
         }
     };
 
-    public SavedWallsViewAdapter(Context context, ArrayList<File> wallpapers, WallsListFragment fragment) {
+    public SavedWallsViewAdapter(Context context, FragmentRegulator fragmentRegulator, WallsLoader wallsLoader) {
         this.context = context;
-        this.wallsListFragment = fragment;
-        this.wallpapers = wallpapers;
+        this.fragmentRegulator = fragmentRegulator;
+        this.wallsLoader = wallsLoader;
     }
 
     public void updateData(ArrayList<File> walls) {
@@ -102,11 +101,12 @@ public class SavedWallsViewAdapter extends RecyclerView.Adapter<SavedWallsViewAd
         public void onClick(View view) {
             int position = getAdapterPosition();
             if (position != RecyclerView.NO_POSITION) {
-                Intent intent = new Intent(context, WallpaperActivity.class);
+                /*Intent intent = new Intent(context, WallpaperActivity.class);
                 intent.putExtra(Constants.EXTRA_WALLS, wallpapers);
                 intent.putExtra(Constants.EXTRA_WALL_POSITION, position);
                 intent.putExtra(Constants.EXTRA_IS_FOR_SAVED_WALLS, true);
-                context.startActivity(intent);
+                context.startActivity(intent);*/
+                wallsLoader.loadSavedWallpaperFragment(wallpapers, position);
             }
         }
     }

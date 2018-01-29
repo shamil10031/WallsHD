@@ -91,7 +91,15 @@ public class CategoriesFragment extends Fragment implements SwipeRefreshLayout.O
 
     public void loadAlbums() {
         this.albums = new AlbumsRequest().getAlbums();
-        albums.add(0, newAlbum);
+        if (albums.size() > 0)
+            albums.add(0, newAlbum);
+        else
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    onNetworkChanged(false);
+                }
+            }, 100);
         Log.d(log, " loadAlbums : Albums size = " + albums.size());
     }
 

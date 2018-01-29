@@ -24,8 +24,7 @@ public class CommentRequset {
     public void loadComment() {
         VKRequest request = new VKRequest("photos.getComments", VKParameters.from(
                 VKApiConst.OWNER_ID, Constants.COMMUNITY_ID,
-                "photo_id", photo_id,
-                VKApiConst.ACCESS_TOKEN, Constants.ACCES_TOKEN));
+                "photo_id", photo_id));
         request.executeSyncWithListener(new VKRequest.VKRequestListener() {
             @Override
             public void onComplete(VKResponse response) {

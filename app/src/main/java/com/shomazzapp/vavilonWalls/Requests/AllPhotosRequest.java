@@ -30,7 +30,6 @@ public class AllPhotosRequest {
         System.out.println("From All photos request : token = " + Constants.ACCES_TOKEN);
         VKRequest request = new VKRequest("photos.getAll", VKParameters.from(
                 VKApiConst.OWNER_ID, Constants.COMMUNITY_ID,
-                VKApiConst.ACCESS_TOKEN, Constants.ACCES_TOKEN,
                 VKApiConst.OFFSET, offset,
                 VKApiConst.COUNT, count,
                 "rev", 1));
@@ -41,9 +40,12 @@ public class AllPhotosRequest {
                 try {
                     //  count of all photos:
                     //    int count = response.json.getJSONObject("response").getInt("count");
-                    for (int i = 0; i < count; i++)
-                        photos.add(new VKApiPhoto((JSONObject) response.json.getJSONObject("response")
-                                .getJSONArray("items").get(i)));
+                    for (int i = 0; i < count; i++) {
+                        VKApiPhoto photo = new VKApiPhoto((JSONObject) response.json.getJSONObject("response")
+                                .getJSONArray("items").get(i));
+                        //TODO: add checking is photo album from "!title", by SharedPreferences
+                        photos.add(photo);
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

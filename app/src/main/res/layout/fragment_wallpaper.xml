@@ -2,11 +2,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.shomazzapp.vavilonWalls.View.WallpaperActivity"
-    android:background="#0000">
-    <!--android:id="@+id/wallpaper_activity_main_frame">-->
+    tools:context="com.shomazzapp.vavilonWalls.View.Fragments.WallpaperFragment"
+    android:background="#0000"
+    android:id="@+id/wallpaper_fragment_main_frame">
 
-    <!--<View
+    <View
         android:id="@+id/wallpaper_activity_back_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -34,7 +34,6 @@
             android:layout_width="wrap_content"
             android:layout_height="50dp"
             android:background="#0000"
-            android:onClick="onBack"
             android:paddingBottom="13dp"
             android:paddingEnd="20dp"
             android:paddingStart="16dp"
@@ -97,5 +96,5 @@
                     android:textStyle="normal" />
             </LinearLayout>
         </RelativeLayout>
-    </FrameLayout>-->
+    </FrameLayout>
 </FrameLayout>

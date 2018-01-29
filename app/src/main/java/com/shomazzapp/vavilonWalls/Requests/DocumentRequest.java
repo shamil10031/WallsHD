@@ -1,7 +1,5 @@
 package com.shomazzapp.vavilonWalls.Requests;
 
-import com.shomazzapp.vavilonWalls.Utils.Constants;
-import com.vk.sdk.api.VKApiConst;
 import com.vk.sdk.api.VKError;
 import com.vk.sdk.api.VKParameters;
 import com.vk.sdk.api.VKRequest;
@@ -24,8 +22,7 @@ public class DocumentRequest {
 
     public void loadAttachmentAddres() {
         VKRequest request = new VKRequest("docs.getById", VKParameters.from(
-                "docs", docIdentificators,
-                VKApiConst.ACCESS_TOKEN, Constants.ACCES_TOKEN));
+                "docs", docIdentificators));
         request.executeSyncWithListener(new VKRequest.VKRequestListener() {
             @Override
             public void onComplete(VKResponse response) {

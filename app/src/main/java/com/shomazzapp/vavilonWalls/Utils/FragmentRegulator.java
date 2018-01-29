@@ -1,8 +1,12 @@
 package com.shomazzapp.vavilonWalls.Utils;
 
-public interface FragmentRegulator {
+import com.shomazzapp.vavilonWalls.View.Fragments.WallpaperFragment;
+import com.vk.sdk.api.model.VKApiPhoto;
 
-    //void
+import java.io.File;
+import java.util.ArrayList;
+
+public interface FragmentRegulator {
 
     void setToolbarTitle(String title);
 
@@ -10,6 +14,24 @@ public interface FragmentRegulator {
 
     void loadWallsListFragment(int albumId, String category);
 
+    void loadVKWallpaperFragment(ArrayList<VKApiPhoto> walls,
+                                 int currentPosition, WallsLoader wallsLoader);
+
+    void loadSavedWallpaperFragment(ArrayList<File> walls,
+                                    int currentPosition, WallsLoader wallsLoader);
+
     void reloadHeader();
+
+    void closeWallpaperFragment();
+
+    WallpaperFragment getWallpaperFragment();
+
+    void setProgressVisible(boolean visible);
+
+    void lockNavView(boolean lock);
+
+    void notifyWallsUpdated();
+
+    void hide();
 
 }

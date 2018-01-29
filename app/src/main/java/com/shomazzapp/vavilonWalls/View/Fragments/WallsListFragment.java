@@ -1,6 +1,7 @@
 package com.shomazzapp.vavilonWalls.View.Fragments;
 
 import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -77,11 +78,6 @@ public class WallsListFragment extends Fragment implements WallsLoader, SwipeRef
     }
 
     @Override
-    public void setCurrentWalls(ArrayList<VKApiPhoto> walls) {
-        //((MainActivity) getActivity()).
-    }
-
-    @Override
     public boolean isNewCategory() {
         return presenter.isNewCategory();
     }
@@ -119,6 +115,7 @@ public class WallsListFragment extends Fragment implements WallsLoader, SwipeRef
             onScrollListener.reset(0, true);
             Log.d(log, "onResume()!");
         }
+        if (fragmentRegulator != null) fragmentRegulator.hide();
     }
 
     public void loadSavedWalls() {
@@ -151,7 +148,7 @@ public class WallsListFragment extends Fragment implements WallsLoader, SwipeRef
         presenter = new WallsListPresenter(this);
         Log.d(log, "isForSavedWalls : " + isForSavedWalls);
         if (!isForSavedWalls) {
-            wallsViewAdapter = new WallsViewAdapter(context, null, this);
+            wallsViewAdapter = new WallsViewAdapter(context, fragmentRegulator, this);
             recyclerView.setAdapter(wallsViewAdapter);
             onScrollListener = new MyOnScrollListener((GridLayoutManager) layoutManager) {
                 @Override
@@ -161,7 +158,7 @@ public class WallsListFragment extends Fragment implements WallsLoader, SwipeRef
             };
             //recyclerView.setOnScrollListener(onScrollListener);
         } else {
-            savedWallsViewAdapter = new SavedWallsViewAdapter(context, null, this);
+            savedWallsViewAdapter = new SavedWallsViewAdapter(context, fragmentRegulator, this);
             recyclerView.setAdapter(savedWallsViewAdapter);
         }
         swipeRefreshLayout.setOnRefreshListener(this);
@@ -190,7 +187,7 @@ public class WallsListFragment extends Fragment implements WallsLoader, SwipeRef
             layoutManager.setAutoMeasureEnabled(true);
             recyclerView.setLayoutManager(layoutManager);
             presenter = new WallsListPresenter(this);
-            savedWallsViewAdapter = new SavedWallsViewAdapter(context, null, this);
+            savedWallsViewAdapter = new SavedWallsViewAdapter(context, fragmentRegulator, this);
             recyclerView.setAdapter(savedWallsViewAdapter);
         }
     }
@@ -217,6 +214,30 @@ public class WallsListFragment extends Fragment implements WallsLoader, SwipeRef
                 return null;
             }
         }.execute();
+    }
+
+    @Override
+    public void loadVKWallpaperFragment(ArrayList<VKApiPhoto> walls,
+                                        int currentPosition) {
+        fragmentRegulator.loadVKWallpaperFragment(walls, currentPosition, this);
+        FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
+        transaction.replace(R.id.children_fragment_frame, fragmentRegulator.getWallpaperFragment()).commit();
+    }
+
+    @Override
+    public void loadSavedWallpaperFragment(ArrayList<File> walls, int currentPosition) {
+        fragmentRegulator.loadSavedWallpaperFragment(walls, currentPosition, this);
+        FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
+        transaction.replace(R.id.children_fragment_frame, fragmentRegulator.getWallpaperFragment()).commit();
+    }
+
+    @Override
+    public void closeWallpaperFragment() {
+        fragmentRegulator.closeWallpaperFragment();
+        getChildFragmentManager().beginTransaction().remove(fragmentRegulator.getWallpaperFragment()).commit();
+        for (int i = 0; i < getChildFragmentManager().getBackStackEntryCount(); ++i) {
+            getChildFragmentManager().popBackStack();
+        }
     }
 
     public int getAlbumID() {

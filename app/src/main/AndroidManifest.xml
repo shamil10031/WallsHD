@@ -7,13 +7,15 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.SET_WALLPAPER" />
 
+    <!-- android
+     android:debuggable="false"-->
     <application
         android:name="com.shomazzapp.vavilonWalls.Utils.Application"
         android:allowBackup="true"
         android:icon="@mipmap/icon"
         android:label="Vavilon Walls"
         android:supportsRtl="true"
-        android:theme="@style/MainAppTheme">
+        android:theme="@style/TranscluentTheme">
         <activity
             android:name="com.shomazzapp.vavilonWalls.View.MainActivity"
             android:screenOrientation="portrait">

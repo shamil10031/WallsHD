@@ -42,7 +42,6 @@ public class PhotosRequest {
     public void loadPhotos() {
         VKRequest request = new VKRequest("photos.get", VKParameters.from(
                 VKApiConst.OWNER_ID, Constants.COMMUNITY_ID,
-                VKApiConst.ACCESS_TOKEN, Constants.ACCES_TOKEN,
                 VKApiConst.ALBUM_ID, album_id,
                 "extended", 1,
                 "rev", 1,

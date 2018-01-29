@@ -1,7 +1,6 @@
 package com.shomazzapp.vavilonWalls.View.Adapters;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
@@ -20,8 +19,8 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
 import com.shomazzapp.vavilonWalls.Utils.Constants;
+import com.shomazzapp.vavilonWalls.Utils.FragmentRegulator;
 import com.shomazzapp.vavilonWalls.Utils.WallsLoader;
-import com.shomazzapp.vavilonWalls.View.WallpaperActivity;
 import com.shomazzapp.walls.R;
 import com.vk.sdk.api.model.VKApiPhoto;
 
@@ -32,13 +31,17 @@ import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOption
 
 public class WallsViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
+    private FragmentRegulator fragmentRegulator;
     public static final int TYPE_FOOTER = 222;
     public static final int TYPE_ITEM = 333;
     List<View> footers = new ArrayList<>();
     private Context context;
     private ArrayList<VKApiPhoto> wallpapers;
     private WallsLoader wallsLoader;
+
     private boolean loaded = false;
+    private boolean fullAlbumLoaded = false;
+
     private RequestOptions options = new RequestOptions()
             .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
             .placeholder(R.drawable.vk_clear_shape);
@@ -58,10 +61,10 @@ public class WallsViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
     };
 
-    public WallsViewAdapter(Context context, ArrayList<VKApiPhoto> wallpapers, WallsLoader wallsLoader) {
+    public WallsViewAdapter(Context context, FragmentRegulator fragmentRegulator, WallsLoader wallsLoader) {
         this.context = context;
-        this.wallpapers = wallpapers;
         this.wallsLoader = wallsLoader;
+        this.fragmentRegulator = fragmentRegulator;
     }
 
     public void updateData(ArrayList<VKApiPhoto> walls) {
@@ -99,18 +102,21 @@ public class WallsViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                         .apply(options)
                         .into(((ImageViewHolder) holder).imageView);
             }
-            Log.d("WallsViewAdapter", "position == " + position + "  size == " + wallpapers.size()
-                    + "\n loaded == " + loaded);
-            if (position == wallpapers.size() - 5 && !loaded)
+           /* Log.d("WallsViewAdapter", "position == " + position + "  size == " + wallpapers.size()
+                    + "\n loaded == " + loaded);*/
+            if (position == wallpapers.size() - 6 && !loaded && !fullAlbumLoaded)
                 new LoadMoreWallsAsyncTask(holder).execute();
         }
     }
 
-    public void loadMore() {
+    public int loadMore() {
+        int size = wallpapers.size();
         wallpapers.addAll(wallsLoader.getWallsByCategory(wallsLoader.isNewCategory() ?
                         Constants.NEW_WALLS_ALBUM_ID : wallpapers.get(2).album_id,
                 wallpapers.size()));
-        Log.d(this.getClass().getSimpleName(), "loadMore() called!");
+        size = wallpapers.size() - size;
+        Log.d(this.getClass().getSimpleName(), "loadMore() called! size == " + size);
+        return size;
     }
 
     @Override
@@ -171,23 +177,22 @@ public class WallsViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         public void onClick(View view) {
             int position = getAdapterPosition();
             if (position != RecyclerView.NO_POSITION) {
-                Intent intent = new Intent(context, WallpaperActivity.class);
+                /*Intent intent = new Intent(context, WallpaperActivity.class);
                 intent.putExtra(Constants.EXTRA_WALLS, wallpapers);
                 intent.putExtra(Constants.EXTRA_WALL_POSITION, position);
                 intent.putExtra(Constants.EXTRA_IS_FOR_SAVED_WALLS, false);
                 intent.putExtra(Constants.EXTRA_IS_NEW_CATEGORY, wallsLoader.isNewCategory());
-                context.startActivity(intent);
+                context.startActivity(intent);*/
+                wallsLoader.loadVKWallpaperFragment(wallpapers, position);
             }
         }
     }
 
     protected class LoadMoreWallsAsyncTask extends AsyncTask<Void, Void, Void> {
         RecyclerView.ViewHolder holder;
-        View v;
 
         protected LoadMoreWallsAsyncTask(RecyclerView.ViewHolder holder) {
             this.holder = holder;
-            v = new View(context);
         }
 
         @Override
@@ -196,11 +201,13 @@ public class WallsViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             loaded = true;
             Log.d("WallsAdapter", "Loading more walls...");
             //addFooter(v);
+            if (fragmentRegulator == null) Log.d("WallsViewAdapter", "fragmentRegulator == null");
+            else fragmentRegulator.setProgressVisible(true);
         }
 
         @Override
         protected Void doInBackground(Void... voids) {
-            loadMore();
+            if (loadMore() < 1) fullAlbumLoaded = true;
             return null;
         }
 
@@ -210,6 +217,10 @@ public class WallsViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             loaded = false;
             Log.d("WallsAdapter", "Loaded!");
             notifyDataSetChanged();
+            if (fragmentRegulator != null) {
+                fragmentRegulator.setProgressVisible(false);
+                fragmentRegulator.notifyWallsUpdated();
+            }
             //wallsLoader.cahngeProgressState(true);
             //removeFooter(v);
         }
