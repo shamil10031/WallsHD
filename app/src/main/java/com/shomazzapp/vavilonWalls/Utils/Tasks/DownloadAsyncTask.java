@@ -8,7 +8,8 @@ import android.os.Environment;
 import android.widget.Toast;
 
 import com.shomazzapp.vavilonWalls.Utils.Constants;
-import com.shomazzapp.vavilonWalls.View.WallpaperActivity;
+import com.shomazzapp.vavilonWalls.View.Fragments.WallpaperFragment;
+import com.shomazzapp.walls.R;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -64,18 +65,14 @@ public class DownloadAsyncTask extends AsyncTask<String, Integer, File> {
         File file;
         FileOutputStream fos;
         try {
-            File folder = new File(Environment.getExternalStorageDirectory(),
-                    Constants.FOLDER_NAME);
-            if (!folder.exists())
-                folder.mkdirs();
-
+            File folder = getFolder();
             url = new URL(params[0]);
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
             urlConnection.setDoOutput(false);
             urlConnection.connect();
 
-            file = new File(folder, WallpaperActivity.getFileNameFromURL(params[0]));
+            file = new File(folder, WallpaperFragment.getFileNameFromURL(params[0]));
             System.out.println(file.getAbsolutePath());
             file.createNewFile();
 
@@ -106,6 +103,14 @@ public class DownloadAsyncTask extends AsyncTask<String, Integer, File> {
         progressDialog.setProgress((int) ((values[0] / (float) values[1]) * 100));
     }
 
+    public static File getFolder() {
+        File folder = new File(Environment.getExternalStorageDirectory(),
+                Constants.FOLDER_NAME);
+        if (!folder.exists())
+            folder.mkdirs();
+        return folder;
+    }
+
     //TODO: fix cancel
     @Override
     protected void onCancelled() {
@@ -116,13 +121,51 @@ public class DownloadAsyncTask extends AsyncTask<String, Integer, File> {
     protected void onPostExecute(File file) {
         if (m_error != null) {
             m_error.printStackTrace();
-            Toast.makeText(context, Constants.ERROR_DOWNLOAD_MSG, Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, context.getResources().getString(R.string.error_download_msg),
+                    Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(context, Constants.SUCCES_MSG, Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, context.getResources().getString(R.string.succes_msg),
+                    Toast.LENGTH_SHORT).show();
             if (delegate != null)
                 delegate.processFinish(file);
         }
         progressDialog.hide();
         return;
+    }
+
+    public static File downloadFromLink(String urlLink, String fileName) {
+        byte[] buffer;
+        int bufferLength;
+
+        URL url;
+        HttpURLConnection urlConnection;
+        InputStream inputStream;
+        File file;
+        FileOutputStream fos;
+        try {
+            File folder = getFolder();
+
+            url = new URL(urlLink);
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.setDoOutput(false);
+            urlConnection.connect();
+
+            file = new File(folder, fileName);
+            System.out.println(file.getAbsolutePath());
+            file.createNewFile();
+
+            fos = new FileOutputStream(file);
+            inputStream = urlConnection.getInputStream();
+            buffer = new byte[1024];
+            while ((bufferLength = inputStream.read(buffer)) > 0)
+                fos.write(buffer, 0, bufferLength);
+            fos.close();
+            inputStream.close();
+            return file;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

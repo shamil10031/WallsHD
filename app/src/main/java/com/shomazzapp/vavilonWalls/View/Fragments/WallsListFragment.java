@@ -3,7 +3,6 @@ package com.shomazzapp.vavilonWalls.View.Fragments;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -19,7 +18,6 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.shomazzapp.vavilonWalls.Presenter.WallsListPresenter;
-import com.shomazzapp.vavilonWalls.Utils.Constants;
 import com.shomazzapp.vavilonWalls.Utils.FragmentRegulator;
 import com.shomazzapp.vavilonWalls.Utils.MyOnScrollListener;
 import com.shomazzapp.vavilonWalls.Utils.NetworkHelper;
@@ -123,6 +121,11 @@ public class WallsListFragment extends Fragment implements WallsLoader, SwipeRef
             presenter.loadSavedWalls();
     }
 
+    public void scrolToPosition(int position) {
+        if (recyclerView != null)
+            recyclerView.smoothScrollToPosition(position);
+    }
+
     public void updateData(ArrayList<VKApiPhoto> walls) {
         if (NetworkHelper.isOnLine(this.context)) {
             wallsViewAdapter.updateData(walls);
@@ -130,7 +133,8 @@ public class WallsListFragment extends Fragment implements WallsLoader, SwipeRef
             onNetworkChanged(true);
         } else {
             onNetworkChanged(false);
-            Toast.makeText(this.context, Constants.ERROR_NETWORK_MSG, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this.context, getResources().getString(R.string.error_network_msg),
+                    Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -206,14 +210,14 @@ public class WallsListFragment extends Fragment implements WallsLoader, SwipeRef
         super.onDetach();
         isForSavedWalls = false;
         Glide.get(context).clearMemory();
-        new AsyncTask<Void, Void, Void>() {
+        /*new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
                 Glide.getPhotoCacheDir(context).delete();
                 Glide.get(context).clearDiskCache();
                 return null;
             }
-        }.execute();
+        }.execute();*/
     }
 
     @Override
@@ -261,7 +265,9 @@ public class WallsListFragment extends Fragment implements WallsLoader, SwipeRef
                         swipeRefreshLayout.setRefreshing(false);
                     }
                 }, 1000);
+                if (!isForSavedWalls)
+                    wallsViewAdapter.setFullAlbumLoaded(false);
             }
-        }, 500);
+        }, 200);
     }
 }

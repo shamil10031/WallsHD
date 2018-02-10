@@ -54,7 +54,7 @@ public class WallsListPresenter {
         File[] filesInFolder = folder.listFiles();
         if (folder.exists() && filesInFolder.length > 0)
             for (File file : filesInFolder) {
-                if (!file.isDirectory() && (file.getName().endsWith(".png")
+                if (!file.getName().startsWith(".") && !file.isDirectory() && (file.getName().endsWith(".png")
                         || file.getName().endsWith(".jpg"))) {
                     files.add(0, file);
                 }

@@ -9,7 +9,7 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
-import com.shomazzapp.vavilonWalls.Utils.Constants;
+import com.shomazzapp.walls.R;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,9 +65,11 @@ public class SetWallpaperAsyncTask extends AsyncTask<File, Void, Void> {
         super.onPostExecute(aVoid);
         if (m_error != null) {
             m_error.printStackTrace();
-            Toast.makeText(context, Constants.ERROR_SETTING_WALL_MSG, Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, context.getResources().getString(R.string.error_setting_wall_msg),
+                    Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(context, Constants.SUCCES_MSG, Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, context.getResources().getString(R.string.succes_msg),
+                    Toast.LENGTH_SHORT).show();
             if (delegate != null)
                 delegate.processFinish();
         }

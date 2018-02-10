@@ -108,7 +108,8 @@ public class WallpaperFragment extends DialogFragment implements PullBackLayout.
                 currentWallpaper = wallpapers.get(position);
                 displayWallpaperInfo(position);
             } else {
-                Toast.makeText(activity, Constants.ERROR_NETWORK_MSG, Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity, getResources().getString(R.string.error_network_msg),
+                        Toast.LENGTH_SHORT).show();
                 onBack();
             }
         }
@@ -211,9 +212,8 @@ public class WallpaperFragment extends DialogFragment implements PullBackLayout.
         this.activity = getActivity();
     }
 
-    private void init(View v) {
+    private void init() {
         Log.d(log, "init!");
-        ButterKnife.bind(this, v);
         mVisible = true;
         myViewPagerAdapter = new WallpaperFragment.MyViewPagerAdapter();
         if (!isForSavedWalls) {
@@ -226,10 +226,10 @@ public class WallpaperFragment extends DialogFragment implements PullBackLayout.
                     + "\n text : " + currentWallpaper.text
                     + "\n text1 : " + wallpapers.get(currentSavedWallPosition).text);
             tagsView.setText(addSpaces(currentWallpaper.text));
-            downloadButton.setText("DOWNLOAD");
+            downloadButton.setText(getResources().getString(R.string.download));
             viewPager.addOnPageChangeListener(viewPagerPageChangeListener);
         } else {
-            downloadButton.setText("DELETE");
+            downloadButton.setText(getResources().getString(R.string.delete));
             viewPager.addOnPageChangeListener(viewPagerPageChangeListenerSaved);
         }
         //currentSavedWallPosition = getIntent()
@@ -247,7 +247,7 @@ public class WallpaperFragment extends DialogFragment implements PullBackLayout.
     private void setOnTouchListenners() {
         final View.OnTouchListener onTouchListener = new View.OnTouchListener() {
             @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
+            public boolean onTouch(final View view, MotionEvent motionEvent) {
                 if (motionEvent.getAction() == MotionEvent.ACTION_DOWN && view.getId() != R.id.back_button)
                     ((Button) view).setTextSize(12);
                 if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
@@ -258,8 +258,11 @@ public class WallpaperFragment extends DialogFragment implements PullBackLayout.
                                 @Override
                                 public void run() {
                                     if (!isForSavedWalls) onDownload();
-                                    else
+                                    else {
                                         deleteFile(savedWallpapers.get(currentSavedWallPosition));
+                                        wallsLoader.loadSavedWalls();
+                                        myViewPagerAdapter.notifyDataSetChanged();
+                                    }
                                 }
                             }, 300);
                             break;
@@ -363,7 +366,8 @@ public class WallpaperFragment extends DialogFragment implements PullBackLayout.
                 });
             }
         } else {
-            Toast.makeText(activity, Constants.ERROR_NETWORK_MSG, Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, getResources().getString(R.string.error_network_msg),
+                    Toast.LENGTH_SHORT).show();
             onBack();
         }
     }
@@ -376,9 +380,11 @@ public class WallpaperFragment extends DialogFragment implements PullBackLayout.
         if (NetworkHelper.isOnLine(activity)) {
             String url = getAviableLink(currentWallpaper, isNewCategory);
             if (!getDestinationFileFromUrl(url).exists()) downloadFile(url, null);
-            else Toast.makeText(activity, Constants.FILE_EXISTS_MSG, Toast.LENGTH_SHORT).show();
+            else Toast.makeText(activity, getResources().getString(R.string.file_exists_msg),
+                    Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(activity, Constants.ERROR_NETWORK_MSG, Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, getResources().getString(R.string.error_network_msg),
+                    Toast.LENGTH_SHORT).show();
             onBack();
         }
     }
@@ -437,6 +443,7 @@ public class WallpaperFragment extends DialogFragment implements PullBackLayout.
     @Override
     public void onPullComplete() {
         onBack();
+        wallsLoader.scrolToPosition(currentSavedWallPosition);
         Log.d(log, "onPullComplete called");
         //mainFrame.setScaleX(1f);
     }
@@ -446,10 +453,13 @@ public class WallpaperFragment extends DialogFragment implements PullBackLayout.
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_wallpaper, container, false);
         //isForSavedWalls = getIntent().getBooleanExtra(Constants.EXTRA_IS_FOR_SAVED_WALLS, true);
-        Log.d(log, "OncreateView!!!!!!!!");
-        if (isForSavedWalls || NetworkHelper.isOnLine(activity)) init(view);
+        if (isForSavedWalls || NetworkHelper.isOnLine(activity)) {
+            ButterKnife.bind(this, view);
+            init();
+        }
         else {
-            Toast.makeText(activity, Constants.ERROR_NETWORK_MSG, Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, getResources().getString(R.string.error_network_msg),
+                    Toast.LENGTH_SHORT).show();
             onBack();
         }
         show();
@@ -479,7 +489,7 @@ public class WallpaperFragment extends DialogFragment implements PullBackLayout.
 
         private LayoutInflater layoutInflater;
         private RequestOptions options = new RequestOptions()
-                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                 .placeholder(R.drawable.vk_clear_shape);
 
         public MyViewPagerAdapter() {
@@ -496,7 +506,7 @@ public class WallpaperFragment extends DialogFragment implements PullBackLayout.
                 @Override
                 public void run() {
                     Glide.with(activity)
-                            .load(isForSavedWalls ? savedWallpapers.get(position) : wallpapers.get(position).photo_2560)
+                            .load(isForSavedWalls ? savedWallpapers.get(position) : wallpapers.get(position).photo_1280)
                             .transition(withCrossFade())
                             .listener(new WallpaperFragment.MyRequestListenner(view.getContext(), progressBar))
                             //.thumbnail(0.25f)

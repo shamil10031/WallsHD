@@ -7,7 +7,9 @@ import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -32,6 +34,7 @@ import com.shomazzapp.vavilonWalls.Presenter.WallsListPresenter;
 import com.shomazzapp.vavilonWalls.Utils.Constants;
 import com.shomazzapp.vavilonWalls.Utils.FragmentRegulator;
 import com.shomazzapp.vavilonWalls.Utils.RoboErrorReporter;
+import com.shomazzapp.vavilonWalls.Utils.Tasks.DownloadAsyncTask;
 import com.shomazzapp.vavilonWalls.Utils.WallsLoader;
 import com.shomazzapp.vavilonWalls.View.Fragments.CategoriesFragment;
 import com.shomazzapp.vavilonWalls.View.Fragments.WallpaperFragment;
@@ -46,6 +49,7 @@ import com.vk.sdk.api.model.VKApiPhoto;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -66,6 +70,12 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
         }
     };
+    private final Runnable mHideRunnable = new Runnable() {
+        @Override
+        public void run() {
+            hide();
+        }
+    };
     @BindView(R.id.app_bar_progress)
     ProgressBar progressBar;
     @BindView(R.id.toolbar_title)
@@ -76,19 +86,12 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
     Toolbar toolbar;
     @BindView(R.id.nav_view)
     NavigationView navView;
-    private boolean mVisible;
-    private final Runnable mHideRunnable = new Runnable() {
-        @Override
-        public void run() {
-            hide();
-        }
-    };
+    private SharedPreferences sharedPreferences;
     private WallpaperFragment wallpaperFragment = new WallpaperFragment();
     private WallsListFragment wallsListFragment = new WallsListFragment();
     private CategoriesFragment categoriesFragment = new CategoriesFragment();
     private Fragment currentFragment;
     private String log = "mainActivity";
-    //private SharedPreferences sharedPreferences;
     NavigationView.OnNavigationItemSelectedListener navClickListenner =
             new NavigationView.OnNavigationItemSelectedListener() {
                 @Override
@@ -96,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
                     switch (item.getItemId()) {
                         case R.id.drawer_categories:
                             loadFragment(categoriesFragment);
-                            drawer.closeDrawers();
+                            item.setChecked(true);
                             break;
                         case R.id.drawer_saved_walls:
                             currentFragment = wallsListFragment = new WallsListFragment();
@@ -105,8 +108,14 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
                             wallsListFragment.setForSavedWalls(true);
                             wallsListFragment.changeToSavedWalls();
                             wallsListFragment.loadSavedWalls();
-                            setToolbarTitle("Saved");
-                            drawer.closeDrawers();
+                            setToolbarTitle(getResources().getString(R.string.saved_walls));
+                            item.setChecked(true);
+                            break;
+                        case R.id.login:
+                            if (VKSdk.isLoggedIn())
+                                showExitFromVkDialog();
+                            else
+                                showFeaturesOfVKDialog();
                             break;
                         case R.id.drawer_remove_ad:
                             Toast.makeText(MainActivity.this, "Remove Ad!", Toast.LENGTH_SHORT)
@@ -134,14 +143,27 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
                             drawer.closeDrawers();
                             break;
                     }
-                    item.setChecked(true);
+                    drawer.closeDrawers();
                     return true;
                 }
             };
     private RequestOptions options = new RequestOptions()
             .diskCacheStrategy(DiskCacheStrategy.NONE)
+            .skipMemoryCache(true)
             .placeholder(R.mipmap.header_background)
             .error(R.mipmap.header_background);
+    private final Runnable loadHeaderBgRunnable = new Runnable() {
+        @Override
+        public void run() {
+            ImageView im = navView.getHeaderView(0).findViewById(R.id.nav_header_bg);
+            File file = new File(DownloadAsyncTask.getFolder(), Constants.HEADER_FILE_NAME);
+            if (file.exists())
+                Glide.with(drawer)
+                        .load(file)
+                        .apply(options)
+                        .into(im);
+        }
+    };
 
     public static String getPhotoMaxQualityLink(VKApiPhoto vkApiPhoto) {
         String links = vkApiPhoto.photo_2560 + vkApiPhoto.photo_1280 + vkApiPhoto.photo_807
@@ -157,16 +179,18 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
         RoboErrorReporter.bindReporter(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //if (!VKSdk.isLoggedIn())
-        VKSdk.login(this, VKScope.OFFLINE, VKScope.PHOTOS, VKScope.GROUPS, VKScope.DOCS);
-        //else
-        init();
+        if (sharedPreferences == null)
+            sharedPreferences = getSharedPreferences(Constants.SHARED_PREF_FILENAME, MODE_PRIVATE);
+        if (!hasPermission(Constants.WRITE_STORAGE_PERMISSION))
+            requestPermissionIfNeed();
+        else init();
     }
 
     public void init() {
         ButterKnife.bind(this);
         categoriesFragment = new CategoriesFragment();
-        requestPermissionIfNeed();
+        if (!VKSdk.isLoggedIn() && !sharedPreferences.contains(Constants.FEATURES_DIALOG_SHOWED_BOOL))
+            showFeaturesOfVKDialog();
         setUpNavigationView();
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         loadCategoriesFragment();
@@ -185,40 +209,21 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
         if (!VKSdk.onActivityResult(requestCode, resultCode, data, new VKCallback<VKAccessToken>() {
             @Override
             public void onResult(VKAccessToken res) {
-                //Constants.ACCES_TOKEN = res.accessToken;
                 init();
             }
 
             @Override
             public void onError(VKError error) {
                 VKSdk.logout();
-                //VKSdk.login(MainActivity.this, VKScope.OFFLINE, VKScope.PHOTOS, VKScope.GROUPS, VKScope.DOCS);
             }
         })) {
             super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
-    private void toggle() {
-        if (mVisible) {
-            hide();
-        } else {
-            show();
-        }
-    }
-
     @Override
     public void hide() {
-        mVisible = false;
         mHideHandler.postDelayed(mHidePart2Runnable, UI_ANIMATION_DELAY);
-    }
-
-    @SuppressLint("InlinedApi")
-    private void show() {
-        drawer.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
-        mVisible = true;
-        mHideHandler.removeCallbacks(mHidePart2Runnable);
     }
 
     private void delayedHide(int delayMillis) {
@@ -230,12 +235,117 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
     protected void onResume() {
         super.onResume();
         delayedHide(100);
+        changeVKItemTitle();
+    }
+
+    public void changeVKItemTitle() {
+        if (navView != null && navView.getMenu().size() > 0) {
+            boolean founded = false;
+            int i = 0;
+            while (!founded && i < navView.getMenu().size()) {
+                if (navView.getMenu().getItem(i).getItemId() == R.id.login) {
+                    founded = true;
+                    if (VKSdk.isLoggedIn())
+                        navView.getMenu().getItem(i).setTitle(R.string.logout);
+                    else
+                        navView.getMenu().getItem(i).setTitle(R.string.login);
+                } else i++;
+            }
+        }
     }
 
     @Override
     public void setToolbarTitle(String title) {
-        Log.d(log, " setToolbarTitle (  " + title + "  )!");
         toolbar_title.setText(title);
+        toolbar_title.setTextColor(Color.WHITE);
+    }
+
+    public void showFeaturesOfVKDialog() {
+        hide();
+        if (drawer != null)
+            drawer.closeDrawers();
+        AlertDialog.Builder ab = new AlertDialog.Builder(MainActivity.this);
+        ab.setTitle(getResources().getString(R.string.features));
+        ab.setMessage(getResources().getString(R.string.account_features_msg));
+        ab.setPositiveButton(getResources().getString(R.string.yes), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                VKSdk.login(MainActivity.this, VKScope.OFFLINE, VKScope.PHOTOS, VKScope.GROUPS, VKScope.DOCS);
+                SharedPreferences.Editor ed = sharedPreferences.edit();
+                ed.putBoolean(Constants.FEATURES_DIALOG_SHOWED_BOOL, true);
+                ed.apply();
+                changeVKItemTitle();
+            }
+        });
+        ab.setNegativeButton(getResources().getString(R.string.no), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                changeVKItemTitle();
+            }
+        });
+        ab.show();
+    }
+
+    public void showExitFromVkDialog() {
+        hide();
+        AlertDialog.Builder ab = new AlertDialog.Builder(MainActivity.this);
+        ab.setTitle(getResources().getString(R.string.exit_from_vk));
+        ab.setMessage(getResources().getString(R.string.exit_from_vk_msg));
+        ab.setPositiveButton(getResources().getString(R.string.yes), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                VKSdk.logout();
+                changeVKItemTitle();
+            }
+        });
+        ab.setNegativeButton(getResources().getString(R.string.no), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                changeVKItemTitle();
+            }
+        });
+        ab.show();
+    }
+
+    public void showPermissionRequiredDialog() {
+        hide();
+        AlertDialog.Builder ab = new AlertDialog.Builder(MainActivity.this);
+        ab.setMessage(getResources().getString(R.string.need_permission_msg));
+        ab.setPositiveButton("ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                requestPermissionIfNeed();
+            }
+        });
+        ab.show();
+    }
+
+    public void showExitAlertDialog() {
+        hide();
+        AlertDialog.Builder ab = new AlertDialog.Builder(MainActivity.this);
+        ab.setTitle(getResources().getString(R.string.exit));
+        ab.setMessage(getResources().getString(R.string.exit_confirmation_msg));
+        ab.setPositiveButton(getResources().getString(R.string.yes), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                android.os.Process.killProcess(android.os.Process.myPid());
+                finish();
+                finishAffinity();
+                System.exit(0);
+            }
+        });
+        ab.setNegativeButton(getResources().getString(R.string.no), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        ab.show();
     }
 
     @Override
@@ -244,35 +354,14 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
             if (currentFragment instanceof WallsListFragment) loadCategoriesFragment();
             else if (currentFragment instanceof WallpaperFragment)
                 wallsListFragment.closeWallpaperFragment();
-            else {
-                AlertDialog.Builder ab = new AlertDialog.Builder(MainActivity.this);
-                ab.setTitle("Exit");
-                ab.setMessage(Constants.EXIT_CONFIRMATION_MSG);
-                ab.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        android.os.Process.killProcess(android.os.Process.myPid());
-                        finish();
-                        finishAffinity();
-                        System.exit(0);
-                    }
-                });
-                ab.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-                ab.show();
-            }
+            else showExitAlertDialog();
         } catch (IllegalStateException e) {
             e.printStackTrace();
         }
     }
 
     private void setUpNavigationView() {
-        loadHeaderBackground();
+        updateHeader();
         setSupportActionBar(toolbar);
         ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawer, toolbar, 0, 0) {
             @Override
@@ -288,22 +377,49 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
         drawer.setDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
         navView.setNavigationItemSelectedListener(navClickListenner);
+        changeVKItemTitle();
     }
 
-    public void loadHeaderBackground() {
-        try {
-            ImageView im = navView.getHeaderView(0).findViewById(R.id.nav_header_bg);
-            ArrayList<VKApiPhoto> walls = WallsListPresenter.getNavHeaderAlbum();
-            VKApiPhoto vkApiPhoto = walls.get(0);
-            Glide.with(drawer)
-                    .load(getPhotoMaxQualityLink(vkApiPhoto))
-                    .apply(options)
-                    .into(im);
-            //        Log.d(log, "maxQuality = " + getPhotoMaxQualityLink(vkApiPhoto));
-        } catch (IndexOutOfBoundsException e) {
-            e.printStackTrace();
-            Log.d(log, "can't load header background!");
+    public void updateDataInPref() {
+        SharedPreferences.Editor e = sharedPreferences.edit();
+        e.putInt(Constants.HEADER_LAST_UPDATE_DATA,
+                Calendar.getInstance().get(Calendar.DAY_OF_YEAR));
+        e.apply();
+    }
+
+    public boolean isNeedToDownloadHeader() {
+        int lastDay = sharedPreferences.getInt(Constants.HEADER_LAST_UPDATE_DATA, 0);
+        int currentDay = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
+        Log.d(log, "from isNeedToUpdate: " + currentDay + " - " + lastDay +
+                " v " + Constants.DAYS_PAST_TO_UPDATE);
+        return currentDay - lastDay >= Constants.DAYS_PAST_TO_UPDATE;
+    }
+
+    public Thread getDownloadHeaderThread() {
+        final ArrayList<VKApiPhoto> walls = WallsListPresenter.getNavHeaderAlbum();
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                DownloadAsyncTask.downloadFromLink(getPhotoMaxQualityLink(walls.get(0)), Constants.HEADER_FILE_NAME);
+                updateDataInPref();
+            }
+        };
+        return new Thread(r);
+    }
+
+    public void updateHeader() {
+        Log.d(log, "updateHeaderCalled!");
+        if (isNeedToDownloadHeader() || !new File(DownloadAsyncTask.getFolder(),
+                Constants.HEADER_FILE_NAME).exists()) {
+            Thread t = getDownloadHeaderThread();
+            t.start();
+            try {
+                t.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
+        loadHeaderBgRunnable.run();
     }
 
     @Override
@@ -326,14 +442,14 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
 
     @Override
     public void reloadHeader() {
-        loadHeaderBackground();
+        updateHeader();
     }
 
     @Override
     public void loadCategoriesFragment() {
         currentFragment = categoriesFragment;
         categoriesFragment.setFragmentRegulator(this);
-        setToolbarTitle("Categories");
+        setToolbarTitle(getResources().getString(R.string.categories));
         loadFragment(categoriesFragment);
         navView.setCheckedItem(R.id.drawer_categories);
         lockNavView(false);
@@ -385,10 +501,6 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
     }
 
     public void loadFragment(Fragment fragment) {
-        /*Fragment f = new Fragment();
-        try{
-            f = fragment.getClass().newInstance();
-        } catch (Exception e){}*/
         Log.d(log, "loadFragment : " + fragment.getClass().getSimpleName());
         final FragmentTransaction transaction = getFragmentManager().beginTransaction();
         transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
@@ -400,14 +512,20 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
 
     // ----- Permission settings ----- //
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        if (grantResults[0] != PackageManager.PERMISSION_GRANTED)
+            showPermissionRequiredDialog();
+        else init();
+    }
+
     private boolean canMakeSmores() {
         return (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1);
     }
 
     @TargetApi(23)
     private void requestPermissionIfNeed() {
-        if (!hasPermission(Constants.WRITE_STORAGE_PERMISSION))
-            requestPermissions(Constants.PERMISSIONS, 200);
+        requestPermissions(Constants.PERMISSIONS, 200);
     }
 
     @TargetApi(23)

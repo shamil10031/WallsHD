@@ -43,7 +43,7 @@ public class WallsViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private boolean fullAlbumLoaded = false;
 
     private RequestOptions options = new RequestOptions()
-            .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+            .diskCacheStrategy(DiskCacheStrategy.DATA)
             .placeholder(R.drawable.vk_clear_shape);
     private RequestListener requestListener = new RequestListener() {
         @Override
@@ -97,7 +97,7 @@ public class WallsViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 Glide.with(context)
                         .load(wallpapers.get(position).photo_604)
                         .transition(withCrossFade())
-                        .thumbnail(0.17f)
+                        .thumbnail(0.5f)
                         .listener(requestListener)
                         .apply(options)
                         .into(((ImageViewHolder) holder).imageView);
@@ -107,6 +107,10 @@ public class WallsViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             if (position == wallpapers.size() - 6 && !loaded && !fullAlbumLoaded)
                 new LoadMoreWallsAsyncTask(holder).execute();
         }
+    }
+
+    public void setFullAlbumLoaded(boolean b) {
+        fullAlbumLoaded = b;
     }
 
     public int loadMore() {

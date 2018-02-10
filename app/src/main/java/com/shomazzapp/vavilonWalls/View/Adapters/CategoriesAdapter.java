@@ -1,6 +1,7 @@
 package com.shomazzapp.vavilonWalls.View.Adapters;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.mikhaellopez.circularimageview.CircularImageView;
+import com.shomazzapp.vavilonWalls.Utils.Constants;
 import com.shomazzapp.walls.R;
 import com.vk.sdk.api.model.VKApiPhotoAlbum;
 
@@ -19,16 +21,23 @@ import java.util.ArrayList;
 
 public class CategoriesAdapter extends BaseAdapter {
 
+    private SharedPreferences sharedPreferences;
     private ArrayList<VKApiPhotoAlbum> albums;
     private LayoutInflater inflater;
     private Context context;
     private String log = "categoriesAdapter";
-
+    private int[] newWallsAmountArr;
+    private RequestOptions options = new RequestOptions()
+            .diskCacheStrategy(DiskCacheStrategy.DATA)
+            .placeholder(R.mipmap.icon)
+            .error(R.mipmap.icon);
 
     public CategoriesAdapter(Context context, ArrayList<VKApiPhotoAlbum> albums) {
         this.albums = albums;
         this.context = context;
         this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREF_FILENAME, Context.MODE_PRIVATE);
+        generateNewWallsAmounts();
     }
 
     @Override
@@ -46,37 +55,69 @@ public class CategoriesAdapter extends BaseAdapter {
         return 0;
     }
 
-    public void setAlbums(ArrayList<VKApiPhotoAlbum> albums) {
-        this.albums = albums;
-    }
-
     public ArrayList<VKApiPhotoAlbum> getAlbums() {
         return albums;
     }
 
+    public void setAlbums(ArrayList<VKApiPhotoAlbum> albums) {
+        this.albums = albums;
+    }
+
+    public void generateNewWallsAmounts() {
+        newWallsAmountArr = new int[albums.size()];
+        System.out.println("From categories adapter");
+        for (int i = 0; i < albums.size(); i++) {
+            newWallsAmountArr[i] = getNewWallsAmount(albums.get(i).id, albums.get(i).size);
+            System.out.println("    " + i + " : " + newWallsAmountArr[i]);
+        }
+    }
+
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
+        int newWallsAmount = -1;
+        if (newWallsAmountArr != null)
+            newWallsAmount = newWallsAmountArr[i];
         Holder holder = new Holder();
         View v = inflater.inflate(R.layout.category_item, null);
-        holder.textView = (TextView) v.findViewById(R.id.category_item_tv);
+        holder.categoryTextView = (TextView) v.findViewById(R.id.category_item_tv);
         holder.imageView = (CircularImageView) v.findViewById(R.id.category_item_imv);
-        holder.textView.setText(albums.get(i).title);
-        Log.d(log, "album thumb id = " + albums.get(i).thumb_src);
+        holder.newWallsTextView = (TextView) v.findViewById(R.id.new_walls_amount_tv);
+        holder.categoryTextView.setText(albums.get(i).title);
+        //holder.newWallsTextView.setText("+" + albums.get(i).title.length());
+        //if (i % 3 == 0) holder.newWallsTextView.setVisibility(View.INVISIBLE);
+        if (newWallsAmount > 0) {
+            holder.newWallsTextView.setVisibility(View.VISIBLE);
+            holder.newWallsTextView.setText("+" + newWallsAmount);
+        } else holder.newWallsTextView.setVisibility(View.INVISIBLE);
+
         Glide.with(context)
                 .load(albums.get(i).thumb_src)
                 .apply(options)
-                .thumbnail(0.3f)
                 .into(holder.imageView);
         return v;
     }
 
-    private RequestOptions options = new RequestOptions()
-            .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-            .placeholder(R.mipmap.icon)
-            .error(R.mipmap.icon);
+    public int getNewWallsAmount(int id, int currentSize) {
+        int oldSize = sharedPreferences.getInt("" + id, 0);
+        //if (oldSize == 0) return -1; else
+        return currentSize - oldSize;
+    }
+
+    public void writeNewSizeToPref(VKApiPhotoAlbum album) {
+        Log.d(log, "writeNewSizeToPref()! size = " + album.size);
+        writeNewSizeToPref(album.id, album.size);
+    }
+
+    public void writeNewSizeToPref(int id, int size) {
+        SharedPreferences.Editor ed = sharedPreferences.edit();
+        ed.putInt("" + id, size);
+        ed.apply();
+    }
 
     private class Holder {
         CircularImageView imageView;
-        TextView textView;
+        TextView categoryTextView;
+        TextView newWallsTextView;
+
     }
 }

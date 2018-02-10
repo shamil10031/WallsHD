@@ -19,4 +19,8 @@ public interface WallsLoader {
 
     void closeWallpaperFragment();
 
+    void loadSavedWalls();
+
+    void scrolToPosition(int position);
+
 }

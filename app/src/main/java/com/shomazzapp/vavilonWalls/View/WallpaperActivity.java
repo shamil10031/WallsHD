@@ -1,68 +1,10 @@
 package com.shomazzapp.vavilonWalls.View;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
-import android.support.annotation.Nullable;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
+public class WallpaperActivity {//extends AppCompatActivity implements PullBackLayout.Callback {
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.Target;
-import com.shomazzapp.vavilonWalls.Requests.CommentRequset;
-import com.shomazzapp.vavilonWalls.Requests.DocumentRequest;
-import com.shomazzapp.vavilonWalls.Utils.Constants;
-import com.shomazzapp.vavilonWalls.Utils.NetworkHelper;
-import com.shomazzapp.vavilonWalls.Utils.Tasks.DeleteFileAsyncTask;
-import com.shomazzapp.vavilonWalls.Utils.Tasks.DownloadAsyncTask;
-import com.shomazzapp.vavilonWalls.Utils.Tasks.SetWallpaperAsyncTask;
-import com.shomazzapp.walls.R;
-import com.vk.sdk.api.model.VKApiComment;
-import com.vk.sdk.api.model.VKApiPhoto;
-
-import java.io.File;
-import java.util.ArrayList;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import ooo.oxo.library.widget.PullBackLayout;
-
-import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
-
-public class WallpaperActivity extends AppCompatActivity implements PullBackLayout.Callback {
-
-    private static final String log = "WallpaperActivity";
+    /*private static final String log = "WallpaperActivity";
     private final Handler mHideHandler = new Handler();
-    @BindView(R.id.wallpaper_fragment_main_frame)
+    *//*@BindView(R.id.wallpaper_fragment_main_frame)
     FrameLayout mainFrame;
     @BindView(R.id.tag_tv)
     TextView tagsView;
@@ -81,7 +23,7 @@ public class WallpaperActivity extends AppCompatActivity implements PullBackLayo
     @BindView(R.id.set_btn)
     Button setButton;
     @BindView(R.id.download_btn)
-    Button downloadButton;
+    Button downloadButton;*//*
     private boolean isNewCategory;
     private boolean isForSavedWalls;
     private Animation fadeout;
@@ -105,13 +47,13 @@ public class WallpaperActivity extends AppCompatActivity implements PullBackLayo
 
         @Override
         public void onPageSelected(int position) {
-            if (NetworkHelper.isOnLine(WallpaperActivity.this)) {
+            *//*if (NetworkHelper.isOnLine(WallpaperActivity.this)) {
                 currentWallpaper = wallpapers.get(position);
                 displayWallpaperInfo(position);
             } else {
-                Toast.makeText(WallpaperActivity.this, Constants.ERROR_NETWORK_MSG, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(WallpaperActivity.this, Constants.ERROR_NETWORK_MSG, Toast.LENGTH_SHORT).show();
                 onBack(null);
-            }
+            }*//*
         }
 
         @Override
@@ -377,8 +319,8 @@ public class WallpaperActivity extends AppCompatActivity implements PullBackLayo
     @Override
     public void onPull(float v) {
         Log.d(log, "onPull called, v = " + v);
-        /*if (v <= 0.7)
-            backView.setAlpha(0.7f - v);*/
+        *//*if (v <= 0.7)
+            backView.setAlpha(0.7f - v);*//*
 
         mainFrame.setScaleX(1 - v * 0.3f);
         mainFrame.setScaleY(1 - v * 0.3f);
@@ -412,14 +354,14 @@ public class WallpaperActivity extends AppCompatActivity implements PullBackLayo
             ImageView imView = view.findViewById(R.id.wallpaper_preview);
             ProgressBar progressBar = view.findViewById(R.id.progress_bar_fullscreen);
             progressBar.setVisibility(View.VISIBLE);
-            Glide.with(WallpaperActivity.this)
+            *//*Glide.with(WallpaperActivity.this)
                     .load(isForSavedWalls ? savedWallpapers.get(position) : wallpapers.get(position).photo_2560)
                     .transition(withCrossFade())
                     .listener(new MyRequestListenner(view.getContext(), progressBar))
                     .thumbnail(0.25f)
                     //.error(R.drawable.ic_ab_app)
                     .apply(options)
-                    .into(imView);
+                    .into(imView);*//*
             container.addView(view);
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -462,10 +404,10 @@ public class WallpaperActivity extends AppCompatActivity implements PullBackLayo
         public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
             System.out.println("Exception ! Model : " + model);
             e.printStackTrace();
-            /*String s;
+            *//*String s;
             if (NetworkHelper.isOnLine(context)) s = Constants.ERROR_LOAD_MSG;
             else s = Constants.ERROR_NETWORK_MSG;
-            Toast.makeText(context, s, Toast.LENGTH_SHORT).show();*/
+            Toast.makeText(context, s, Toast.LENGTH_SHORT).show();*//*
             progressBar.setVisibility(View.GONE);
             return false;
         }
@@ -477,4 +419,6 @@ public class WallpaperActivity extends AppCompatActivity implements PullBackLayo
         }
     }
 
+}
+*/
 }

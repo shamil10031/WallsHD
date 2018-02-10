@@ -4,11 +4,41 @@
 
     <string name="title_activity_wallpaper">WallpaperActivity</string>
 
-    <string name="categories">Categories</string>
-    <string name="saved_walls">Saved walls</string>
-    <string name="remove_ad">Remove ad</string>
-    <string name="share">Share</string>
-    <string name="rate_app">Rate app</string>
-    <string name="about_info">About</string>
-    <string name="feedback">Feedback</string>
+    <string name="exit">Выход</string>
+    <string name="exit_confirmation_msg">Вы действительно хотите выйти?</string>
+    <string name="error_network_msg">Необходимо интернет соединение!</string>
+    <string name="error_load_msg">Не удалось загрузить обои :(</string>
+    <string name="error_download_msg">Попробуйте загрузить позже :(</string>
+    <string name="error_setting_wall_msg">Попробуйте установить позже :(</string>
+    <string name="succes_msg">Succes!</string>
+    <string name="file_exists_msg">Вы уже скачивали эти обои!</string>
+
+    <string name="no">Нет</string>
+    <string name="yes">Да</string>
+
+    <string name="features">Возможности аккаунта</string>
+    <string name="account_features_msg">
+        Войдя в свой вк аккаунт вы сможете:
+            - Скачивать обои в лучшем разрешении
+            - Просматривать категорию новых обоев
+        Согласны ли вы получить эти бонусы?
+    </string>
+    <string name="exit_from_vk">Выход из вк</string>
+    <string name="exit_from_vk_msg">Вы действительно хотите выйти из вк?</string>
+
+    <string name="need_permission_msg">Для работы приложения необходимо разрешение на доступ к памяти :(</string>
+
+    <string name="categories">Категории</string>
+    <string name="saved_walls">Сохраненные</string>
+    <string name="remove_ad">Удалить рекламу</string>
+    <string name="share">Поделиться</string>
+    <string name="rate_app">Оценить</string>
+    <string name="about_info">О приложении</string>
+    <string name="feedback">Написать разработчику</string>
+    <string name="login">Ввойти в ВК</string>
+    <string name="logout">Выйти из ВК</string>
+
+    <string name="set">Установить</string>
+    <string name="download">Скачать</string>
+    <string name="delete">Удалить</string>
 </resources>

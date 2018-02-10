@@ -30,12 +30,12 @@
             android:label="ServiceActivity"
             android:screenOrientation="portrait"
             android:theme="@style/VK.Transparent" />
-        <activity
+        <!--<activity
             android:name="com.shomazzapp.vavilonWalls.View.WallpaperActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_wallpaper"
             android:screenOrientation="portrait"
-            android:theme="@style/TranscluentTheme" />
+            android:theme="@style/TranscluentTheme" />-->
     </application>
 
 </manifest>

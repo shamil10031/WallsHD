@@ -27,7 +27,6 @@ public class AllPhotosRequest {
     }
 
     public void loadPhotos() {
-        System.out.println("From All photos request : token = " + Constants.ACCES_TOKEN);
         VKRequest request = new VKRequest("photos.getAll", VKParameters.from(
                 VKApiConst.OWNER_ID, Constants.COMMUNITY_ID,
                 VKApiConst.OFFSET, offset,

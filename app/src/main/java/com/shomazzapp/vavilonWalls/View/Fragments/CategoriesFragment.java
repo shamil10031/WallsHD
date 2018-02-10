@@ -19,6 +19,7 @@ import com.shomazzapp.vavilonWalls.Utils.FragmentRegulator;
 import com.shomazzapp.vavilonWalls.Utils.NetworkHelper;
 import com.shomazzapp.vavilonWalls.View.Adapters.CategoriesAdapter;
 import com.shomazzapp.walls.R;
+import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.model.VKApiPhotoAlbum;
 
 import org.json.JSONException;
@@ -59,10 +60,17 @@ public class CategoriesFragment extends Fragment implements SwipeRefreshLayout.O
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(log, "OnResume!");
+        adapter.generateNewWallsAmounts();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         if (fragmentRegulator != null)
-            fragmentRegulator.setToolbarTitle("Categories");
+            fragmentRegulator.setToolbarTitle(getResources().getString(R.string.categories));
         if (NetworkHelper.isOnLine(context)) {
             if (mainView == null) init(inflater, container);
             onNetworkChanged(true);
@@ -91,16 +99,15 @@ public class CategoriesFragment extends Fragment implements SwipeRefreshLayout.O
 
     public void loadAlbums() {
         this.albums = new AlbumsRequest().getAlbums();
-        if (albums.size() > 0)
+        if (albums.size() > 0 && VKSdk.isLoggedIn())
             albums.add(0, newAlbum);
-        else
+        if (!NetworkHelper.isOnLine(context))
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     onNetworkChanged(false);
                 }
             }, 100);
-        Log.d(log, " loadAlbums : Albums size = " + albums.size());
     }
 
     public void initOnRefresher() {
@@ -120,6 +127,7 @@ public class CategoriesFragment extends Fragment implements SwipeRefreshLayout.O
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 fragmentRegulator.loadWallsListFragment(adapter.getAlbums().get(i).id,
                         adapter.getAlbums().get(i).title);
+                adapter.writeNewSizeToPref(adapter.getAlbums().get(i));
             }
         });
         categoriesListView.smoothScrollToPosition(0);
@@ -141,6 +149,7 @@ public class CategoriesFragment extends Fragment implements SwipeRefreshLayout.O
             loadAlbums();
             onNetworkChanged(true);
             setListView();
+            adapter.generateNewWallsAmounts();
             fragmentRegulator.reloadHeader();
         } else onNetworkChanged(false);
     }
@@ -160,7 +169,6 @@ public class CategoriesFragment extends Fragment implements SwipeRefreshLayout.O
         if (NetworkHelper.isOnLine(context))
             onNetworkChanged(true);
         else onNetworkChanged(false);
-        //init();
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {

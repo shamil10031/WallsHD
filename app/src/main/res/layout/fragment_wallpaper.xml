@@ -79,7 +79,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="0.5"
                     android:background="#0000"
-                    android:text="set"
+                    android:text="@string/set"
                     android:textColor="#ffff"
                     android:textSize="16sp"
                     android:textStyle="normal" />
@@ -90,7 +90,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="0.5"
                     android:background="#0000"
-                    android:text="download"
+                    android:text="@string/download"
                     android:textColor="#ffff"
                     android:textSize="16sp"
                     android:textStyle="normal" />

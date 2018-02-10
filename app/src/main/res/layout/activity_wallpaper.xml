@@ -1,10 +1,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.shomazzapp.vavilonWalls.View.WallpaperActivity"
     android:background="#0000">
-    <!--android:id="@+id/wallpaper_activity_main_frame">-->
 
     <!--<View
         android:id="@+id/wallpaper_activity_back_view"

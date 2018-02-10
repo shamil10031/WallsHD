@@ -32,7 +32,7 @@ public class SavedWallsViewAdapter extends RecyclerView.Adapter<SavedWallsViewAd
     private WallsLoader wallsLoader;
 
     private RequestOptions options = new RequestOptions()
-            .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+            .diskCacheStrategy(DiskCacheStrategy.NONE)
             .placeholder(R.drawable.vk_clear_shape);
 
     private RequestListener requestListener = new RequestListener() {
