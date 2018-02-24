@@ -22,12 +22,12 @@
         <item
             android:id="@+id/login"
             android:title="@string/login" />
-        <item
+        <!--<item
             android:id="@+id/drawer_remove_ad"
             android:title="@string/remove_ad" />
         <item
             android:id="@+id/drawer_rate_app"
-            android:title="@string/rate_app" />
+            android:title="@string/rate_app" />-->
         <item
             android:id="@+id/drawer_share"
             android:title="@string/share" />

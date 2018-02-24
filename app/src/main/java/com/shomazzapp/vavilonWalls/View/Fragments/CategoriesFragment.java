@@ -5,7 +5,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +13,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 
 import com.shomazzapp.vavilonWalls.Requests.AlbumsRequest;
+import com.shomazzapp.vavilonWalls.Requests.AllPhotosRequest;
 import com.shomazzapp.vavilonWalls.Utils.Constants;
 import com.shomazzapp.vavilonWalls.Utils.FragmentRegulator;
 import com.shomazzapp.vavilonWalls.Utils.NetworkHelper;
@@ -21,9 +21,6 @@ import com.shomazzapp.vavilonWalls.View.Adapters.CategoriesAdapter;
 import com.shomazzapp.walls.R;
 import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.model.VKApiPhotoAlbum;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -51,18 +48,15 @@ public class CategoriesFragment extends Fragment implements SwipeRefreshLayout.O
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.context = getActivity();
-        try {
-            newAlbum = new VKApiPhotoAlbum(new JSONObject(
-                    "{ \n\"id\": " + Constants.NEW_WALLS_ALBUM_ID + ", \n\"title\": \"New\"}"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        newAlbum = new VKApiPhotoAlbum();
+        newAlbum.id = Constants.NEW_WALLS_ALBUM_ID;
+        newAlbum.title = "New";
+        newAlbum.size = new AllPhotosRequest(0, 0).getAllPhotosCount();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(log, "OnResume!");
         adapter.generateNewWallsAmounts();
     }
 
@@ -152,16 +146,6 @@ public class CategoriesFragment extends Fragment implements SwipeRefreshLayout.O
             adapter.generateNewWallsAmounts();
             fragmentRegulator.reloadHeader();
         } else onNetworkChanged(false);
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
     }
 
     @Override

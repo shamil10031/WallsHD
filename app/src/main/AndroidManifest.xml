@@ -6,11 +6,12 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.SET_WALLPAPER" />
+    <uses-permission android:name="android.permission.EXPAND_STATUS_BAR" />
 
     <!-- android
      android:debuggable="false"-->
     <application
-        android:name="com.shomazzapp.vavilonWalls.Utils.Application"
+        android:name="com.shomazzapp.vavilonWalls.Application"
         android:allowBackup="true"
         android:icon="@mipmap/icon"
         android:label="Vavilon Walls"
@@ -30,12 +31,6 @@
             android:label="ServiceActivity"
             android:screenOrientation="portrait"
             android:theme="@style/VK.Transparent" />
-        <!--<activity
-            android:name="com.shomazzapp.vavilonWalls.View.WallpaperActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/title_activity_wallpaper"
-            android:screenOrientation="portrait"
-            android:theme="@style/TranscluentTheme" />-->
     </application>
 
 </manifest>

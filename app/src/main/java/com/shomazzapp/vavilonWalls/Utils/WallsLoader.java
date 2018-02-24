@@ -17,6 +17,8 @@ public interface WallsLoader {
     void loadSavedWallpaperFragment(ArrayList<File> walls,
                                     int currentPosition);
 
+    void loadSavedWallpaperFragment(int currentPosition);
+
     void closeWallpaperFragment();
 
     void loadSavedWalls();

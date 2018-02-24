@@ -99,6 +99,27 @@ public class WallpaperFragment extends DialogFragment implements PullBackLayout.
     };
     private WallsLoader wallsLoader;
     private ArrayList<VKApiPhoto> wallpapers;
+    private ArrayList<File> savedWallpapers;
+    private int currentSavedWallPosition;
+    ViewPager.OnPageChangeListener viewPagerPageChangeListenerSaved = new ViewPager.OnPageChangeListener() {
+
+        @Override
+        public void onPageSelected(int position) {
+            currentSavedWallPosition = position;
+        }
+
+        @Override
+        public void onPageScrolled(int arg0, float arg1, int arg2) {
+
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int arg0) {
+
+        }
+    };
+    private WallpaperFragment.MyViewPagerAdapter myViewPagerAdapter;
+    private boolean mVisible;
     private VKApiPhoto currentWallpaper;
     ViewPager.OnPageChangeListener viewPagerPageChangeListener = new ViewPager.OnPageChangeListener() {
 
@@ -124,45 +145,20 @@ public class WallpaperFragment extends DialogFragment implements PullBackLayout.
 
         }
     };
-    private ArrayList<File> savedWallpapers;
-    private int currentSavedWallPosition;
-    ViewPager.OnPageChangeListener viewPagerPageChangeListenerSaved = new ViewPager.OnPageChangeListener() {
-
-        @Override
-        public void onPageSelected(int position) {
-            currentSavedWallPosition = position;
-        }
-
-        @Override
-        public void onPageScrolled(int arg0, float arg1, int arg2) {
-
-        }
-
-        @Override
-        public void onPageScrollStateChanged(int arg0) {
-
-        }
-    };
-    private WallpaperFragment.MyViewPagerAdapter myViewPagerAdapter;
-    private boolean mVisible;
 
     public static String getAviableLink(VKApiPhoto currentWallpaper, boolean isNewCategory) {
         String url;
-        Log.d(log, "Comments amount == " + currentWallpaper.comments
-                + "  album id = " + currentWallpaper.album_id + "  isNewCategory = " + isNewCategory);
         if (currentWallpaper.comments > 0 || isNewCategory) {
             VKApiComment comment = new CommentRequset(currentWallpaper.id).getComment();
             if (comment != null && comment.attachments.get(0) != null) {
                 url = new DocumentRequest(comment.attachments.get(0).toAttachmentString()
                         .toString()).getAddress();
-                Log.d(log, "download original photo");
             } else url = MainActivity.getPhotoMaxQualityLink(currentWallpaper);
         } else url = MainActivity.getPhotoMaxQualityLink(currentWallpaper);
         return url;
     }
 
     public static String getFileNameFromURL(String urlString) {
-        Log.d(log, "Get file name from " + urlString);
         if (urlString != null) {
             if (urlString.startsWith("https://vk"))
                 return urlString.substring(urlString.indexOf("?hash=") + "?hash=".length(),
@@ -213,18 +209,9 @@ public class WallpaperFragment extends DialogFragment implements PullBackLayout.
     }
 
     private void init() {
-        Log.d(log, "init!");
         mVisible = true;
         myViewPagerAdapter = new WallpaperFragment.MyViewPagerAdapter();
         if (!isForSavedWalls) {
-            //wallpapers = (ArrayList<VKApiPhoto>) getIntent().getSerializableExtra(Constants.EXTRA_WALLS);
-            //isNewCategory = getIntent().getBooleanExtra(Constants.EXTRA_IS_NEW_CATEGORY, false);
-            //currentWallpaper = wallpapers.get(getIntent()
-            //        .getIntExtra(Constants.EXTRA_WALL_POSITION, 0));
-            Log.d(log, "wallpapers size = " + wallpapers.size()
-                    + " current wallpaper " + currentSavedWallPosition
-                    + "\n text : " + currentWallpaper.text
-                    + "\n text1 : " + wallpapers.get(currentSavedWallPosition).text);
             tagsView.setText(addSpaces(currentWallpaper.text));
             downloadButton.setText(getResources().getString(R.string.download));
             viewPager.addOnPageChangeListener(viewPagerPageChangeListener);
@@ -232,8 +219,6 @@ public class WallpaperFragment extends DialogFragment implements PullBackLayout.
             downloadButton.setText(getResources().getString(R.string.delete));
             viewPager.addOnPageChangeListener(viewPagerPageChangeListenerSaved);
         }
-        //currentSavedWallPosition = getIntent()
-        //        .getIntExtra(Constants.EXTRA_WALL_POSITION, 0);
         viewPager.setAdapter(myViewPagerAdapter);
         viewPager.setCurrentItem(currentSavedWallPosition);
 
@@ -308,8 +293,6 @@ public class WallpaperFragment extends DialogFragment implements PullBackLayout.
             viewPager.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
                     | View.SYSTEM_UI_FLAG_FULLSCREEN
                     | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
         }
         mHideHandler.removeCallbacks(mShowPart2Runnable);
@@ -319,33 +302,46 @@ public class WallpaperFragment extends DialogFragment implements PullBackLayout.
     public void onResume() {
         super.onResume();
         ((AppCompatActivity) activity).getSupportActionBar().hide();
-        show();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.d(log, "destroy");
     }
 
     @SuppressLint("InlinedApi")
     private void show() {
         // Show the system bar
-        viewPager.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+        //activity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
+        viewPager.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
         mVisible = true;
 
         // Schedule a runnable to display UI elements after a delay
         mHideHandler.postDelayed(mShowPart2Runnable, 0);
     }
 
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_wallpaper, container, false);
+        if (isForSavedWalls || NetworkHelper.isOnLine(activity)) {
+            ButterKnife.bind(this, view);
+            init();
+        } else {
+            Toast.makeText(activity, getResources().getString(R.string.error_network_msg),
+                    Toast.LENGTH_SHORT).show();
+            onBack();
+        }
+        activity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        mHideHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                show();
+            }
+        }, 300);
+        return view;
+    }
+
     public void onBack() {
         wallsLoader.closeWallpaperFragment();
-        //TODO:update savedWalls
-        //if(isForSavedWalls) wallsLoader.
-        /*activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);*/
-        //activity.getWindow().
+        if (isForSavedWalls)
+            wallsLoader.loadSavedWalls();
     }
 
     public void setWallsLoader(WallsLoader wallsLoader) {
@@ -394,7 +390,13 @@ public class WallpaperFragment extends DialogFragment implements PullBackLayout.
     }
 
     public void deleteFile(File f) {
-        new DeleteFileAsyncTask(activity, null).execute(f);
+        new DeleteFileAsyncTask(activity, new DeleteFileAsyncTask.AsyncResponse() {
+            @Override
+            public void processFinish() {
+                onBack();
+                wallsLoader.loadSavedWallpaperFragment(currentSavedWallPosition);
+            }
+        }).execute(f);
     }
 
     private void downloadFile(String url, DownloadAsyncTask.AsyncResponse delegate) {
@@ -448,34 +450,6 @@ public class WallpaperFragment extends DialogFragment implements PullBackLayout.
         //mainFrame.setScaleX(1f);
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_wallpaper, container, false);
-        //isForSavedWalls = getIntent().getBooleanExtra(Constants.EXTRA_IS_FOR_SAVED_WALLS, true);
-        if (isForSavedWalls || NetworkHelper.isOnLine(activity)) {
-            ButterKnife.bind(this, view);
-            init();
-        }
-        else {
-            Toast.makeText(activity, getResources().getString(R.string.error_network_msg),
-                    Toast.LENGTH_SHORT).show();
-            onBack();
-        }
-        show();
-        return view;
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-    }
-
     public void notifyWallsUodated() {
         if (myViewPagerAdapter != null)
             myViewPagerAdapter.notifyDataSetChanged();
@@ -519,6 +493,7 @@ public class WallpaperFragment extends DialogFragment implements PullBackLayout.
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    Log.d(log, "                ONCLEAAAK!!");
                     toggle();
                 }
             });

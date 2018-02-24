@@ -16,6 +16,7 @@ public class AllPhotosRequest {
 
     private int offset;
     private int count;
+    private int allPhotosCount;
 
     private ArrayList<VKApiPhoto> photos;
 
@@ -38,7 +39,7 @@ public class AllPhotosRequest {
                 super.onComplete(response);
                 try {
                     //  count of all photos:
-                    //    int count = response.json.getJSONObject("response").getInt("count");
+                    allPhotosCount = response.json.getJSONObject("response").getInt("count");
                     for (int i = 0; i < count; i++) {
                         VKApiPhoto photo = new VKApiPhoto((JSONObject) response.json.getJSONObject("response")
                                 .getJSONArray("items").get(i));
@@ -56,6 +57,10 @@ public class AllPhotosRequest {
                 System.out.println(error);
             }
         });
+    }
+
+    public int getAllPhotosCount() {
+        return allPhotosCount;
     }
 
     public ArrayList<VKApiPhoto> getPhotos() {

@@ -111,7 +111,6 @@ public class DownloadAsyncTask extends AsyncTask<String, Integer, File> {
         return folder;
     }
 
-    //TODO: fix cancel
     @Override
     protected void onCancelled() {
         super.onCancelled();

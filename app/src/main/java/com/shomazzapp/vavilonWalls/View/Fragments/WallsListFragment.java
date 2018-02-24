@@ -8,7 +8,6 @@ import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -109,10 +108,8 @@ public class WallsListFragment extends Fragment implements WallsLoader, SwipeRef
     @Override
     public void onResume() {
         super.onResume();
-        if (onScrollListener != null) {
+        if (onScrollListener != null)
             onScrollListener.reset(0, true);
-            Log.d(log, "onResume()!");
-        }
         if (fragmentRegulator != null) fragmentRegulator.hide();
     }
 
@@ -150,7 +147,6 @@ public class WallsListFragment extends Fragment implements WallsLoader, SwipeRef
         layoutManager.setAutoMeasureEnabled(true);
         recyclerView.setLayoutManager(layoutManager);
         presenter = new WallsListPresenter(this);
-        Log.d(log, "isForSavedWalls : " + isForSavedWalls);
         if (!isForSavedWalls) {
             wallsViewAdapter = new WallsViewAdapter(context, fragmentRegulator, this);
             recyclerView.setAdapter(wallsViewAdapter);
@@ -160,7 +156,6 @@ public class WallsListFragment extends Fragment implements WallsLoader, SwipeRef
                     wallsViewAdapter.loadMore();
                 }
             };
-            //recyclerView.setOnScrollListener(onScrollListener);
         } else {
             savedWallsViewAdapter = new SavedWallsViewAdapter(context, fragmentRegulator, this);
             recyclerView.setAdapter(savedWallsViewAdapter);
@@ -185,7 +180,6 @@ public class WallsListFragment extends Fragment implements WallsLoader, SwipeRef
 
     public void changeToSavedWalls() {
         setForSavedWalls(true);
-        Log.d(log, "main view " + (mainView == null ? "=" : "not") + " null");
         if (mainView != null) {
             RecyclerView.LayoutManager layoutManager = new GridLayoutManager(context, 3);
             layoutManager.setAutoMeasureEnabled(true);
@@ -210,14 +204,6 @@ public class WallsListFragment extends Fragment implements WallsLoader, SwipeRef
         super.onDetach();
         isForSavedWalls = false;
         Glide.get(context).clearMemory();
-        /*new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... voids) {
-                Glide.getPhotoCacheDir(context).delete();
-                Glide.get(context).clearDiskCache();
-                return null;
-            }
-        }.execute();*/
     }
 
     @Override
@@ -233,6 +219,11 @@ public class WallsListFragment extends Fragment implements WallsLoader, SwipeRef
         fragmentRegulator.loadSavedWallpaperFragment(walls, currentPosition, this);
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
         transaction.replace(R.id.children_fragment_frame, fragmentRegulator.getWallpaperFragment()).commit();
+    }
+
+    @Override
+    public void loadSavedWallpaperFragment(int currentPosition) {
+        loadSavedWallpaperFragment(savedWallsViewAdapter.getWallpapers(), currentPosition);
     }
 
     @Override

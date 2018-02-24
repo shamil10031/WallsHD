@@ -25,7 +25,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -66,8 +65,8 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
                     | View.SYSTEM_UI_FLAG_FULLSCREEN
                     | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                     | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+            );
         }
     };
     private final Runnable mHideRunnable = new Runnable() {
@@ -117,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
                             else
                                 showFeaturesOfVKDialog();
                             break;
-                        case R.id.drawer_remove_ad:
+                        /*case R.id.drawer_remove_ad:
                             Toast.makeText(MainActivity.this, "Remove Ad!", Toast.LENGTH_SHORT)
                                     .show();
                             drawer.closeDrawers();
@@ -126,20 +125,21 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
                             Toast.makeText(MainActivity.this, "Rate App!", Toast.LENGTH_SHORT)
                                     .show();
                             drawer.closeDrawers();
-                            break;
+                            break;*/
                         case R.id.drawer_share:
-                            Toast.makeText(MainActivity.this, "Share!", Toast.LENGTH_SHORT)
-                                    .show();
+                            Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+                            sharingIntent.setType("text/plain");
+                            sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT,
+                                    getResources().getString(R.string.share_text));
+                            startActivity(Intent.createChooser(sharingIntent, "Share via"));
                             drawer.closeDrawers();
                             break;
                         case R.id.drawer_feedback:
-                            Toast.makeText(MainActivity.this, "Feedback!", Toast.LENGTH_SHORT)
-                                    .show();
+                            showFeedbackDialog();
                             drawer.closeDrawers();
                             break;
                         case R.id.drawer_about_info:
-                            Toast.makeText(MainActivity.this, "About Info!", Toast.LENGTH_SHORT)
-                                    .show();
+                            showAboutDialog();
                             drawer.closeDrawers();
                             break;
                     }
@@ -168,7 +168,6 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
     public static String getPhotoMaxQualityLink(VKApiPhoto vkApiPhoto) {
         String links = vkApiPhoto.photo_2560 + vkApiPhoto.photo_1280 + vkApiPhoto.photo_807
                 + vkApiPhoto.photo_604 + vkApiPhoto.photo_130 + vkApiPhoto.photo_75;
-        //System.out.println(links);
         int index = links.indexOf(".jpg");
         if (index < 1) return "";
         else return links.substring(0, index + ".jpg".length());
@@ -205,7 +204,6 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d(log, "OnActivityResult!");
         if (!VKSdk.onActivityResult(requestCode, resultCode, data, new VKCallback<VKAccessToken>() {
             @Override
             public void onResult(VKAccessToken res) {
@@ -298,6 +296,7 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
             public void onClick(DialogInterface dialog, int which) {
                 VKSdk.logout();
                 changeVKItemTitle();
+                init();
             }
         });
         ab.setNegativeButton(getResources().getString(R.string.no), new DialogInterface.OnClickListener() {
@@ -319,6 +318,32 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
                 requestPermissionIfNeed();
+            }
+        });
+        ab.show();
+    }
+
+    public void showFeedbackDialog() {
+        hide();
+        AlertDialog.Builder ab = new AlertDialog.Builder(MainActivity.this);
+        ab.setMessage(getResources().getString(R.string.feedback_text));
+        ab.setPositiveButton("ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        ab.show();
+    }
+
+    public void showAboutDialog() {
+        hide();
+        AlertDialog.Builder ab = new AlertDialog.Builder(MainActivity.this);
+        ab.setMessage(getResources().getString(R.string.about_text));
+        ab.setPositiveButton("ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
             }
         });
         ab.show();
@@ -390,8 +415,6 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
     public boolean isNeedToDownloadHeader() {
         int lastDay = sharedPreferences.getInt(Constants.HEADER_LAST_UPDATE_DATA, 0);
         int currentDay = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
-        Log.d(log, "from isNeedToUpdate: " + currentDay + " - " + lastDay +
-                " v " + Constants.DAYS_PAST_TO_UPDATE);
         return currentDay - lastDay >= Constants.DAYS_PAST_TO_UPDATE;
     }
 
@@ -408,7 +431,6 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
     }
 
     public void updateHeader() {
-        Log.d(log, "updateHeaderCalled!");
         if (isNeedToDownloadHeader() || !new File(DownloadAsyncTask.getFolder(),
                 Constants.HEADER_FILE_NAME).exists()) {
             Thread t = getDownloadHeaderThread();
@@ -501,7 +523,6 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
     }
 
     public void loadFragment(Fragment fragment) {
-        Log.d(log, "loadFragment : " + fragment.getClass().getSimpleName());
         final FragmentTransaction transaction = getFragmentManager().beginTransaction();
         transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         transaction.replace(R.id.frame, fragment);

@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -25,16 +24,12 @@ import com.shomazzapp.walls.R;
 import com.vk.sdk.api.model.VKApiPhoto;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 
 public class WallsViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private FragmentRegulator fragmentRegulator;
-    public static final int TYPE_FOOTER = 222;
-    public static final int TYPE_ITEM = 333;
-    List<View> footers = new ArrayList<>();
     private Context context;
     private ArrayList<VKApiPhoto> wallpapers;
     private WallsLoader wallsLoader;
@@ -74,34 +69,21 @@ public class WallsViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (viewType == TYPE_ITEM) {
-            LayoutInflater inflater = LayoutInflater.from(context);
-            View wallpapperView = inflater.inflate(R.layout.walls_view_item, parent, false);
-            return new ImageViewHolder(wallpapperView);
-        } else {
-            LinearLayout linearLayout = (LinearLayout) LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.loading_item, parent, false);
-            linearLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT));
-            return new FooterViewHolder(linearLayout);
-        }
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View wallpapperView = inflater.inflate(R.layout.walls_view_item, parent, false);
+        return new ImageViewHolder(wallpapperView);
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (wallpapers != null) {
-            if (position >= wallpapers.size()) {
-                View v = footers.get(position - wallpapers.size());
-                prepareFooter((FooterViewHolder) holder, v);
-            } else {
-                Glide.with(context)
-                        .load(wallpapers.get(position).photo_604)
-                        .transition(withCrossFade())
-                        .thumbnail(0.5f)
-                        .listener(requestListener)
-                        .apply(options)
-                        .into(((ImageViewHolder) holder).imageView);
-            }
+            Glide.with(context)
+                    .load(wallpapers.get(position).photo_604)
+                    .transition(withCrossFade())
+                    .thumbnail(0.5f)
+                    .listener(requestListener)
+                    .apply(options)
+                    .into(((ImageViewHolder) holder).imageView);
            /* Log.d("WallsViewAdapter", "position == " + position + "  size == " + wallpapers.size()
                     + "\n loaded == " + loaded);*/
             if (position == wallpapers.size() - 6 && !loaded && !fullAlbumLoaded)
@@ -125,46 +107,7 @@ public class WallsViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     @Override
     public int getItemCount() {
-        return wallpapers == null ? 0 : wallpapers.size() + footers.size();
-    }
-
-    private void prepareFooter(FooterViewHolder vh, View view) {
-        vh.base.removeAllViews();
-        vh.base.addView(view);
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        if (position >= wallpapers.size())
-            return TYPE_FOOTER;
-        else
-            return TYPE_ITEM;
-    }
-
-    public void addFooter(View footer) {
-        if (!footers.contains(footer)) {
-            footers.add(footer);
-            notifyItemInserted(wallpapers.size() + footers.size() - 1);
-        }
-    }
-
-    public void removeFooter(View footer) {
-        if (footers.contains(footer)) {
-            notifyItemRemoved(wallpapers.size() + footers.indexOf(footer));
-            footers.remove(footer);
-            if (footer.getParent() != null) {
-                ((ViewGroup) footer.getParent()).removeView(footer);
-            }
-        }
-    }
-
-    public class FooterViewHolder extends RecyclerView.ViewHolder {
-        LinearLayout base;
-
-        public FooterViewHolder(View itemView) {
-            super(itemView);
-            this.base = (LinearLayout) itemView.findViewById(R.id.loading_progress_bar);
-        }
+        return wallpapers == null ? 0 : wallpapers.size();
     }
 
     public class ImageViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -180,15 +123,8 @@ public class WallsViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         @Override
         public void onClick(View view) {
             int position = getAdapterPosition();
-            if (position != RecyclerView.NO_POSITION) {
-                /*Intent intent = new Intent(context, WallpaperActivity.class);
-                intent.putExtra(Constants.EXTRA_WALLS, wallpapers);
-                intent.putExtra(Constants.EXTRA_WALL_POSITION, position);
-                intent.putExtra(Constants.EXTRA_IS_FOR_SAVED_WALLS, false);
-                intent.putExtra(Constants.EXTRA_IS_NEW_CATEGORY, wallsLoader.isNewCategory());
-                context.startActivity(intent);*/
+            if (position != RecyclerView.NO_POSITION)
                 wallsLoader.loadVKWallpaperFragment(wallpapers, position);
-            }
         }
     }
 
@@ -204,7 +140,6 @@ public class WallsViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             super.onPreExecute();
             loaded = true;
             Log.d("WallsAdapter", "Loading more walls...");
-            //addFooter(v);
             if (fragmentRegulator == null) Log.d("WallsViewAdapter", "fragmentRegulator == null");
             else fragmentRegulator.setProgressVisible(true);
         }
@@ -219,14 +154,11 @@ public class WallsViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             loaded = false;
-            Log.d("WallsAdapter", "Loaded!");
             notifyDataSetChanged();
             if (fragmentRegulator != null) {
                 fragmentRegulator.setProgressVisible(false);
                 fragmentRegulator.notifyWallsUpdated();
             }
-            //wallsLoader.cahngeProgressState(true);
-            //removeFooter(v);
         }
     }
 

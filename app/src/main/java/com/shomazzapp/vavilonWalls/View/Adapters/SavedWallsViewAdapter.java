@@ -62,6 +62,10 @@ public class SavedWallsViewAdapter extends RecyclerView.Adapter<SavedWallsViewAd
         notifyDataSetChanged();
     }
 
+    public ArrayList<File> getWallpapers() {
+        return wallpapers;
+    }
+
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(context);
@@ -100,14 +104,8 @@ public class SavedWallsViewAdapter extends RecyclerView.Adapter<SavedWallsViewAd
         @Override
         public void onClick(View view) {
             int position = getAdapterPosition();
-            if (position != RecyclerView.NO_POSITION) {
-                /*Intent intent = new Intent(context, WallpaperActivity.class);
-                intent.putExtra(Constants.EXTRA_WALLS, wallpapers);
-                intent.putExtra(Constants.EXTRA_WALL_POSITION, position);
-                intent.putExtra(Constants.EXTRA_IS_FOR_SAVED_WALLS, true);
-                context.startActivity(intent);*/
+            if (position != RecyclerView.NO_POSITION)
                 wallsLoader.loadSavedWallpaperFragment(wallpapers, position);
-            }
         }
     }
 }

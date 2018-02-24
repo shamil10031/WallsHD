@@ -2,7 +2,6 @@ package com.shomazzapp.vavilonWalls.View.Adapters;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -65,10 +64,8 @@ public class CategoriesAdapter extends BaseAdapter {
 
     public void generateNewWallsAmounts() {
         newWallsAmountArr = new int[albums.size()];
-        System.out.println("From categories adapter");
         for (int i = 0; i < albums.size(); i++) {
             newWallsAmountArr[i] = getNewWallsAmount(albums.get(i).id, albums.get(i).size);
-            System.out.println("    " + i + " : " + newWallsAmountArr[i]);
         }
     }
 
@@ -83,13 +80,10 @@ public class CategoriesAdapter extends BaseAdapter {
         holder.imageView = (CircularImageView) v.findViewById(R.id.category_item_imv);
         holder.newWallsTextView = (TextView) v.findViewById(R.id.new_walls_amount_tv);
         holder.categoryTextView.setText(albums.get(i).title);
-        //holder.newWallsTextView.setText("+" + albums.get(i).title.length());
-        //if (i % 3 == 0) holder.newWallsTextView.setVisibility(View.INVISIBLE);
         if (newWallsAmount > 0) {
             holder.newWallsTextView.setVisibility(View.VISIBLE);
             holder.newWallsTextView.setText("+" + newWallsAmount);
         } else holder.newWallsTextView.setVisibility(View.INVISIBLE);
-
         Glide.with(context)
                 .load(albums.get(i).thumb_src)
                 .apply(options)
@@ -99,12 +93,10 @@ public class CategoriesAdapter extends BaseAdapter {
 
     public int getNewWallsAmount(int id, int currentSize) {
         int oldSize = sharedPreferences.getInt("" + id, 0);
-        //if (oldSize == 0) return -1; else
         return currentSize - oldSize;
     }
 
     public void writeNewSizeToPref(VKApiPhotoAlbum album) {
-        Log.d(log, "writeNewSizeToPref()! size = " + album.size);
         writeNewSizeToPref(album.id, album.size);
     }
 

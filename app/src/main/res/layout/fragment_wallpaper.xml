@@ -26,8 +26,7 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fitsSystemWindows="true">
+        android:layout_height="match_parent">
 
         <ImageButton
             android:id="@+id/back_button"
@@ -38,15 +37,23 @@
             android:paddingEnd="20dp"
             android:paddingStart="16dp"
             android:paddingTop="13dp"
+            android:layout_marginTop="16dp"
             android:scaleType="centerInside"
             android:src="@mipmap/arrow_back" />
 
-        <RelativeLayout
-            android:id="@+id/bottom_control_panel"
+        <ImageView
             android:layout_width="match_parent"
             android:layout_height="145dp"
-            android:layout_gravity="bottom"
-            android:background="@drawable/bw_gradient_walls">
+            android:background="@drawable/bw_gradient_walls"
+            android:layout_gravity="bottom" />
+
+        <RelativeLayout
+            android:visibility="gone"
+            android:fitsSystemWindows="true"
+            android:id="@+id/bottom_control_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom">
 
             <TextView
                 android:id="@+id/tag_tv"

@@ -1,4 +1,4 @@
-package com.shomazzapp.vavilonWalls.Utils;
+package com.shomazzapp.vavilonWalls;
 
 import com.vk.sdk.VKSdk;
 
