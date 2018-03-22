@@ -5,6 +5,7 @@ import com.vk.sdk.api.model.VKApiPhoto;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public interface FragmentRegulator {
 
@@ -12,7 +13,7 @@ public interface FragmentRegulator {
 
     void loadCategoriesFragment();
 
-    void loadWallsListFragment(int albumId, String category);
+    void loadWallsListFragment(int albumId, String category, HashSet<Integer> ids);
 
     void loadVKWallpaperFragment(ArrayList<VKApiPhoto> walls,
                                  int currentPosition, WallsLoader wallsLoader);

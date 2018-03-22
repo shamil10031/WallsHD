@@ -30,6 +30,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.appodeal.ads.Appodeal;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -302,6 +303,7 @@ public class WallpaperFragment extends DialogFragment implements PullBackLayout.
     public void onResume() {
         super.onResume();
         ((AppCompatActivity) activity).getSupportActionBar().hide();
+        Appodeal.hide(getActivity(), Appodeal.BANNER_VIEW);
     }
 
     @SuppressLint("InlinedApi")

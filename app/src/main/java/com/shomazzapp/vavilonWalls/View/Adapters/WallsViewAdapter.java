@@ -56,7 +56,8 @@ public class WallsViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
     };
 
-    public WallsViewAdapter(Context context, FragmentRegulator fragmentRegulator, WallsLoader wallsLoader) {
+    public WallsViewAdapter(Context context, FragmentRegulator fragmentRegulator,
+                            WallsLoader wallsLoader) {
         this.context = context;
         this.wallsLoader = wallsLoader;
         this.fragmentRegulator = fragmentRegulator;
@@ -74,6 +75,10 @@ public class WallsViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         return new ImageViewHolder(wallpapperView);
     }
 
+    public void setLoaded(boolean loaded) {
+        this.loaded = loaded;
+    }
+
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (wallpapers != null) {
@@ -84,8 +89,6 @@ public class WallsViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     .listener(requestListener)
                     .apply(options)
                     .into(((ImageViewHolder) holder).imageView);
-           /* Log.d("WallsViewAdapter", "position == " + position + "  size == " + wallpapers.size()
-                    + "\n loaded == " + loaded);*/
             if (position == wallpapers.size() - 6 && !loaded && !fullAlbumLoaded)
                 new LoadMoreWallsAsyncTask(holder).execute();
         }
@@ -139,7 +142,6 @@ public class WallsViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         protected void onPreExecute() {
             super.onPreExecute();
             loaded = true;
-            Log.d("WallsAdapter", "Loading more walls...");
             if (fragmentRegulator == null) Log.d("WallsViewAdapter", "fragmentRegulator == null");
             else fragmentRegulator.setProgressVisible(true);
         }

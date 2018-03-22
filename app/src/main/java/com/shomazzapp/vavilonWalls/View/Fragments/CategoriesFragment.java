@@ -23,6 +23,7 @@ import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.model.VKApiPhotoAlbum;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -41,6 +42,7 @@ public class CategoriesFragment extends Fragment implements SwipeRefreshLayout.O
     private View mainView;
     private FragmentRegulator fragmentRegulator;
     private String log = "CategoriesFragment";
+    private HashSet<Integer> idsHashSet;
 
     private VKApiPhotoAlbum newAlbum;
 
@@ -92,7 +94,10 @@ public class CategoriesFragment extends Fragment implements SwipeRefreshLayout.O
     }
 
     public void loadAlbums() {
-        this.albums = new AlbumsRequest().getAlbums();
+        AlbumsRequest al = new AlbumsRequest();
+        this.albums = al.getAlbums();
+        this.idsHashSet = al.getIdsHashSet();
+        this.newAlbum.size -= al.getInvisWallsCount();
         if (albums.size() > 0 && VKSdk.isLoggedIn())
             albums.add(0, newAlbum);
         if (!NetworkHelper.isOnLine(context))
@@ -120,7 +125,7 @@ public class CategoriesFragment extends Fragment implements SwipeRefreshLayout.O
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 fragmentRegulator.loadWallsListFragment(adapter.getAlbums().get(i).id,
-                        adapter.getAlbums().get(i).title);
+                        adapter.getAlbums().get(i).title, idsHashSet);
                 adapter.writeNewSizeToPref(adapter.getAlbums().get(i));
             }
         });

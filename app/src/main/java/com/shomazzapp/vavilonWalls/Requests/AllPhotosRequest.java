@@ -11,9 +11,12 @@ import com.vk.sdk.api.model.VKApiPhoto;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class AllPhotosRequest {
 
+    private HashSet<Integer> ids = null;
+    private int hidedWallsCount = 0;
     private int offset;
     private int count;
     private int allPhotosCount;
@@ -24,6 +27,14 @@ public class AllPhotosRequest {
         this.photos = new ArrayList<>();
         this.offset = offset;
         this.count = count;
+        loadPhotos();
+    }
+
+    public AllPhotosRequest(int offset, int count, HashSet<Integer> ids) {
+        this.photos = new ArrayList<>();
+        this.offset = offset;
+        this.count = count;
+        this.ids = ids;
         loadPhotos();
     }
 
@@ -38,13 +49,16 @@ public class AllPhotosRequest {
             public void onComplete(VKResponse response) {
                 super.onComplete(response);
                 try {
-                    //  count of all photos:
                     allPhotosCount = response.json.getJSONObject("response").getInt("count");
                     for (int i = 0; i < count; i++) {
                         VKApiPhoto photo = new VKApiPhoto((JSONObject) response.json.getJSONObject("response")
                                 .getJSONArray("items").get(i));
-                        //TODO: add checking is photo album from "!title", by SharedPreferences
-                        photos.add(photo);
+                       /* Log.d("AllPhotosRequest", "photo [" + i + "]: albumId = "
+                                + photo .album_id + "; "+photo.photo_807);*/
+                        if (ids == null || !ids.contains(photo.album_id))
+                            photos.add(photo);
+                        else if (ids != null && ids.contains(photo.album_id))
+                            hidedWallsCount++;
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -67,4 +81,7 @@ public class AllPhotosRequest {
         return photos;
     }
 
+    public int getHidedWallsCount() {
+        return hidedWallsCount;
+    }
 }

@@ -4,11 +4,12 @@ android {
     compileSdkVersion 27
     buildToolsVersion '26.0.2'
     defaultConfig {
+        multiDexEnabled true
         applicationId "com.shomazzapp.walls"
         minSdkVersion 19
         targetSdkVersion 26
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName "0.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -19,8 +20,15 @@ android {
     }
 }
 
+repositories {
+    jcenter()
+    flatDir {
+        dirs 'libs-aar'
+    }
+}
+
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(dir: 'libs', include:  ['*.jar'])
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
@@ -28,14 +36,31 @@ dependencies {
     compile 'com.github.oxoooo:pull-back-layout:1.0.1'
     compile 'com.mikhaellopez:circularimageview:3.0.2'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'com.android.support:appcompat-v7:27.0.2'
-    compile 'com.android.support:recyclerview-v7:27.+'
-    compile 'com.android.support:design:27.0.2'
-    compile 'com.android.support:support-v4:27.+'
+    compile 'com.android.support:appcompat-v7:27.1.0'
+    compile 'com.android.support:recyclerview-v7:27.1.0'
+    compile 'com.android.support:design:27.1.0'
+    compile 'com.android.support:support-v4:27.1.0'
     testCompile 'junit:junit:4.12'
     compile 'com.github.bumptech.glide:glide:4.4.0'
-    compile 'com.vk:androidsdk:1.6.5'
+    compile 'com.vk:androidsdk:1.6.8'
     compile 'com.jakewharton:butterknife:8.6.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.6.0'
-
+    compile name: 'adcolony-sdk-3.2.1', ext: 'aar'
+    compile name: 'mmedia-6.4.0', ext: 'aar'
+    compile name: 'mobvista_alphab', ext: 'aar'
+    compile name: 'mobvista_appwall', ext: 'aar'
+    compile name: 'mobvista_appwallext', ext: 'aar'
+    compile name: 'mobvista_common', ext: 'aar'
+    compile name: 'mobvista_interstitial', ext: 'aar'
+    compile name: 'mobvista_mvdownloads', ext: 'aar'
+    compile name: 'mobvista_mvjscommon', ext: 'aar'
+    compile name: 'mobvista_mvnative', ext: 'aar'
+    compile name: 'mobvista_nativeex', ext: 'aar'
+    compile name: 'mobvista_offerwall', ext: 'aar'
+    compile name: 'mobvista_playercommon', ext: 'aar'
+    compile name: 'mobvista_reward', ext: 'aar'
+    compile name: 'mobvista_videocommon', ext: 'aar'
+    compile name: 'mobvista_videofeeds', ext: 'aar'
+    compile 'com.google.android.gms:play-services-ads:10.2.1'
+    compile 'com.google.android.gms:play-services-location:10.2.1'
 }

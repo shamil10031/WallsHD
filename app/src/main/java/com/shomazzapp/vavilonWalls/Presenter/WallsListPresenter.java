@@ -11,35 +11,19 @@ import com.vk.sdk.api.model.VKApiPhoto;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class WallsListPresenter {
 
     private WallsListFragment fragment;
     private boolean isNewCategory;
+    private int hidedWallsCount = 0;
+    private String log;
 
     public WallsListPresenter(WallsListFragment fragment) {
         this.fragment = fragment;
-    }
-
-    public ArrayList<VKApiPhoto> getNewWalls(int offset, int count) {
-        ArrayList<VKApiPhoto> walls = new AllPhotosRequest(offset, count).getPhotos();
-        this.isNewCategory = true;
-        //Log.d(WallsListFragment.log, "Album size : " + walls.size());
-        return walls;
-    }
-
-    public ArrayList<VKApiPhoto> getAllWallsByAlbumID(int albumID, int offset) {
-        ArrayList<VKApiPhoto> walls = new PhotosRequest(albumID, offset).getPhotos();
-        this.isNewCategory = false;
-        Log.d(WallsListFragment.log, "Album size : " + walls.size() + "  id: " + albumID);
-        return walls;
-    }
-
-    public ArrayList<VKApiPhoto> getWallsByAlbumID(int albumID, int offset, int count) {
-        ArrayList<VKApiPhoto> walls = new PhotosRequest(albumID, offset, count).getPhotos();
-        this.isNewCategory = false;
-        Log.d(WallsListFragment.log, "Album size : " + walls.size() + "  id: " + albumID);
-        return walls;
+        this.hidedWallsCount = 0;
+        this.log = getClass().getSimpleName();
     }
 
     public static ArrayList<VKApiPhoto> getNavHeaderAlbum() {
@@ -62,13 +46,56 @@ public class WallsListPresenter {
         return files;
     }
 
-    public void loadWallByCategory(int albumID, int offset) {
-        fragment.updateData(getWallsByCategory(albumID, offset));
+    public ArrayList<VKApiPhoto> getNewWalls(int offset, HashSet<Integer> ids) {
+        int repeats = 1;
+        this.isNewCategory = true;
+        Log.d(log, "Start getting New Walls...");
+        AllPhotosRequest req = new AllPhotosRequest(offset + hidedWallsCount,
+                Constants.WALLS_LOAD_COUNT, ids);
+        ArrayList<VKApiPhoto> walls = req.getPhotos();
+        hidedWallsCount += req.getHidedWallsCount();
+        while (req.getAllPhotosCount() - Constants.WALLS_LOAD_COUNT * repeats > 0
+                && walls.size() < Constants.WALLS_LOAD_COUNT) {
+            /*Log.d(log, "from getNewWalls START loop : \n repeats = "
+                    + repeats + "; \n offset == " + offset
+                    + ";\n hidedWallsCount = " + hidedWallsCount+";");*/
+            req = new AllPhotosRequest(offset + walls.size() + hidedWallsCount,
+                    Constants.WALLS_LOAD_COUNT, ids);
+            walls.addAll(req.getPhotos());
+            repeats++;
+            hidedWallsCount += req.getHidedWallsCount();
+            /*Log.d(log, "from getNewWalls END loop : \n repeats = "
+                    + repeats + "; \n offset == " + offset
+                    + ";\n hidedWallsCount = " + hidedWallsCount+";");*/
+        }
+        return walls;
     }
 
-    public ArrayList<VKApiPhoto> getWallsByCategory(int albumID, int offset) {
+    public ArrayList<VKApiPhoto> getAllWallsByAlbumID(int albumID, int offset) {
+        ArrayList<VKApiPhoto> walls = new PhotosRequest(albumID, offset).getPhotos();
+        this.isNewCategory = false;
+        Log.d(WallsListFragment.log, "Album size : " + walls.size() + "  id: " + albumID);
+        return walls;
+    }
+
+    public ArrayList<VKApiPhoto> getWallsByAlbumID(int albumID, int offset, int count) {
+        ArrayList<VKApiPhoto> walls = new PhotosRequest(albumID, offset, count).getPhotos();
+        this.isNewCategory = false;
+        Log.d(WallsListFragment.log, "Album size : " + walls.size() + "  id: " + albumID);
+        return walls;
+    }
+
+    public void loadWallByCategory(int albumID, int offset, HashSet<Integer> ids) {
+        fragment.updateData(getWallsByCategory(albumID, offset, ids));
+    }
+
+    public void clearHidedWallsCount() {
+        this.hidedWallsCount = 0;
+    }
+
+    public ArrayList<VKApiPhoto> getWallsByCategory(int albumID, int offset, HashSet<Integer> ids) {
         if (albumID == Constants.NEW_WALLS_ALBUM_ID)
-            return getNewWalls(offset, Constants.WALLS_LOAD_COUNT);
+            return getNewWalls(offset, ids);
         else return getWallsByAlbumID(albumID, offset, Constants.WALLS_LOAD_COUNT);
     }
 

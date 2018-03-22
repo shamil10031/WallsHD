@@ -18,7 +18,15 @@
             android:id="@+id/frame"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/relativeLayout" />
+            android:layout_below="@+id/relativeLayout"
+            android:layout_above="@+id/appodealBannerView" />
+
+        <com.appodeal.ads.BannerView
+            android:id="@+id/appodealBannerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:visibility="gone" />
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -61,5 +69,6 @@
         android:background="@color/app_background"
         app:headerLayout="@layout/nav_header"
         app:menu="@menu/nav_menu" />
+
 
 </android.support.v4.widget.DrawerLayout>

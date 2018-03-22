@@ -26,6 +26,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.appodeal.ads.Appodeal;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
@@ -49,6 +50,7 @@ import com.vk.sdk.api.model.VKApiPhoto;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashSet;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -101,6 +103,8 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
                             item.setChecked(true);
                             break;
                         case R.id.drawer_saved_walls:
+                            if (Appodeal.isLoaded(Appodeal.INTERSTITIAL))
+                                Appodeal.show(MainActivity.this, Appodeal.INTERSTITIAL);
                             currentFragment = wallsListFragment = new WallsListFragment();
                             wallsListFragment.setFragmentRegulator(MainActivity.this);
                             loadFragment(wallsListFragment);
@@ -177,12 +181,21 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
     protected void onCreate(Bundle savedInstanceState) {
         RoboErrorReporter.bindReporter(this);
         super.onCreate(savedInstanceState);
+        setAppodealAds();
         setContentView(R.layout.activity_main);
         if (sharedPreferences == null)
             sharedPreferences = getSharedPreferences(Constants.SHARED_PREF_FILENAME, MODE_PRIVATE);
         if (!hasPermission(Constants.WRITE_STORAGE_PERMISSION))
             requestPermissionIfNeed();
         else init();
+    }
+
+    public void setAppodealAds() {
+        Appodeal.setTesting(false);
+        String appKey = "8415d2e5f0f6424f352f3a81c90388d5cf142a9cb388c6f0";
+        Appodeal.initialize(this, appKey, Appodeal.BANNER | Appodeal.INTERSTITIAL);
+        Appodeal.setBannerViewId(R.id.appodealBannerView);
+        Appodeal.show(this, Appodeal.BANNER_VIEW);
     }
 
     public void init() {
@@ -232,6 +245,7 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
     @Override
     protected void onResume() {
         super.onResume();
+        Appodeal.show(this, Appodeal.BANNER_VIEW);
         delayedHide(100);
         changeVKItemTitle();
     }
@@ -478,12 +492,13 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
     }
 
     @Override
-    public void loadWallsListFragment(int albumId, String category) {
+    public void loadWallsListFragment(int albumId, String category, HashSet<Integer> ids) {
         currentFragment = wallsListFragment = new WallsListFragment();
         wallsListFragment.setForSavedWalls(false);
         wallsListFragment.setAlbumID(albumId);
         wallsListFragment.changeToInternetWalls();
         wallsListFragment.setFragmentRegulator(this);
+        wallsListFragment.setIdsHashSet(ids);
         setToolbarTitle(category);
         loadFragment(wallsListFragment);
         lockNavView(false);
@@ -497,6 +512,7 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
         currentFragment = wallpaperFragment = new WallpaperFragment();
         wallpaperFragment.setParametrsForVKWalls(walls, currentPosition, wallsLoader);
         lockNavView(true);
+        Appodeal.hide(MainActivity.this, Appodeal.BANNER_VIEW);
     }
 
     @Override
@@ -506,6 +522,7 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
         currentFragment = wallpaperFragment = new WallpaperFragment();
         wallpaperFragment.setParametrsForSavedWalls(walls, currentPosition, wallsLoader);
         lockNavView(true);
+        Appodeal.hide(MainActivity.this, Appodeal.BANNER_VIEW);
     }
 
     @Override
@@ -516,6 +533,7 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
 
     @Override
     public void closeWallpaperFragment() {
+        Appodeal.show(this, Appodeal.BANNER_VIEW);
         currentFragment = wallsListFragment;
         lockNavView(false);
         getSupportActionBar().show();

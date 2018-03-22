@@ -9,6 +9,7 @@ public class Constants {
     public static final String FOLDER_NAME = "Vavilon Walls";
     public static final String ALBUM_HIDED_PREFIX = "!";
 
+    public static final String INVIS_ALBUMS_SHARED_PREF_FILENAME = "invisAlbumsFilename";
     public static final String SHARED_PREF_FILENAME = "Settings";
     public static final String FEATURES_DIALOG_SHOWED_BOOL = "dialog_showed";
     public static final String HEADER_LAST_UPDATE_DATA = "last_data";
