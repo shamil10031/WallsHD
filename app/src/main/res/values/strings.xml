@@ -4,28 +4,37 @@
 
     <string name="title_activity_wallpaper">WallpaperActivity</string>
 
+    <string name="no_saved_walls">У вас нет скачанных обоев</string>
+    <string name="no_connection">Что то с интернет соединением :(</string>
+
     <string name="exit_confirmation_msg">Вы действительно хотите выйти?</string>
     <string name="error_network_msg">Необходимо интернет соединение!</string>
     <string name="error_load_msg">Не удалось загрузить обои :(</string>
     <string name="error_download_msg">Попробуйте загрузить позже :(</string>
     <string name="error_setting_wall_msg">Попробуйте установить позже :(</string>
-    <string name="succes_msg">Succes!</string>
+    <string name="succes_msg">Успешно!</string>
     <string name="file_exists_msg">Вы уже скачивали эти обои!</string>
+    <string name="need_permission_msg">Для работы приложения необходимо разрешение на доступ к памяти :(</string>
 
     <string name="no">Нет</string>
     <string name="yes">Да</string>
 
+    <string name="downloading">Скачиваю...</string>
+    <string name="setting_wall">Устанавливаю обои...</string>
+
     <string name="features">Возможности аккаунта</string>
     <string name="account_features_msg">
-        Войдя в свой вк аккаунт вы сможете:\n
-        \t- Скачивать обои в лучшем разрешении\n
-        \t- Просматривать категорию новых обоев\n
-        Согласны ли вы получить эти бонусы?
-    </string>
+        Войдя в свой аккаунт ВКонтакте вы сможете: \n\n
+
+        - скачивать обои в максимальном качестве; \n
+        - просматривать категорию "Новые обои". \n\n
+
+        Приложение не собирает и не передает никакую личную информацию.
+
+        Разрешить доступ к аккаунту?</string>
+
     <string name="exit_from_vk">Выход из вк</string>
     <string name="exit_from_vk_msg">Вы действительно хотите выйти из вк?</string>
-
-    <string name="need_permission_msg">Для работы приложения необходимо разрешение на доступ к памяти :(</string>
 
     <string name="categories">Категории</string>
     <string name="saved_walls">Сохраненные</string>

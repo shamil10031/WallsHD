@@ -33,7 +33,7 @@ public class SetWallpaperAsyncTask extends AsyncTask<File, Void, Void> {
 
     @Override
     protected void onPreExecute() {
-        progressDialog.setMessage("Setting your wallpaper ...");
+        progressDialog.setMessage(context.getResources().getString(R.string.setting_wall));
         progressDialog.setCancelable(true);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.show();

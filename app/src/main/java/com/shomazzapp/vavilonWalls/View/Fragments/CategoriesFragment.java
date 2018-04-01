@@ -12,18 +12,13 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
-import com.shomazzapp.vavilonWalls.Requests.AlbumsRequest;
-import com.shomazzapp.vavilonWalls.Requests.AllPhotosRequest;
-import com.shomazzapp.vavilonWalls.Utils.Constants;
 import com.shomazzapp.vavilonWalls.Utils.FragmentRegulator;
 import com.shomazzapp.vavilonWalls.Utils.NetworkHelper;
 import com.shomazzapp.vavilonWalls.View.Adapters.CategoriesAdapter;
 import com.shomazzapp.walls.R;
-import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.model.VKApiPhotoAlbum;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -41,25 +36,21 @@ public class CategoriesFragment extends Fragment implements SwipeRefreshLayout.O
     private Context context;
     private View mainView;
     private FragmentRegulator fragmentRegulator;
-    private String log = "CategoriesFragment";
-    private HashSet<Integer> idsHashSet;
-
-    private VKApiPhotoAlbum newAlbum;
+    private String log = getClass().getCanonicalName();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.context = getActivity();
-        newAlbum = new VKApiPhotoAlbum();
-        newAlbum.id = Constants.NEW_WALLS_ALBUM_ID;
-        newAlbum.title = "New";
-        newAlbum.size = new AllPhotosRequest(0, 0).getAllPhotosCount();
+
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        adapter.generateNewWallsAmounts();
+        if (adapter != null) adapter.generateNewWallsAmounts();
+        getActivity().findViewById(R.id.appodealBannerView).setBackgroundColor(
+                getResources().getColor(R.color.app_background));
     }
 
     @Override
@@ -68,7 +59,7 @@ public class CategoriesFragment extends Fragment implements SwipeRefreshLayout.O
         if (fragmentRegulator != null)
             fragmentRegulator.setToolbarTitle(getResources().getString(R.string.categories));
         if (NetworkHelper.isOnLine(context)) {
-            if (mainView == null) init(inflater, container);
+            init(inflater, container);
             onNetworkChanged(true);
         } else {
             initMainView(inflater, container);
@@ -94,12 +85,7 @@ public class CategoriesFragment extends Fragment implements SwipeRefreshLayout.O
     }
 
     public void loadAlbums() {
-        AlbumsRequest al = new AlbumsRequest();
-        this.albums = al.getAlbums();
-        this.idsHashSet = al.getIdsHashSet();
-        this.newAlbum.size -= al.getInvisWallsCount();
-        if (albums.size() > 0 && VKSdk.isLoggedIn())
-            albums.add(0, newAlbum);
+        albums = fragmentRegulator.getAlbums();
         if (!NetworkHelper.isOnLine(context))
             new Handler().postDelayed(new Runnable() {
                 @Override
@@ -125,7 +111,7 @@ public class CategoriesFragment extends Fragment implements SwipeRefreshLayout.O
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 fragmentRegulator.loadWallsListFragment(adapter.getAlbums().get(i).id,
-                        adapter.getAlbums().get(i).title, idsHashSet);
+                        adapter.getAlbums().get(i).title);
                 adapter.writeNewSizeToPref(adapter.getAlbums().get(i));
             }
         });
@@ -145,7 +131,8 @@ public class CategoriesFragment extends Fragment implements SwipeRefreshLayout.O
 
     public void updateData() {
         if (NetworkHelper.isOnLine(context)) {
-            loadAlbums();
+            fragmentRegulator.loadAlbums();
+            albums = fragmentRegulator.getAlbums();
             onNetworkChanged(true);
             setListView();
             adapter.generateNewWallsAmounts();

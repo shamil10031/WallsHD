@@ -38,7 +38,7 @@ public class DownloadAsyncTask extends AsyncTask<String, Integer, File> {
 
     @Override
     protected void onPreExecute() {
-        progressDialog.setMessage("Downloading ...");
+        progressDialog.setMessage(context.getResources().getString(R.string.downloading));
         progressDialog.setCancelable(true);
         progressDialog.setMax(100);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);

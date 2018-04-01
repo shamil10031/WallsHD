@@ -495,7 +495,6 @@ public class WallpaperFragment extends DialogFragment implements PullBackLayout.
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Log.d(log, "                ONCLEAAAK!!");
                     toggle();
                 }
             });

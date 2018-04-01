@@ -85,8 +85,8 @@ public class WallsListFragment extends Fragment implements WallsLoader, SwipeRef
     }
 
     public void onNetworkChanged(boolean succes) {
-        textView.setText(isForSavedWalls ? "You have no saved walls "
-                : "Something wrong with network connection :(");
+        textView.setText(isForSavedWalls ? getResources().getString(R.string.no_saved_walls)
+                : getResources().getString(R.string.no_connection));
         if (succes) {
             networkLay.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
@@ -110,6 +110,8 @@ public class WallsListFragment extends Fragment implements WallsLoader, SwipeRef
     public void onResume() {
         super.onResume();
         if (fragmentRegulator != null) fragmentRegulator.hide();
+        getActivity().findViewById(R.id.appodealBannerView).setBackgroundColor(
+                getResources().getColor(R.color.app_overlay));
     }
 
     public void loadSavedWalls() {

@@ -31,6 +31,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.shomazzapp.vavilonWalls.Presenter.WallsListPresenter;
+import com.shomazzapp.vavilonWalls.Requests.AlbumsRequest;
+import com.shomazzapp.vavilonWalls.Requests.AllPhotosRequest;
 import com.shomazzapp.vavilonWalls.Utils.Constants;
 import com.shomazzapp.vavilonWalls.Utils.FragmentRegulator;
 import com.shomazzapp.vavilonWalls.Utils.RoboErrorReporter;
@@ -46,6 +48,7 @@ import com.vk.sdk.VKScope;
 import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.VKError;
 import com.vk.sdk.api.model.VKApiPhoto;
+import com.vk.sdk.api.model.VKApiPhotoAlbum;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -77,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
             hide();
         }
     };
+    public ArrayList<VKApiPhotoAlbum> albums;
     @BindView(R.id.app_bar_progress)
     ProgressBar progressBar;
     @BindView(R.id.toolbar_title)
@@ -87,87 +91,19 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
     Toolbar toolbar;
     @BindView(R.id.nav_view)
     NavigationView navView;
+    private VKApiPhotoAlbum newAlbum;
     private SharedPreferences sharedPreferences;
     private WallpaperFragment wallpaperFragment = new WallpaperFragment();
     private WallsListFragment wallsListFragment = new WallsListFragment();
     private CategoriesFragment categoriesFragment = new CategoriesFragment();
     private Fragment currentFragment;
-    private String log = "mainActivity";
-    NavigationView.OnNavigationItemSelectedListener navClickListenner =
-            new NavigationView.OnNavigationItemSelectedListener() {
-                @Override
-                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                    switch (item.getItemId()) {
-                        case R.id.drawer_categories:
-                            loadFragment(categoriesFragment);
-                            item.setChecked(true);
-                            break;
-                        case R.id.drawer_saved_walls:
-                            if (Appodeal.isLoaded(Appodeal.INTERSTITIAL))
-                                Appodeal.show(MainActivity.this, Appodeal.INTERSTITIAL);
-                            currentFragment = wallsListFragment = new WallsListFragment();
-                            wallsListFragment.setFragmentRegulator(MainActivity.this);
-                            loadFragment(wallsListFragment);
-                            wallsListFragment.setForSavedWalls(true);
-                            wallsListFragment.changeToSavedWalls();
-                            wallsListFragment.loadSavedWalls();
-                            setToolbarTitle(getResources().getString(R.string.saved_walls));
-                            item.setChecked(true);
-                            break;
-                        case R.id.login:
-                            if (VKSdk.isLoggedIn())
-                                showExitFromVkDialog();
-                            else
-                                showFeaturesOfVKDialog();
-                            break;
-                        /*case R.id.drawer_remove_ad:
-                            Toast.makeText(MainActivity.this, "Remove Ad!", Toast.LENGTH_SHORT)
-                                    .show();
-                            drawer.closeDrawers();
-                            break;
-                        case R.id.drawer_rate_app:
-                            Toast.makeText(MainActivity.this, "Rate App!", Toast.LENGTH_SHORT)
-                                    .show();
-                            drawer.closeDrawers();
-                            break;*/
-                        case R.id.drawer_share:
-                            Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
-                            sharingIntent.setType("text/plain");
-                            sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT,
-                                    getResources().getString(R.string.share_text));
-                            startActivity(Intent.createChooser(sharingIntent, "Share via"));
-                            drawer.closeDrawers();
-                            break;
-                        case R.id.drawer_feedback:
-                            showFeedbackDialog();
-                            drawer.closeDrawers();
-                            break;
-                        case R.id.drawer_about_info:
-                            showAboutDialog();
-                            drawer.closeDrawers();
-                            break;
-                    }
-                    drawer.closeDrawers();
-                    return true;
-                }
-            };
+    private HashSet<Integer> idsHashSet;
+    private String log = getClass().getCanonicalName();
     private RequestOptions options = new RequestOptions()
             .diskCacheStrategy(DiskCacheStrategy.NONE)
             .skipMemoryCache(true)
             .placeholder(R.mipmap.header_background)
             .error(R.mipmap.header_background);
-    private final Runnable loadHeaderBgRunnable = new Runnable() {
-        @Override
-        public void run() {
-            ImageView im = navView.getHeaderView(0).findViewById(R.id.nav_header_bg);
-            File file = new File(DownloadAsyncTask.getFolder(), Constants.HEADER_FILE_NAME);
-            if (file.exists())
-                Glide.with(drawer)
-                        .load(file)
-                        .apply(options)
-                        .into(im);
-        }
-    };
 
     public static String getPhotoMaxQualityLink(VKApiPhoto vkApiPhoto) {
         String links = vkApiPhoto.photo_2560 + vkApiPhoto.photo_1280 + vkApiPhoto.photo_807
@@ -175,6 +111,11 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
         int index = links.indexOf(".jpg");
         if (index < 1) return "";
         else return links.substring(0, index + ".jpg".length());
+    }
+
+    @Override
+    public HashSet<Integer> getIdsHashSet() {
+        return idsHashSet;
     }
 
     @Override
@@ -400,6 +341,64 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
     }
 
     private void setUpNavigationView() {
+        NavigationView.OnNavigationItemSelectedListener navClickListenner =
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.drawer_categories:
+                                loadFragment(categoriesFragment);
+                                item.setChecked(true);
+                                break;
+                            case R.id.drawer_saved_walls:
+                                if (Appodeal.isLoaded(Appodeal.INTERSTITIAL))
+                                    Appodeal.show(MainActivity.this, Appodeal.INTERSTITIAL);
+                                currentFragment = wallsListFragment = new WallsListFragment();
+                                wallsListFragment.setFragmentRegulator(MainActivity.this);
+                                loadFragment(wallsListFragment);
+                                wallsListFragment.setForSavedWalls(true);
+                                wallsListFragment.changeToSavedWalls();
+                                wallsListFragment.loadSavedWalls();
+                                setToolbarTitle(getResources().getString(R.string.saved_walls));
+                                item.setChecked(true);
+                                break;
+                            case R.id.login:
+                                if (VKSdk.isLoggedIn())
+                                    showExitFromVkDialog();
+                                else
+                                    showFeaturesOfVKDialog();
+                                break;
+                        /*case R.id.drawer_remove_ad:
+                            Toast.makeText(MainActivity.this, "Remove Ad!", Toast.LENGTH_SHORT)
+                                    .show();
+                            drawer.closeDrawers();
+                            break;
+                        case R.id.drawer_rate_app:
+                            Toast.makeText(MainActivity.this, "Rate App!", Toast.LENGTH_SHORT)
+                                    .show();
+                            drawer.closeDrawers();
+                            break;*/
+                            case R.id.drawer_share:
+                                Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+                                sharingIntent.setType("text/plain");
+                                sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT,
+                                        getResources().getString(R.string.share_text));
+                                startActivity(Intent.createChooser(sharingIntent, "Share via"));
+                                drawer.closeDrawers();
+                                break;
+                            case R.id.drawer_feedback:
+                                showFeedbackDialog();
+                                drawer.closeDrawers();
+                                break;
+                            case R.id.drawer_about_info:
+                                showAboutDialog();
+                                drawer.closeDrawers();
+                                break;
+                        }
+                        drawer.closeDrawers();
+                        return true;
+                    }
+                };
         updateHeader();
         setSupportActionBar(toolbar);
         ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawer, toolbar, 0, 0) {
@@ -455,7 +454,10 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
                 e.printStackTrace();
             }
         }
-        loadHeaderBgRunnable.run();
+        ImageView im = navView.getHeaderView(0).findViewById(R.id.nav_header_bg);
+        File file = new File(DownloadAsyncTask.getFolder(), Constants.HEADER_FILE_NAME);
+        if (file.exists())
+            Glide.with(drawer).load(file).apply(options).into(im);
     }
 
     @Override
@@ -482,6 +484,31 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
     }
 
     @Override
+    public ArrayList<VKApiPhotoAlbum> getAlbums() {
+        if (albums == null) loadAlbums();
+        return albums;
+    }
+
+    @Override
+    public void loadAlbums() {
+        AlbumsRequest al = new AlbumsRequest();
+        this.albums = al.getAlbums();
+        this.idsHashSet = al.getIdsHashSet();
+        newAlbum = createNewAlbum();
+        if (newAlbum != null) this.newAlbum.size -= al.getInvisWallsCount();
+        if (albums.size() > 0 && VKSdk.isLoggedIn())
+            albums.add(0, newAlbum);
+    }
+
+    private VKApiPhotoAlbum createNewAlbum() {
+        VKApiPhotoAlbum newAlbum = new VKApiPhotoAlbum();
+        newAlbum.id = Constants.NEW_WALLS_ALBUM_ID;
+        newAlbum.title = "Новые обои";
+        newAlbum.size = new AllPhotosRequest(0, 0).getAllPhotosCount();
+        return newAlbum.size < 1 ? null : newAlbum;
+    }
+
+    @Override
     public void loadCategoriesFragment() {
         currentFragment = categoriesFragment;
         categoriesFragment.setFragmentRegulator(this);
@@ -492,13 +519,13 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
     }
 
     @Override
-    public void loadWallsListFragment(int albumId, String category, HashSet<Integer> ids) {
+    public void loadWallsListFragment(int albumId, String category) {
         currentFragment = wallsListFragment = new WallsListFragment();
         wallsListFragment.setForSavedWalls(false);
         wallsListFragment.setAlbumID(albumId);
         wallsListFragment.changeToInternetWalls();
         wallsListFragment.setFragmentRegulator(this);
-        wallsListFragment.setIdsHashSet(ids);
+        wallsListFragment.setIdsHashSet(idsHashSet);
         setToolbarTitle(category);
         loadFragment(wallsListFragment);
         lockNavView(false);
