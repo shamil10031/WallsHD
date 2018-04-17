@@ -295,6 +295,7 @@ public class WallpaperFragment extends DialogFragment implements PullBackLayout.
                     | View.SYSTEM_UI_FLAG_FULLSCREEN
                     | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+
         }
         mHideHandler.removeCallbacks(mShowPart2Runnable);
     }

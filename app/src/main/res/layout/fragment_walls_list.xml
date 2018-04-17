@@ -2,8 +2,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.shomazzapp.vavilonWalls.View.Fragments.WallsListFragment"
-    android:background="@color/app_overlay">
+    android:background="@color/app_overlay"
+    tools:context="com.shomazzapp.vavilonWalls.View.Fragments.WallsListFragment">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -30,19 +30,19 @@
                 android:gravity="center"
                 android:paddingEnd="100dp"
                 android:paddingStart="100dp"
-                android:text="You have no saved walls"
+                android:text="@string/no_saved_walls"
                 android:textColor="#000000"
                 android:textSize="14sp" />
 
             <TextView
+                android:id="@+id/textView2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
-                android:text="Swipe to reload!"
+                android:text="@string/swipe_to_reload"
                 android:textColor="#000000"
-                android:textSize="14sp"
-                android:id="@+id/textView2" />
+                android:textSize="14sp" />
 
         </RelativeLayout>
 

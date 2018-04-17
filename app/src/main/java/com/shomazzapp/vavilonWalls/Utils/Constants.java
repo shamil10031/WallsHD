@@ -2,6 +2,7 @@ package com.shomazzapp.vavilonWalls.Utils;
 
 public class Constants {
 
+    public static final int AD_RM_COAST = 1;
     public static final int COMMUNITY_ID = -115406832;
     public static final int NAVHEADER_ALBUM_ID = 250371492;
     public static final int NEW_WALLS_ALBUM_ID = -38;
@@ -13,6 +14,7 @@ public class Constants {
     public static final String SHARED_PREF_FILENAME = "Settings";
     public static final String FEATURES_DIALOG_SHOWED_BOOL = "dialog_showed";
     public static final String HEADER_LAST_UPDATE_DATA = "last_data";
+    public static final String IS_AD_DELETED_PREF = "isAdDeleted";
     public static final int DAYS_PAST_TO_UPDATE = 2;
 
     public static final String WRITE_STORAGE_PERMISSION = "android.permission.WRITE_EXTERNAL_STORAGE";

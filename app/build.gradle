@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'key'
+            keyPassword '5525shamil'
+            storeFile file('/home/shamil/Workspace/Keys/key1.jks')
+            storePassword '5525shamil'
+        }
+    }
     compileSdkVersion 27
     buildToolsVersion '26.0.2'
     defaultConfig {
@@ -8,7 +16,7 @@ android {
         applicationId "com.shomazzapp.walls"
         minSdkVersion 19
         targetSdkVersion 26
-        versionCode 3
+        versionCode 5
         versionName "0.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -16,6 +24,11 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
+        }
+        debug {
+            debuggable true
+            minifyEnabled false
         }
     }
 }
@@ -28,10 +41,12 @@ repositories {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include:  ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+    compile 'com.anjlab.android.iab.v3:library:1.0.44'
+    /*compile 'com.android.billingclient:billing:1.0'*/
     compile 'com.github.oxoooo:touch-image-view:1.0.1'
     compile 'com.github.oxoooo:pull-back-layout:1.0.1'
     compile 'com.mikhaellopez:circularimageview:3.0.2'
@@ -45,22 +60,21 @@ dependencies {
     compile 'com.vk:androidsdk:1.6.8'
     compile 'com.jakewharton:butterknife:8.6.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.6.0'
-    compile name: 'adcolony-sdk-3.2.1', ext: 'aar'
-    compile name: 'mmedia-6.4.0', ext: 'aar'
-    compile name: 'mobvista_alphab', ext: 'aar'
-    compile name: 'mobvista_appwall', ext: 'aar'
-    compile name: 'mobvista_appwallext', ext: 'aar'
-    compile name: 'mobvista_common', ext: 'aar'
-    compile name: 'mobvista_interstitial', ext: 'aar'
-    compile name: 'mobvista_mvdownloads', ext: 'aar'
-    compile name: 'mobvista_mvjscommon', ext: 'aar'
-    compile name: 'mobvista_mvnative', ext: 'aar'
-    compile name: 'mobvista_nativeex', ext: 'aar'
-    compile name: 'mobvista_offerwall', ext: 'aar'
-    compile name: 'mobvista_playercommon', ext: 'aar'
-    compile name: 'mobvista_reward', ext: 'aar'
-    compile name: 'mobvista_videocommon', ext: 'aar'
-    compile name: 'mobvista_videofeeds', ext: 'aar'
+    compile name: 'adcolony-sdk-3.3.0', ext: 'aar'
+    compile name: 'mobvista-8.3.7-alphab', ext: 'aar'
+    compile name: 'mobvista-8.3.7-appwall', ext: 'aar'
+    compile name: 'mobvista-8.3.7-appwallext', ext: 'aar'
+    compile name: 'mobvista-8.3.7-common', ext: 'aar'
+    compile name: 'mobvista-8.3.7-interstitial', ext: 'aar'
+    compile name: 'mobvista-8.3.7-mvdownloads', ext: 'aar'
+    compile name: 'mobvista-8.3.7-mvjscommon', ext: 'aar'
+    compile name: 'mobvista-8.3.7-mvnative', ext: 'aar'
+    compile name: 'mobvista-8.3.7-nativeex', ext: 'aar'
+    compile name: 'mobvista-8.3.7-offerwall', ext: 'aar'
+    compile name: 'mobvista-8.3.7-playercommon', ext: 'aar'
+    compile name: 'mobvista-8.3.7-reward', ext: 'aar'
+    compile name: 'mobvista-8.3.7-videocommon', ext: 'aar'
+    compile name: 'mobvista-8.3.7-videofeeds', ext: 'aar'
     compile 'com.google.android.gms:play-services-ads:10.2.1'
     compile 'com.google.android.gms:play-services-location:10.2.1'
 }

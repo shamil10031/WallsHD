@@ -48,7 +48,7 @@ public class CategoriesFragment extends Fragment implements SwipeRefreshLayout.O
     @Override
     public void onResume() {
         super.onResume();
-        if (adapter != null) adapter.generateNewWallsAmounts();
+        if (NetworkHelper.isOnLine(context) && adapter != null) adapter.generateNewWallsAmounts();
         getActivity().findViewById(R.id.appodealBannerView).setBackgroundColor(
                 getResources().getColor(R.color.app_background));
     }

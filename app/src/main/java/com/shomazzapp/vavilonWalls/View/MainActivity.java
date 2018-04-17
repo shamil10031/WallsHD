@@ -10,10 +10,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -22,10 +24,14 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.anjlab.android.iab.v3.BillingProcessor;
+import com.anjlab.android.iab.v3.TransactionDetails;
 import com.appodeal.ads.Appodeal;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -42,11 +48,8 @@ import com.shomazzapp.vavilonWalls.View.Fragments.CategoriesFragment;
 import com.shomazzapp.vavilonWalls.View.Fragments.WallpaperFragment;
 import com.shomazzapp.vavilonWalls.View.Fragments.WallsListFragment;
 import com.shomazzapp.walls.R;
-import com.vk.sdk.VKAccessToken;
-import com.vk.sdk.VKCallback;
 import com.vk.sdk.VKScope;
 import com.vk.sdk.VKSdk;
-import com.vk.sdk.api.VKError;
 import com.vk.sdk.api.model.VKApiPhoto;
 import com.vk.sdk.api.model.VKApiPhotoAlbum;
 
@@ -58,7 +61,7 @@ import java.util.HashSet;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity implements FragmentRegulator {
+public class MainActivity extends AppCompatActivity implements FragmentRegulator, BillingProcessor.IBillingHandler {
 
     private static final int UI_ANIMATION_DELAY = 300;
     private final Handler mHideHandler = new Handler();
@@ -72,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
                     | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
             );
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         }
     };
     private final Runnable mHideRunnable = new Runnable() {
@@ -104,6 +108,7 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
             .skipMemoryCache(true)
             .placeholder(R.mipmap.header_background)
             .error(R.mipmap.header_background);
+    private BillingProcessor bp;
 
     public static String getPhotoMaxQualityLink(VKApiPhoto vkApiPhoto) {
         String links = vkApiPhoto.photo_2560 + vkApiPhoto.photo_1280 + vkApiPhoto.photo_807
@@ -124,8 +129,7 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
         super.onCreate(savedInstanceState);
         setAppodealAds();
         setContentView(R.layout.activity_main);
-        if (sharedPreferences == null)
-            sharedPreferences = getSharedPreferences(Constants.SHARED_PREF_FILENAME, MODE_PRIVATE);
+        if (sharedPreferences == null) initSharedPref();
         if (!hasPermission(Constants.WRITE_STORAGE_PERMISSION))
             requestPermissionIfNeed();
         else init();
@@ -144,10 +148,23 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
         categoriesFragment = new CategoriesFragment();
         if (!VKSdk.isLoggedIn() && !sharedPreferences.contains(Constants.FEATURES_DIALOG_SHOWED_BOOL))
             showFeaturesOfVKDialog();
+        initBillingProcessor();
         setUpNavigationView();
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
         loadCategoriesFragment();
+        hideItemIfNeed();
         delayedHide(100);
+    }
+
+    private void initBillingProcessor() {
+        if (!BillingProcessor.isIabServiceAvailable(this))
+            Toast.makeText(this, "In-app billing service is unavailable.", Toast.LENGTH_LONG).show();
+        bp = new BillingProcessor(this, "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AM" +
+                "IIBCgKCAQEAq7ucenkTh9IWvi+OCGlCkyqyjgTz4waT3T+7OdmILJL2pC8tffZ7TxDzChh0l78gF" +
+                "pRaC5tdiCd+qoif8a3pqBzj66UFMvkskECUTRfuHCyDBDV8pIiWfNx9vf/xwsN5J4BhFhP/w3Gd6evr" +
+                "kYoHfjcWduKbQAy5KoIp5+vXOu+kpXEuxat2y01Nr7byHvELW6aG6kNFW37D5XCKMiNQLhhHsc5YAHh" +
+                "L+ymbws12v+3QpkWx4NHgTMwoz+c/EYeODUDZNP3vzDrSvSuSGvkMvYgjTYi3w8Z8zrZTUXoxDr1WM" +
+                "i1VRODeLLXS+RHCnbB2aSg6Urz4ja7YcYaFeUi5zQIDAQAB", this);
+        bp.initialize();
     }
 
     @Override
@@ -158,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (!VKSdk.onActivityResult(requestCode, resultCode, data, new VKCallback<VKAccessToken>() {
+        /*if (!VKSdk.onActivityResult(requestCode, resultCode, data, new VKCallback<VKAccessToken>() {
             @Override
             public void onResult(VKAccessToken res) {
                 init();
@@ -168,7 +185,9 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
             public void onError(VKError error) {
                 VKSdk.logout();
             }
-        })) {
+        }))
+            super.onActivityResult(requestCode, resultCode, data);*/
+        if (!bp.handleActivityResult(requestCode, resultCode, data)) {
             super.onActivityResult(requestCode, resultCode, data);
         }
     }
@@ -189,6 +208,12 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
         Appodeal.show(this, Appodeal.BANNER_VIEW);
         delayedHide(100);
         changeVKItemTitle();
+    }
+
+    @Override
+    public void onDestroy() {
+        if (bp != null) bp.release();
+        super.onDestroy();
     }
 
     public void changeVKItemTitle() {
@@ -225,9 +250,6 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
                 VKSdk.login(MainActivity.this, VKScope.OFFLINE, VKScope.PHOTOS, VKScope.GROUPS, VKScope.DOCS);
-                SharedPreferences.Editor ed = sharedPreferences.edit();
-                ed.putBoolean(Constants.FEATURES_DIALOG_SHOWED_BOOL, true);
-                ed.apply();
                 changeVKItemTitle();
             }
         });
@@ -239,6 +261,9 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
             }
         });
         ab.show();
+        SharedPreferences.Editor ed = sharedPreferences.edit();
+        ed.putBoolean(Constants.FEATURES_DIALOG_SHOWED_BOOL, true);
+        ed.apply();
     }
 
     public void showExitFromVkDialog() {
@@ -328,6 +353,11 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
         ab.show();
     }
 
+    public void openGroupVK() {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://vk.com/q_h_d"));
+        startActivity(browserIntent);
+    }
+
     @Override
     public void onBackPressed() {
         try {
@@ -368,12 +398,11 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
                                 else
                                     showFeaturesOfVKDialog();
                                 break;
-                        /*case R.id.drawer_remove_ad:
-                            Toast.makeText(MainActivity.this, "Remove Ad!", Toast.LENGTH_SHORT)
-                                    .show();
-                            drawer.closeDrawers();
-                            break;
-                        case R.id.drawer_rate_app:
+                            case R.id.drawer_remove_ad:
+                                bp.purchase(MainActivity.this, "remove_ads");
+                                drawer.closeDrawers();
+                                break;
+                        /*case R.id.drawer_rate_app:
                             Toast.makeText(MainActivity.this, "Rate App!", Toast.LENGTH_SHORT)
                                     .show();
                             drawer.closeDrawers();
@@ -392,6 +421,10 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
                                 break;
                             case R.id.drawer_about_info:
                                 showAboutDialog();
+                                drawer.closeDrawers();
+                                break;
+                            case R.id.drawer_group:
+                                openGroupVK();
                                 drawer.closeDrawers();
                                 break;
                         }
@@ -416,6 +449,51 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
         actionBarDrawerToggle.syncState();
         navView.setNavigationItemSelectedListener(navClickListenner);
         changeVKItemTitle();
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+    }
+
+    private void initSharedPref() {
+        this.sharedPreferences = getSharedPreferences(Constants.SHARED_PREF_FILENAME, MODE_PRIVATE);
+    }
+
+    private void hideItemIfNeed() {
+        if (sharedPreferences == null) initSharedPref();
+        if (sharedPreferences.contains(Constants.IS_AD_DELETED_PREF)
+                && sharedPreferences.getBoolean(Constants.IS_AD_DELETED_PREF, false))
+            navView.getMenu().findItem(R.id.drawer_remove_ad).setVisible(false);
+    }
+
+    private boolean deleteAdIfNeed() {
+        if (sharedPreferences == null) initSharedPref();
+        if (!sharedPreferences.contains(Constants.IS_AD_DELETED_PREF)
+                || !sharedPreferences.getBoolean(Constants.IS_AD_DELETED_PREF, false))
+            setAdDeletedInSPref();
+        else {
+            hideRemoveAdButton();
+            return false;
+        }
+        deleteAd();
+        return true;
+    }
+
+    private void deleteAd() {
+        Appodeal.trackInAppPurchase(this, Constants.AD_RM_COAST * 100, "USD");
+        Log.d(log, "delete ad!");
+    }
+
+    private void setAdDeletedInSPref() {
+        SharedPreferences.Editor e = sharedPreferences.edit();
+        e.putBoolean(Constants.IS_AD_DELETED_PREF, true);
+        e.apply();
+    }
+
+    private void hideRemoveAdButton() {
+        try {
+            if (navView != null)
+                navView.getMenu().getItem(R.id.drawer_remove_ad).setVisible(false);
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
+        }
     }
 
     public void updateDataInPref() {
@@ -600,6 +678,35 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
             return (checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED);
         }
         return true;
+    }
+
+    @Override
+    public void onProductPurchased(@NonNull String productId, @Nullable TransactionDetails details) {
+        Log.d(log, "On Billing Purchased!");
+        deleteAdIfNeed();
+        hideRemoveAdButton();
+        Toast.makeText(MainActivity.this, "Реклама удалена! Перезагрузите приложение", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onPurchaseHistoryRestored() {
+        Log.d(log, "On Billing Restored!");
+    }
+
+    @Override
+    public void onBillingError(int errorCode, @Nullable Throwable error) {
+        Log.d(log, "On Billing Error" + Integer.toString(errorCode));
+    }
+
+    @Override
+    public void onBillingInitialized() {
+        Log.d(log, "On Billing Initialaized");
+        bp.loadOwnedPurchasesFromGoogle();
+        Log.d(log, bp.isPurchased("remove_ads") + " IS PURSHACED");
+        if (bp.isPurchased("remove_ads")) {
+            deleteAdIfNeed();
+            hideRemoveAdButton();
+        }
     }
 }
 

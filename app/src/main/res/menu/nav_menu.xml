@@ -20,22 +20,23 @@
         android:id="@+id/menu_bottom"
         android:checkableBehavior="none">
         <item
-            android:id="@+id/login"
-            android:title="@string/login" />
-        <!--<item
             android:id="@+id/drawer_remove_ad"
             android:title="@string/remove_ad" />
-        <item
-            android:id="@+id/drawer_rate_app"
-            android:title="@string/rate_app" />-->
         <item
             android:id="@+id/drawer_share"
             android:title="@string/share" />
         <item
-            android:id="@+id/drawer_feedback"
-            android:title="@string/feedback" />
+            android:id="@+id/drawer_group"
+            android:title="@string/group" />
         <item
             android:id="@+id/drawer_about_info"
             android:title="@string/about_info" />
+        <item
+            android:id="@+id/login"
+            android:title="@string/login" />
+        <item
+            android:id="@+id/drawer_feedback"
+            android:title="@string/feedback" />
     </group>
+
 </menu>

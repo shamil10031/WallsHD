@@ -282,6 +282,8 @@
 -keep class android.support.v4.view.ViewPager { *; }
 -keep class android.support.v4.content.ContextCompat { *; }
 
+-keep class com.android.vending.billing.**
+
 # support-v7-recyclerview
 -keep class android.support.v7.widget.RecyclerView { *; }
 -keep class android.support.v7.widget.LinearLayoutManager { *; }

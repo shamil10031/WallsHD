@@ -36,7 +36,7 @@
                 android:gravity="center"
                 android:paddingEnd="100dp"
                 android:paddingStart="100dp"
-                android:text="Something wrong with network connection :("
+                android:text="@string/no_connection"
                 android:textColor="#000000"
                 android:textSize="14sp" />
 
@@ -45,7 +45,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/textView"
                 android:layout_centerHorizontal="true"
-                android:text=" Swipe to reload!"
+                android:text="@string/swipe_to_reload"
                 android:textColor="#000000"
                 android:textSize="14sp" />
 
