@@ -3,10 +3,7 @@ apply plugin: 'com.android.application'
 android {
     signingConfigs {
         config {
-            keyAlias 'key'
-            keyPassword '5525shamil'
             storeFile file('/home/shamil/Workspace/Keys/key1.jks')
-            storePassword '5525shamil'
         }
     }
     compileSdkVersion 27
@@ -16,8 +13,8 @@ android {
         applicationId "com.shomazzapp.walls"
         minSdkVersion 19
         targetSdkVersion 26
-        versionCode 5
-        versionName "0.2"
+        versionCode 7
+        versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

@@ -18,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
@@ -171,10 +172,9 @@ public class WallpaperFragment extends DialogFragment implements PullBackLayout.
     }
 
     public static String addSpaces(String oldString) {
-        String newString = oldString;
-        StringBuilder builder = new StringBuilder(newString);
+        StringBuilder builder = new StringBuilder(oldString);
         int i = 1;
-        while (i < newString.length()) {
+        while (i < oldString.length()) {
             if (builder.charAt(i) == ' '
                     && builder.charAt(i - 1) != ' ') {
                 i++;
@@ -251,6 +251,7 @@ public class WallpaperFragment extends DialogFragment implements PullBackLayout.
                                     }
                                 }
                             }, 300);
+                            view.performClick();
                             break;
                         case R.id.set_btn:
                             ((Button) view).setTextSize(16);
@@ -261,9 +262,11 @@ public class WallpaperFragment extends DialogFragment implements PullBackLayout.
                                     else onSet(savedWallpapers.get(currentSavedWallPosition));
                                 }
                             }, 300);
+                            view.performClick();
                             break;
                         case R.id.back_button:
                             onBack();
+                            view.performClick();
                             break;
                     }
                 }
@@ -332,6 +335,7 @@ public class WallpaperFragment extends DialogFragment implements PullBackLayout.
         }
         activity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         mHideHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
