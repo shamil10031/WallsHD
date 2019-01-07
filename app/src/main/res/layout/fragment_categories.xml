@@ -4,68 +4,81 @@
     android:layout_height="match_parent"
     tools:context="com.shomazzapp.vavilonWalls.View.Fragments.CategoriesFragment">
 
-    <FrameLayout
+    <RelativeLayout
+        android:id="@+id/network_lay"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:visibility="visible">
 
-        <RelativeLayout
-            android:id="@+id/network_lay"
+        <ImageView
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_above="@+id/error_tv"
+            android:layout_centerHorizontal="true"
+            android:src="@mipmap/sad_smile" />
+
+        <View
+            android:id="@+id/view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="0.1dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true" />
 
-            <ImageView
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_above="@+id/textView"
-                android:layout_centerHorizontal="true"
-                android:src="@mipmap/sad_smile" />
+        <TextView
+            android:id="@+id/error_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/view"
+            android:gravity="center"
+            android:paddingEnd="100dp"
+            android:paddingStart="100dp"
+            android:text="@string/no_connection"
+            android:textColor="#000000"
+            android:textSize="14sp" />
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0.1dp"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
-                android:id="@+id/view" />
+        <TextView
+            android:id="@+id/swipe_to_reload_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/error_tv"
+            android:layout_centerHorizontal="true"
+            android:text="@string/swipe_to_reload"
+            android:textColor="#000000"
+            android:textSize="14sp" />
 
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_below="@+id/view"
-                android:gravity="center"
-                android:paddingEnd="100dp"
-                android:paddingStart="100dp"
-                android:text="@string/no_connection"
-                android:textColor="#000000"
-                android:textSize="14sp" />
+    </RelativeLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/textView"
-                android:layout_centerHorizontal="true"
-                android:text="@string/swipe_to_reload"
-                android:textColor="#000000"
-                android:textSize="14sp" />
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_to_refresh_categories"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible">
 
-        </RelativeLayout>
-
-        <android.support.v4.widget.SwipeRefreshLayout
-            android:visibility="visible"
-            android:id="@+id/swipe_to_refresh_categories"
+        <ListView
+            android:id="@+id/categories_listview"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:background="#0000"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="10.0sp"
+            android:padding="5dp" />
 
-            <ListView
-                android:id="@+id/categories_listview"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="#0000"
-                android:divider="@android:color/transparent"
-                android:dividerHeight="10.0sp"
-                android:padding="5dp" />
+    </android.support.v4.widget.SwipeRefreshLayout>
 
-        </android.support.v4.widget.SwipeRefreshLayout>
+    <FrameLayout
+        android:id="@+id/splash_screen_progress"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/app_background">
+
+        <ProgressBar
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center"
+            android:indeterminate="false"
+            android:indeterminateDrawable="@drawable/progress" />
+
     </FrameLayout>
+
 </FrameLayout>

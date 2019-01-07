@@ -15,6 +15,7 @@ public class Constants {
     public static final String FEATURES_DIALOG_SHOWED_BOOL = "dialog_showed";
     public static final String HEADER_LAST_UPDATE_DATA = "last_data";
     public static final String IS_AD_DELETED_PREF = "isAdDeleted";
+    public static final String ACCESS_DENIED_DIALOG_SHOWN = "acces_denied_dialog";
     public static final int DAYS_PAST_TO_UPDATE = 2;
 
     public static final String WRITE_STORAGE_PERMISSION = "android.permission.WRITE_EXTERNAL_STORAGE";
@@ -23,4 +24,6 @@ public class Constants {
     public static final String FILE_ADDICTION = "@Q_H_D.jpg";
     public static final String HEADER_FILE_NAME = ".header" + FILE_ADDICTION;
     public static final int FILE_NAME_LENGHT = 11;
+
+    public static final int PROGRESS_VISIBLE_TIME = 2350;
 }

@@ -1,0 +1,7 @@
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/progr1" android:duration="@integer/progress_duration" />
+    <item android:drawable="@drawable/progr2" android:duration="@integer/progress_duration" />
+    <item android:drawable="@drawable/progr3" android:duration="@integer/progress_duration" />
+    <item android:drawable="@drawable/progr4" android:duration="@integer/progress_duration" />
+    <item android:drawable="@drawable/progr5" android:duration="@integer/progress_duration" />
+</animation-list>

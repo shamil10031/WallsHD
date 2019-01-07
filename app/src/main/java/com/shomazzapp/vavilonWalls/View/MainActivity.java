@@ -41,15 +41,17 @@ import com.shomazzapp.vavilonWalls.Requests.AlbumsRequest;
 import com.shomazzapp.vavilonWalls.Requests.AllPhotosRequest;
 import com.shomazzapp.vavilonWalls.Utils.Constants;
 import com.shomazzapp.vavilonWalls.Utils.FragmentRegulator;
-import com.shomazzapp.vavilonWalls.Utils.RoboErrorReporter;
 import com.shomazzapp.vavilonWalls.Utils.Tasks.DownloadAsyncTask;
 import com.shomazzapp.vavilonWalls.Utils.WallsLoader;
 import com.shomazzapp.vavilonWalls.View.Fragments.CategoriesFragment;
 import com.shomazzapp.vavilonWalls.View.Fragments.WallpaperFragment;
 import com.shomazzapp.vavilonWalls.View.Fragments.WallsListFragment;
 import com.shomazzapp.walls.R;
+import com.vk.sdk.VKAccessToken;
+import com.vk.sdk.VKCallback;
 import com.vk.sdk.VKScope;
 import com.vk.sdk.VKSdk;
+import com.vk.sdk.api.VKError;
 import com.vk.sdk.api.model.VKApiPhoto;
 import com.vk.sdk.api.model.VKApiPhotoAlbum;
 
@@ -125,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        RoboErrorReporter.bindReporter(this);
+        setTheme(R.style.TranscluentTheme);
         super.onCreate(savedInstanceState);
         setAppodealAds();
         setContentView(R.layout.activity_main);
@@ -146,8 +148,14 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
     public void init() {
         ButterKnife.bind(this);
         categoriesFragment = new CategoriesFragment();
-        if (!VKSdk.isLoggedIn() && !sharedPreferences.contains(Constants.FEATURES_DIALOG_SHOWED_BOOL))
+        if (!VKSdk.isLoggedIn() && !sharedPreferences.contains(Constants.ACCESS_DENIED_DIALOG_SHOWN)) {
+            showVkAccesDeniedDialog();
+            accesDeniedVKAlertShown();
+            featuresOfVKDialogShown();
+        } else if (!VKSdk.isLoggedIn() && !sharedPreferences.contains(Constants.FEATURES_DIALOG_SHOWED_BOOL)) {
             showFeaturesOfVKDialog();
+            featuresOfVKDialogShown();
+        }
         initBillingProcessor();
         setUpNavigationView();
         loadCategoriesFragment();
@@ -175,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        /*if (!VKSdk.onActivityResult(requestCode, resultCode, data, new VKCallback<VKAccessToken>() {
+        if (!VKSdk.onActivityResult(requestCode, resultCode, data, new VKCallback<VKAccessToken>() {
             @Override
             public void onResult(VKAccessToken res) {
                 init();
@@ -183,10 +191,10 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
 
             @Override
             public void onError(VKError error) {
-                VKSdk.logout();
+                Log.d(log, error.toString());
             }
         }))
-            super.onActivityResult(requestCode, resultCode, data);*/
+            super.onActivityResult(requestCode, resultCode, data);
         if (!bp.handleActivityResult(requestCode, resultCode, data)) {
             super.onActivityResult(requestCode, resultCode, data);
         }
@@ -249,7 +257,7 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
-                VKSdk.login(MainActivity.this, VKScope.OFFLINE, VKScope.PHOTOS, VKScope.GROUPS, VKScope.DOCS);
+                loginVK();
                 changeVKItemTitle();
             }
         });
@@ -261,9 +269,10 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
             }
         });
         ab.show();
-        SharedPreferences.Editor ed = sharedPreferences.edit();
-        ed.putBoolean(Constants.FEATURES_DIALOG_SHOWED_BOOL, true);
-        ed.apply();
+    }
+
+    public void loginVK() {
+        VKSdk.login(MainActivity.this, VKScope.OFFLINE, VKScope.PHOTOS, VKScope.GROUPS, VKScope.DOCS);
     }
 
     public void showExitFromVkDialog() {
@@ -298,6 +307,21 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
                 requestPermissionIfNeed();
+            }
+        });
+        ab.show();
+    }
+
+    public void showVkAccesDeniedDialog() {
+        hide();
+        AlertDialog.Builder ab = new AlertDialog.Builder(MainActivity.this);
+        ab.setMessage(getResources().getString(R.string.vk_access_denied));
+        ab.setPositiveButton("Авторизоваться", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                loginVK();
+                changeVKItemTitle();
             }
         });
         ab.show();
@@ -487,6 +511,18 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
         e.apply();
     }
 
+    private void accesDeniedVKAlertShown() {
+        SharedPreferences.Editor e = sharedPreferences.edit();
+        e.putBoolean(Constants.ACCESS_DENIED_DIALOG_SHOWN, true);
+        e.apply();
+    }
+
+    private void featuresOfVKDialogShown() {
+        SharedPreferences.Editor ed = sharedPreferences.edit();
+        ed.putBoolean(Constants.FEATURES_DIALOG_SHOWED_BOOL, true);
+        ed.apply();
+    }
+
     private void hideRemoveAdButton() {
         try {
             if (navView != null)
@@ -514,8 +550,12 @@ public class MainActivity extends AppCompatActivity implements FragmentRegulator
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                DownloadAsyncTask.downloadFromLink(getPhotoMaxQualityLink(walls.get(0)), Constants.HEADER_FILE_NAME);
-                updateDataInPref();
+                try {
+                    DownloadAsyncTask.downloadFromLink(getPhotoMaxQualityLink(walls.get(0)), Constants.HEADER_FILE_NAME);
+                    updateDataInPref();
+                } catch (IndexOutOfBoundsException e) {
+                    e.printStackTrace();
+                }
             }
         };
         return new Thread(r);

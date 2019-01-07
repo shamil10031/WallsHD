@@ -1,0 +1,2114 @@
+Index: .idea/runConfigurations.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/runConfigurations.xml	(revision )
++++ .idea/runConfigurations.xml	(revision )
+@@ -0,0 +1,12 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="RunConfigurationProducerService">
++    <option name="ignoredProducers">
++      <set>
++        <option value="org.jetbrains.plugins.gradle.execution.test.runner.AllInPackageGradleConfigurationProducer" />
++        <option value="org.jetbrains.plugins.gradle.execution.test.runner.TestClassGradleConfigurationProducer" />
++        <option value="org.jetbrains.plugins.gradle.execution.test.runner.TestMethodGradleConfigurationProducer" />
++      </set>
++    </option>
++  </component>
++</project>
+\ No newline at end of file
+Index: app/src/main/res/layout/walls_view_item.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/walls_view_item.xml	(revision )
++++ app/src/main/res/layout/walls_view_item.xml	(revision )
+@@ -0,0 +1,14 @@
++<?xml version="1.0" encoding="utf-8"?>
++<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    android:orientation="vertical"
++    android:layout_width="match_parent"
++    android:layout_height="wrap_content">
++
++    <ImageView
++        android:id="@+id/wallpaper_item_ivew"
++        android:adjustViewBounds="true"
++        android:layout_height="230dp"
++        android:scaleType="centerCrop"
++        android:layout_width="match_parent" />
++
++</LinearLayout>
+\ No newline at end of file
+Index: app/src/main/res/drawable/bw_gradient.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/drawable/bw_gradient.xml	(revision )
++++ app/src/main/res/drawable/bw_gradient.xml	(revision )
+@@ -0,0 +1,12 @@
++<?xml version="1.0" encoding="utf-8"?>
++<shape xmlns:android="http://schemas.android.com/apk/res/android"
++    android:layout_height="match_parent"
++    android:layout_width="match_parent">
++
++    <gradient
++        android:angle="-90.0"
++        android:startColor="#f000"
++        android:endColor="#0000"
++        android:type="linear" />
++
++</shape>
+\ No newline at end of file
+Index: app/src/test/java/com/shomazzapp/walls/ExampleUnitTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/test/java/com/shomazzapp/walls/ExampleUnitTest.java	(revision )
++++ app/src/test/java/com/shomazzapp/walls/ExampleUnitTest.java	(revision )
+@@ -0,0 +1,17 @@
++package com.shomazzapp.walls;
++
++import org.junit.Test;
++
++import static org.junit.Assert.assertEquals;
++
++/**
++ * Example local unit test, which will execute on the development machine (host).
++ *
++ * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
++ */
++public class ExampleUnitTest {
++    @Test
++    public void addition_isCorrect() throws Exception {
++        assertEquals(4, 2 + 2);
++    }
++}
+\ No newline at end of file
+Index: app/src/main/AndroidManifest.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/AndroidManifest.xml	(revision )
++++ app/src/main/AndroidManifest.xml	(revision )
+@@ -0,0 +1,36 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.shomazzapp.walls">
++
++    <uses-permission android:name="android.permission.INTERNET" />
++    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
++    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
++
++    <application
++        android:name=".Utils.Application"
++        android:allowBackup="true"
++        android:icon="@mipmap/ic_launcher"
++        android:label=""
++        android:roundIcon="@mipmap/ic_launcher_round"
++        android:supportsRtl="true"
++        android:theme="@style/Theme.AppCompat.NoActionBar">
++        <activity
++            android:name=".View.MainActivity"
++            android:screenOrientation="portrait">
++            <intent-filter>
++                <action android:name="android.intent.action.MAIN" />
++
++                <category android:name="android.intent.category.LAUNCHER" />
++            </intent-filter>
++        </activity>
++        <activity
++            android:screenOrientation="portrait"
++            android:name="com.vk.sdk.VKServiceActivity"
++            android:label="ServiceActivity"
++            android:theme="@style/VK.Transparent" />
++        <activity
++            android:name=".View.WallpaperActivity"
++            android:screenOrientation="portrait"></activity>
++    </application>
++
++</manifest>
+\ No newline at end of file
+Index: app/src/main/java/com/shomazzapp/walls/View/Adapters/WallsViewAdapter.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/shomazzapp/walls/View/Adapters/WallsViewAdapter.java	(revision )
++++ app/src/main/java/com/shomazzapp/walls/View/Adapters/WallsViewAdapter.java	(revision )
+@@ -0,0 +1,96 @@
++package com.shomazzapp.walls.View.Adapters;
++
++import android.content.Context;
++import android.content.Intent;
++import android.graphics.Bitmap;
++import android.support.v7.widget.RecyclerView;
++import android.view.LayoutInflater;
++import android.view.View;
++import android.view.ViewGroup;
++import android.widget.ImageView;
++
++import com.bumptech.glide.Glide;
++import com.bumptech.glide.load.engine.DiskCacheStrategy;
++import com.bumptech.glide.request.RequestListener;
++import com.bumptech.glide.request.target.Target;
++import com.shomazzapp.walls.R;
++import com.shomazzapp.walls.Utils.Constants;
++import com.shomazzapp.walls.View.WallpaperActivity;
++import com.vk.sdk.api.model.VKApiPhoto;
++
++import java.util.ArrayList;
++
++public class WallsViewAdapter extends RecyclerView.Adapter<WallsViewAdapter.ViewHolder> {
++
++    private Context context;
++    private ArrayList<VKApiPhoto> wallpapers;
++
++    public WallsViewAdapter(Context context, ArrayList<VKApiPhoto> wallpapers) {
++        this.context = context;
++        this.wallpapers = wallpapers;
++    }
++
++    public void updateData(ArrayList<VKApiPhoto> walls) {
++        this.wallpapers = walls;
++        notifyDataSetChanged();
++
++    }
++
++    @Override
++    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
++        LayoutInflater inflater = LayoutInflater.from(context);
++        View wallpapperView = inflater.inflate(R.layout.walls_view_item, parent, false);
++        ViewHolder holder = new ViewHolder(wallpapperView);
++        return holder;
++    }
++
++    @Override
++    public void onBindViewHolder(ViewHolder holder, int position) {
++        Glide.with(context)
++                .load(wallpapers.get(position).photo_604)
++                .asBitmap()
++                .listener(new RequestListener<String, Bitmap>() {
++                    @Override
++                    public boolean onException(Exception e, String model, Target<Bitmap> target, boolean isFirstResource) {
++                        System.out.println("Exception ! Model : " + model);
++                        e.printStackTrace();
++                        return false;
++                    }
++
++                    @Override
++                    public boolean onResourceReady(Bitmap resource, String model, Target<Bitmap> target, boolean isFromMemoryCache, boolean isFirstResource) {
++                        return false;
++                    }
++                })
++                .diskCacheStrategy(DiskCacheStrategy.NONE)
++                .placeholder(R.drawable.vk_clear_shape)
++                .into(holder.imageView);
++    }
++
++    @Override
++    public int getItemCount() {
++        return (wallpapers.size());
++    }
++
++    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
++
++        public ImageView imageView;
++
++        public ViewHolder(View itemView) {
++            super(itemView);
++            imageView = (ImageView) itemView.findViewById(R.id.wallpaper_item_ivew);
++            itemView.setOnClickListener(this);
++        }
++
++        @Override
++        public void onClick(View view) {
++            int position = getAdapterPosition();
++            if (position != RecyclerView.NO_POSITION) {
++                VKApiPhoto wallpaper = wallpapers.get(position);
++                Intent intent = new Intent(context, WallpaperActivity.class);
++                intent.putExtra(Constants.EXTRA_WALL, wallpaper);
++                context.startActivity(intent);
++            }
++        }
++    }
++}
+Index: app/src/main/java/com/shomazzapp/walls/Utils/Constants.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/shomazzapp/walls/Utils/Constants.java	(revision )
++++ app/src/main/java/com/shomazzapp/walls/Utils/Constants.java	(revision )
+@@ -0,0 +1,14 @@
++package com.shomazzapp.walls.Utils;
++
++public class Constants {
++
++    public static final int COMMUNITY_ID = -115406832;
++    public static final String ACCES_TOKEN = "b3eaba0d39270e783acbb541edd140de5aac79bcfe2a15fc87f88783fbb817768d9e79873369109638b54";
++    public static final String EXTRA_WALL = "wall";
++    public static final String WRITE_STORAGE_PERMISSION = "android.permission.WRITE_EXTERNAL_STORAGE";
++    public static final String FOLDER_NAME = "HdWalls";
++    public static final int ALBUM_POSITION = 1;
++
++    public static final String[] PERMISSIONS = {WRITE_STORAGE_PERMISSION};
++
++}
+Index: settings.gradle
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- settings.gradle	(revision )
++++ settings.gradle	(revision )
+@@ -0,0 +1,1 @@
++include ':app'
+Index: app/src/main/java/com/shomazzapp/walls/View/Adapters/CategoriesAdapter.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/shomazzapp/walls/View/Adapters/CategoriesAdapter.java	(revision )
++++ app/src/main/java/com/shomazzapp/walls/View/Adapters/CategoriesAdapter.java	(revision )
+@@ -0,0 +1,54 @@
++package com.shomazzapp.walls.View.Adapters;
++
++import android.content.Context;
++import android.view.LayoutInflater;
++import android.view.View;
++import android.view.ViewGroup;
++import android.widget.BaseAdapter;
++import android.widget.TextView;
++
++import com.shomazzapp.walls.R;
++
++import java.util.ArrayList;
++
++public class CategoriesAdapter extends BaseAdapter {
++
++    private ArrayList<String> categories;
++    private Context context;
++    private LayoutInflater inflater;
++
++    public CategoriesAdapter(Context context, ArrayList<String> categories) {
++        this.categories = categories;
++        this.context = context;
++        this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
++    }
++
++    @Override
++    public int getCount() {
++        return categories.size();
++    }
++
++    @Override
++    public Object getItem(int i) {
++        return categories.get(i);
++    }
++
++    @Override
++    public long getItemId(int i) {
++        return 0;
++    }
++
++    @Override
++    public View getView(int i, View view, ViewGroup viewGroup) {
++        Holder holder = new Holder();
++        View v = inflater.inflate(R.layout.nav_menu_item, null);
++        holder.textView = (TextView) v.findViewById(R.id.category_item_tv);
++        holder.textView.setText(categories.get(i));
++        return v;
++    }
++
++    private class Holder {
++        TextView textView;
++    }
++
++}
+Index: gradle/wrapper/gradle-wrapper.properties
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- gradle/wrapper/gradle-wrapper.properties	(revision )
++++ gradle/wrapper/gradle-wrapper.properties	(revision )
+@@ -0,0 +1,6 @@
++#Fri Nov 10 20:49:01 MSK 2017
++distributionBase=GRADLE_USER_HOME
++distributionPath=wrapper/dists
++zipStoreBase=GRADLE_USER_HOME
++zipStorePath=wrapper/dists
++distributionUrl=https\://services.gradle.org/distributions/gradle-4.1-all.zip
+Index: app/proguard-rules.pro
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/proguard-rules.pro	(revision )
++++ app/proguard-rules.pro	(revision )
+@@ -0,0 +1,25 @@
++# Add project specific ProGuard rules here.
++# By default, the flags in this file are appended to flags specified
++# in /home/shamil/Android/Sdk/tools/proguard/proguard-android.txt
++# You can edit the include path and order by changing the proguardFiles
++# directive in build.gradle.
++#
++# For more details, see
++#   http://developer.android.com/guide/developing/tools/proguard.html
++
++# Add any project specific keep options here:
++
++# If your project uses WebView with JS, uncomment the following
++# and specify the fully qualified class name to the JavaScript interface
++# class:
++#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
++#   public *;
++#}
++
++# Uncomment this to preserve the line number information for
++# debugging stack traces.
++#-keepattributes SourceFile,LineNumberTable
++
++# If you keep the line number information, uncomment this to
++# hide the original source file name.
++#-renamesourcefileattribute SourceFile
+Index: app/src/main/java/com/shomazzapp/walls/Requests/CommentRequset.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/shomazzapp/walls/Requests/CommentRequset.java	(revision )
++++ app/src/main/java/com/shomazzapp/walls/Requests/CommentRequset.java	(revision )
+@@ -0,0 +1,52 @@
++package com.shomazzapp.walls.Requests;
++
++import com.shomazzapp.walls.Utils.Constants;
++import com.vk.sdk.api.VKApiConst;
++import com.vk.sdk.api.VKError;
++import com.vk.sdk.api.VKParameters;
++import com.vk.sdk.api.VKRequest;
++import com.vk.sdk.api.VKResponse;
++import com.vk.sdk.api.model.VKApiComment;
++
++import org.json.JSONObject;
++
++public class CommentRequset {
++
++    private int photo_id;
++    private VKApiComment comment;
++
++    public CommentRequset(int photo_id) {
++        this.photo_id = photo_id;
++        loadComment();
++    }
++
++    public void loadComment() {
++        VKRequest request = new VKRequest("photos.getComments", VKParameters.from(
++                VKApiConst.OWNER_ID, Constants.COMMUNITY_ID,
++                "photo_id", photo_id,
++                VKApiConst.ACCESS_TOKEN, Constants.ACCES_TOKEN));
++        request.executeSyncWithListener(new VKRequest.VKRequestListener() {
++            @Override
++            public void onComplete(VKResponse response) {
++                super.onComplete(response);
++                try {
++                    comment = new VKApiComment((JSONObject) response.json.getJSONObject("response")
++                            .getJSONArray("items").get(0));
++                } catch (Exception e) {
++                    e.printStackTrace();
++                }
++            }
++
++            @Override
++            public void onError(VKError error) {
++                super.onError(error);
++                System.out.println(error);
++            }
++        });
++    }
++
++    public VKApiComment getComment() {
++        return comment;
++    }
++
++}
+Index: app/src/main/java/com/shomazzapp/walls/Utils/Application.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/shomazzapp/walls/Utils/Application.java	(revision )
++++ app/src/main/java/com/shomazzapp/walls/Utils/Application.java	(revision )
+@@ -0,0 +1,23 @@
++package com.shomazzapp.walls.Utils;
++
++import com.vk.sdk.VKSdk;
++
++public class Application extends android.app.Application {
++
++    @Override
++    public void onCreate() {
++        super.onCreate();
++        VKSdk.initialize(getApplicationContext());
++    }
++
++    @Override
++    public void onLowMemory() {
++        super.onLowMemory();
++    }
++
++    @Override
++    public void onTerminate() {
++        super.onTerminate();
++    }
++
++}
+Index: .idea/vcs.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/vcs.xml	(revision )
++++ .idea/vcs.xml	(revision )
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="VcsDirectoryMappings">
++    <mapping directory="$PROJECT_DIR$" vcs="Git" />
++  </component>
++</project>
+\ No newline at end of file
+Index: app/src/main/java/com/shomazzapp/walls/Requests/AlbumsRequest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/shomazzapp/walls/Requests/AlbumsRequest.java	(revision )
++++ app/src/main/java/com/shomazzapp/walls/Requests/AlbumsRequest.java	(revision )
+@@ -0,0 +1,52 @@
++package com.shomazzapp.walls.Requests;
++
++import com.shomazzapp.walls.Utils.Constants;
++import com.vk.sdk.api.VKApiConst;
++import com.vk.sdk.api.VKError;
++import com.vk.sdk.api.VKParameters;
++import com.vk.sdk.api.VKRequest;
++import com.vk.sdk.api.VKResponse;
++import com.vk.sdk.api.model.VKApiPhotoAlbum;
++
++import org.json.JSONObject;
++
++import java.util.ArrayList;
++
++public class AlbumsRequest {
++
++    private ArrayList<VKApiPhotoAlbum> albums;
++
++    public AlbumsRequest() {
++        albums = new ArrayList<>();
++        loadAlbums();
++    }
++
++    public void loadAlbums() {
++        VKRequest request = new VKRequest("photos.getAlbums", VKParameters.from(
++                VKApiConst.OWNER_ID, Constants.COMMUNITY_ID, VKApiConst.ACCESS_TOKEN, Constants.ACCES_TOKEN));
++        request.executeSyncWithListener(new VKRequest.VKRequestListener() {
++            @Override
++            public void onComplete(VKResponse response) {
++                super.onComplete(response);
++                try {
++                    for (int i = 0; i < response.json.getJSONObject("response").getInt("count"); i++)
++                        albums.add(new VKApiPhotoAlbum((JSONObject) response.json.getJSONObject("response")
++                                .getJSONArray("items").get(i)));
++                } catch (Exception e) {
++                    e.printStackTrace();
++                }
++            }
++
++            @Override
++            public void onError(VKError er) {
++                super.onError(er);
++                System.out.println(er);
++            }
++        });
++    }
++
++    public ArrayList<VKApiPhotoAlbum> getAlbums() {
++        return albums;
++    }
++
++}
+Index: app/src/main/res/values/styles.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/values/styles.xml	(revision )
++++ app/src/main/res/values/styles.xml	(revision )
+@@ -0,0 +1,11 @@
++<resources>
++
++    <!-- Base application theme. -->
++    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
++        <!-- Customize your theme here. -->
++        <item name="colorPrimary">@color/colorPrimary</item>
++        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
++        <item name="colorAccent">@color/colorAccent</item>
++    </style>
++
++</resources>
+Index: .idea/compiler.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/compiler.xml	(revision )
++++ .idea/compiler.xml	(revision )
+@@ -0,0 +1,23 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="CompilerConfiguration">
++    <resourceExtensions />
++    <wildcardResourcePatterns>
++      <entry name="!?*.java" />
++      <entry name="!?*.form" />
++      <entry name="!?*.class" />
++      <entry name="!?*.groovy" />
++      <entry name="!?*.scala" />
++      <entry name="!?*.flex" />
++      <entry name="!?*.kt" />
++      <entry name="!?*.clj" />
++      <entry name="!?*.aj" />
++    </wildcardResourcePatterns>
++    <annotationProcessing>
++      <profile default="true" name="Default" enabled="false">
++        <processorPath useClasspath="true" />
++      </profile>
++    </annotationProcessing>
++    <bytecodeTargetLevel target="1.9" />
++  </component>
++</project>
+\ No newline at end of file
+Index: .idea/modules.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/modules.xml	(revision )
++++ .idea/modules.xml	(revision )
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="ProjectModuleManager">
++    <modules>
++      <module fileurl="file://$PROJECT_DIR$/Walls.iml" filepath="$PROJECT_DIR$/Walls.iml" />
++      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
++    </modules>
++  </component>
++</project>
+\ No newline at end of file
+Index: app/src/main/java/com/shomazzapp/walls/Requests/PhotosRequest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/shomazzapp/walls/Requests/PhotosRequest.java	(revision )
++++ app/src/main/java/com/shomazzapp/walls/Requests/PhotosRequest.java	(revision )
+@@ -0,0 +1,57 @@
++package com.shomazzapp.walls.Requests;
++
++import com.shomazzapp.walls.Utils.Constants;
++import com.vk.sdk.api.VKApiConst;
++import com.vk.sdk.api.VKError;
++import com.vk.sdk.api.VKParameters;
++import com.vk.sdk.api.VKRequest;
++import com.vk.sdk.api.VKResponse;
++import com.vk.sdk.api.model.VKApiPhoto;
++
++import org.json.JSONObject;
++
++import java.util.ArrayList;
++
++public class PhotosRequest {
++
++    private ArrayList<VKApiPhoto> photos;
++
++    private int album_id;
++
++    public PhotosRequest(int album_id) {
++        this.album_id = album_id;
++        this.photos = new ArrayList<>();
++        loadPhotos();
++    }
++
++    public void loadPhotos() {
++        VKRequest request = new VKRequest("photos.get", VKParameters.from(
++                VKApiConst.OWNER_ID, Constants.COMMUNITY_ID,
++                VKApiConst.ACCESS_TOKEN, Constants.ACCES_TOKEN,
++                VKApiConst.ALBUM_ID, album_id));
++        request.executeSyncWithListener(new VKRequest.VKRequestListener() {
++            @Override
++            public void onComplete(VKResponse response) {
++                super.onComplete(response);
++                try {
++                    for (int i = 0; i < response.json.getJSONObject("response").getInt("count"); i++)
++                        photos.add(new VKApiPhoto((JSONObject) response.json.getJSONObject("response")
++                                .getJSONArray("items").get(i)));
++                } catch (Exception e) {
++                    e.printStackTrace();
++                }
++            }
++
++            @Override
++            public void onError(VKError error) {
++                super.onError(error);
++                System.out.println(error);
++            }
++        });
++    }
++
++    public ArrayList<VKApiPhoto> getPhotos() {
++        return photos;
++    }
++
++}
+Index: build.gradle
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- build.gradle	(revision )
++++ build.gradle	(revision )
+@@ -0,0 +1,23 @@
++// Top-level build file where you can add configuration options common to all sub-projects/modules.
++
++buildscript {
++    repositories {
++        jcenter()
++    }
++    dependencies {
++        classpath 'com.android.tools.build:gradle:3.0.0'
++
++        // NOTE: Do not place your application dependencies here; they belong
++        // in the individual module build.gradle files
++    }
++}
++
++allprojects {
++    repositories {
++        jcenter()
++    }
++}
++
++task clean(type: Delete) {
++    delete rootProject.buildDir
++}
+Index: app/src/androidTest/java/com/shomazzapp/walls/ExampleInstrumentedTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/androidTest/java/com/shomazzapp/walls/ExampleInstrumentedTest.java	(revision )
++++ app/src/androidTest/java/com/shomazzapp/walls/ExampleInstrumentedTest.java	(revision )
+@@ -0,0 +1,26 @@
++package com.shomazzapp.walls;
++
++import android.content.Context;
++import android.support.test.InstrumentationRegistry;
++import android.support.test.runner.AndroidJUnit4;
++
++import org.junit.Test;
++import org.junit.runner.RunWith;
++
++import static org.junit.Assert.assertEquals;
++
++/**
++ * Instrumentation test, which will execute on an Android device.
++ *
++ * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
++ */
++@RunWith(AndroidJUnit4.class)
++public class ExampleInstrumentedTest {
++    @Test
++    public void useAppContext() throws Exception {
++        // Context of the app under test.
++        Context appContext = InstrumentationRegistry.getTargetContext();
++
++        assertEquals("com.shomazzapp.walls", appContext.getPackageName());
++    }
++}
+Index: app/src/main/res/values/strings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/values/strings.xml	(revision )
++++ app/src/main/res/values/strings.xml	(revision )
+@@ -0,0 +1,4 @@
++<resources>
++    <string name="app_name">Walls</string>
++    <integer name="com_vk_sdk_AppId">6216101</integer>
++</resources>
+Index: app/src/main/java/com/shomazzapp/walls/Requests/DocumentRequest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/shomazzapp/walls/Requests/DocumentRequest.java	(revision )
++++ app/src/main/java/com/shomazzapp/walls/Requests/DocumentRequest.java	(revision )
+@@ -0,0 +1,59 @@
++package com.shomazzapp.walls.Requests;
++
++import com.shomazzapp.walls.Utils.Constants;
++import com.vk.sdk.api.VKApiConst;
++import com.vk.sdk.api.VKError;
++import com.vk.sdk.api.VKParameters;
++import com.vk.sdk.api.VKRequest;
++import com.vk.sdk.api.VKResponse;
++import com.vk.sdk.api.model.VKApiDocument;
++
++import org.json.JSONObject;
++
++public class DocumentRequest {
++
++    private String address;
++    private String attachmentString;
++    private String docIdentificators;
++
++    public DocumentRequest(String attachmentString) {
++        this.attachmentString = attachmentString;
++        this.docIdentificators = createDocIdentificator();
++        loadAttachmentAddres();
++    }
++
++    public void loadAttachmentAddres() {
++        VKRequest request = new VKRequest("docs.getById", VKParameters.from(
++                "docs", docIdentificators,
++                VKApiConst.ACCESS_TOKEN, Constants.ACCES_TOKEN));
++        request.executeSyncWithListener(new VKRequest.VKRequestListener() {
++            @Override
++            public void onComplete(VKResponse response) {
++                super.onComplete(response);
++                try {
++                    VKApiDocument doc = new VKApiDocument((JSONObject) response.json.
++                            getJSONArray("response").get(0));
++                    address = doc.url;
++                } catch (Exception e) {
++                    e.printStackTrace();
++                }
++            }
++
++            @Override
++            public void onError(VKError error) {
++                super.onError(error);
++                System.out.println(error);
++            }
++        });
++    }
++
++    //Delete 'doc' from attachmentString
++    public String createDocIdentificator() {
++        return attachmentString.substring(3, attachmentString.length());
++    }
++
++    public String getAddress() {
++        return address;
++    }
++
++}
+Index: app/src/main/res/layout/nav_menu_item.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/nav_menu_item.xml	(revision )
++++ app/src/main/res/layout/nav_menu_item.xml	(revision )
+@@ -0,0 +1,14 @@
++<?xml version="1.0" encoding="utf-8"?>
++<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    android:orientation="vertical"
++    android:layout_width="match_parent"
++    android:layout_height="wrap_content">
++
++    <TextView
++        android:id="@+id/category_item_tv"
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:textSize="30sp"
++        android:paddingLeft="10dp" />
++
++</LinearLayout>
+\ No newline at end of file
+Index: .gitignore
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .gitignore	(revision )
++++ .gitignore	(revision )
+@@ -0,0 +1,9 @@
++*.iml
++.gradle
++/local.properties
++/.idea/workspace.xml
++/.idea/libraries
++.DS_Store
++/build
++/captures
++.externalNativeBuild
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/misc.xml	(revision )
++++ .idea/misc.xml	(revision )
+@@ -0,0 +1,239 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="NullableNotNullManager">
++    <option name="myDefaultNullable" value="android.support.annotation.Nullable" />
++    <option name="myDefaultNotNull" value="android.support.annotation.NonNull" />
++    <option name="myNullables">
++      <value>
++        <list size="4">
++          <item index="0" class="java.lang.String" itemvalue="org.jetbrains.annotations.Nullable" />
++          <item index="1" class="java.lang.String" itemvalue="javax.annotation.Nullable" />
++          <item index="2" class="java.lang.String" itemvalue="edu.umd.cs.findbugs.annotations.Nullable" />
++          <item index="3" class="java.lang.String" itemvalue="android.support.annotation.Nullable" />
++        </list>
++      </value>
++    </option>
++    <option name="myNotNulls">
++      <value>
++        <list size="4">
++          <item index="0" class="java.lang.String" itemvalue="org.jetbrains.annotations.NotNull" />
++          <item index="1" class="java.lang.String" itemvalue="javax.annotation.Nonnull" />
++          <item index="2" class="java.lang.String" itemvalue="edu.umd.cs.findbugs.annotations.NonNull" />
++          <item index="3" class="java.lang.String" itemvalue="android.support.annotation.NonNull" />
++        </list>
++      </value>
++    </option>
++  </component>
++  <component name="ProjectInspectionProfilesVisibleTreeState">
++    <entry key="Project Default">
++      <profile-state>
++        <expanded-state>
++          <State>
++            <id />
++          </State>
++          <State>
++            <id>Abstraction issuesJava</id>
++          </State>
++          <State>
++            <id>Android</id>
++          </State>
++          <State>
++            <id>Android &gt; Lint &gt; Correctness</id>
++          </State>
++          <State>
++            <id>Android &gt; Lint &gt; Correctness &gt; Messages</id>
++          </State>
++          <State>
++            <id>Android &gt; Lint &gt; Performance</id>
++          </State>
++          <State>
++            <id>Android &gt; Lint &gt; Security</id>
++          </State>
++          <State>
++            <id>Android &gt; Lint &gt; Usability</id>
++          </State>
++          <State>
++            <id>Assignment issuesJava</id>
++          </State>
++          <State>
++            <id>Bitwise operation issuesJava</id>
++          </State>
++          <State>
++            <id>Class metricsJava</id>
++          </State>
++          <State>
++            <id>Class structureJava</id>
++          </State>
++          <State>
++            <id>Cloning issuesJava</id>
++          </State>
++          <State>
++            <id>Code maturity issuesJava</id>
++          </State>
++          <State>
++            <id>Code style issuesJava</id>
++          </State>
++          <State>
++            <id>Compiler issuesJava</id>
++          </State>
++          <State>
++            <id>Concurrency annotation issuesJava</id>
++          </State>
++          <State>
++            <id>Control flow issuesJava</id>
++          </State>
++          <State>
++            <id>Data flow issuesJava</id>
++          </State>
++          <State>
++            <id>Declaration redundancyJava</id>
++          </State>
++          <State>
++            <id>Dependency issuesJava</id>
++          </State>
++          <State>
++            <id>Encapsulation issuesJava</id>
++          </State>
++          <State>
++            <id>Error handlingJava</id>
++          </State>
++          <State>
++            <id>Finalization issuesJava</id>
++          </State>
++          <State>
++            <id>GPath inspectionsGroovy</id>
++          </State>
++          <State>
++            <id>General</id>
++          </State>
++          <State>
++            <id>GeneralJava</id>
++          </State>
++          <State>
++            <id>Google Cloud Endpoints</id>
++          </State>
++          <State>
++            <id>Groovy</id>
++          </State>
++          <State>
++            <id>ImportsJava</id>
++          </State>
++          <State>
++            <id>Inheritance issuesJava</id>
++          </State>
++          <State>
++            <id>Initialization issuesJava</id>
++          </State>
++          <State>
++            <id>Internationalization issuesJava</id>
++          </State>
++          <State>
++            <id>J2ME issuesJava</id>
++          </State>
++          <State>
++            <id>JUnit issuesJava</id>
++          </State>
++          <State>
++            <id>Java</id>
++          </State>
++          <State>
++            <id>Java language level issuesJava</id>
++          </State>
++          <State>
++            <id>Java language level migration aidsJava</id>
++          </State>
++          <State>
++            <id>JavaBeans issuesJava</id>
++          </State>
++          <State>
++            <id>Javadoc issuesJava</id>
++          </State>
++          <State>
++            <id>Language Injection</id>
++          </State>
++          <State>
++            <id>Logging issuesJava</id>
++          </State>
++          <State>
++            <id>Manifest</id>
++          </State>
++          <State>
++            <id>Memory issuesJava</id>
++          </State>
++          <State>
++            <id>Method metricsJava</id>
++          </State>
++          <State>
++            <id>Modularization issuesJava</id>
++          </State>
++          <State>
++            <id>Naming ConventionsGroovy</id>
++          </State>
++          <State>
++            <id>Naming conventionsJava</id>
++          </State>
++          <State>
++            <id>Numeric issuesJava</id>
++          </State>
++          <State>
++            <id>Packaging issuesJava</id>
++          </State>
++          <State>
++            <id>Performance issuesJava</id>
++          </State>
++          <State>
++            <id>Portability issuesJava</id>
++          </State>
++          <State>
++            <id>Probable bugsGroovy</id>
++          </State>
++          <State>
++            <id>Probable bugsJava</id>
++          </State>
++          <State>
++            <id>Properties Files</id>
++          </State>
++          <State>
++            <id>Properties FilesJava</id>
++          </State>
++          <State>
++            <id>Resource management issuesJava</id>
++          </State>
++          <State>
++            <id>Security issuesJava</id>
++          </State>
++          <State>
++            <id>Serialization issuesJava</id>
++          </State>
++          <State>
++            <id>StyleGroovy</id>
++          </State>
++          <State>
++            <id>TestNGJava</id>
++          </State>
++          <State>
++            <id>Threading issuesGroovy</id>
++          </State>
++          <State>
++            <id>Threading issuesJava</id>
++          </State>
++          <State>
++            <id>Verbose or redundant code constructsJava</id>
++          </State>
++          <State>
++            <id>Visibility issuesJava</id>
++          </State>
++          <State>
++            <id>toString() issuesJava</id>
++          </State>
++        </expanded-state>
++      </profile-state>
++    </entry>
++  </component>
++  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_7" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
++    <output url="file://$PROJECT_DIR$/build/classes" />
++  </component>
++  <component name="ProjectType">
++    <option name="id" value="Android" />
++  </component>
++</project>
+\ No newline at end of file
+Index: gradlew.bat
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- gradlew.bat	(revision )
++++ gradlew.bat	(revision )
+@@ -0,0 +1,90 @@
++@if "%DEBUG%" == "" @echo off
++@rem ##########################################################################
++@rem
++@rem  Gradle startup script for Windows
++@rem
++@rem ##########################################################################
++
++@rem Set local scope for the variables with windows NT shell
++if "%OS%"=="Windows_NT" setlocal
++
++@rem Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
++set DEFAULT_JVM_OPTS=
++
++set DIRNAME=%~dp0
++if "%DIRNAME%" == "" set DIRNAME=.
++set APP_BASE_NAME=%~n0
++set APP_HOME=%DIRNAME%
++
++@rem Find java.exe
++if defined JAVA_HOME goto findJavaFromJavaHome
++
++set JAVA_EXE=java.exe
++%JAVA_EXE% -version >NUL 2>&1
++if "%ERRORLEVEL%" == "0" goto init
++
++echo.
++echo ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.
++echo.
++echo Please set the JAVA_HOME variable in your environment to match the
++echo location of your Java installation.
++
++goto fail
++
++:findJavaFromJavaHome
++set JAVA_HOME=%JAVA_HOME:"=%
++set JAVA_EXE=%JAVA_HOME%/bin/java.exe
++
++if exist "%JAVA_EXE%" goto init
++
++echo.
++echo ERROR: JAVA_HOME is set to an invalid directory: %JAVA_HOME%
++echo.
++echo Please set the JAVA_HOME variable in your environment to match the
++echo location of your Java installation.
++
++goto fail
++
++:init
++@rem Get command-line arguments, handling Windowz variants
++
++if not "%OS%" == "Windows_NT" goto win9xME_args
++if "%@eval[2+2]" == "4" goto 4NT_args
++
++:win9xME_args
++@rem Slurp the command line arguments.
++set CMD_LINE_ARGS=
++set _SKIP=2
++
++:win9xME_args_slurp
++if "x%~1" == "x" goto execute
++
++set CMD_LINE_ARGS=%*
++goto execute
++
++:4NT_args
++@rem Get arguments from the 4NT Shell from JP Software
++set CMD_LINE_ARGS=%$
++
++:execute
++@rem Setup the command line
++
++set CLASSPATH=%APP_HOME%\gradle\wrapper\gradle-wrapper.jar
++
++@rem Execute Gradle
++"%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %GRADLE_OPTS% "-Dorg.gradle.appname=%APP_BASE_NAME%" -classpath "%CLASSPATH%" org.gradle.wrapper.GradleWrapperMain %CMD_LINE_ARGS%
++
++:end
++@rem End local scope for the variables with windows NT shell
++if "%ERRORLEVEL%"=="0" goto mainEnd
++
++:fail
++rem Set variable GRADLE_EXIT_CONSOLE if you need the _script_ return code instead of
++rem the _cmd.exe /c_ return code!
++if  not "" == "%GRADLE_EXIT_CONSOLE%" exit 1
++exit /b 1
++
++:mainEnd
++if "%OS%"=="Windows_NT" endlocal
++
++:omega
+Index: app/src/main/res/layout/activity_main.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/activity_main.xml	(revision )
++++ app/src/main/res/layout/activity_main.xml	(revision )
+@@ -0,0 +1,61 @@
++<?xml version="1.0" encoding="utf-8"?>
++<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:tools="http://schemas.android.com/tools"
++    android:id="@+id/main_activity_drawer"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    tools:context="com.shomazzapp.walls.View.MainActivity">
++
++    <RelativeLayout
++        android:layout_width="match_parent"
++        android:layout_height="match_parent"
++        android:background="#0000">
++
++        <FrameLayout
++            android:id="@+id/frame"
++            android:layout_width="match_parent"
++            android:layout_height="match_parent" />
++
++        <RelativeLayout
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            android:background="@drawable/bw_gradient">
++
++            <android.support.v7.widget.Toolbar
++                android:id="@+id/toolbar"
++                android:layout_width="match_parent"
++                android:layout_height="?attr/actionBarSize">
++
++                <TextView
++                    android:id="@+id/toolbar_title"
++                    android:layout_width="wrap_content"
++                    android:layout_height="wrap_content"
++                    android:layout_gravity="center_horizontal"
++                    android:textAppearance="@android:style/TextAppearance.DeviceDefault.Widget.ActionBar.Title"
++                    android:textSize="20sp" />
++
++            </android.support.v7.widget.Toolbar>
++        </RelativeLayout>
++
++    </RelativeLayout>
++
++    <!--    <include
++            layout="@layout/app_bar"
++            android:layout_width="match_parent"
++            android:layout_height="match_parent"
++            android:gravity="center_horizontal"/>-->
++
++    <android.support.design.widget.NavigationView
++        android:id="@+id/nav_view"
++        android:layout_width="wrap_content"
++        android:layout_height="match_parent"
++        android:layout_gravity="start">
++
++        <ListView
++            android:id="@+id/list_vieww"
++            android:layout_width="match_parent"
++            android:layout_height="match_parent" />
++
++    </android.support.design.widget.NavigationView>
++
++</android.support.v4.widget.DrawerLayout>
+Index: app/src/main/java/com/shomazzapp/walls/View/WallpaperActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/shomazzapp/walls/View/WallpaperActivity.java	(revision )
++++ app/src/main/java/com/shomazzapp/walls/View/WallpaperActivity.java	(revision )
+@@ -0,0 +1,145 @@
++package com.shomazzapp.walls.View;
++
++import android.app.ProgressDialog;
++import android.content.Context;
++import android.os.AsyncTask;
++import android.os.Bundle;
++import android.os.Environment;
++import android.support.v7.app.AppCompatActivity;
++import android.view.View;
++import android.widget.ImageView;
++
++import com.bumptech.glide.Glide;
++import com.bumptech.glide.load.engine.DiskCacheStrategy;
++import com.shomazzapp.walls.R;
++import com.shomazzapp.walls.Requests.CommentRequset;
++import com.shomazzapp.walls.Requests.DocumentRequest;
++import com.shomazzapp.walls.Utils.Constants;
++import com.vk.sdk.api.model.VKApiPhoto;
++
++import java.io.File;
++import java.io.FileOutputStream;
++import java.io.IOException;
++import java.io.InputStream;
++import java.net.HttpURLConnection;
++import java.net.MalformedURLException;
++import java.net.URL;
++import java.net.URLDecoder;
++
++public class WallpaperActivity extends AppCompatActivity {
++
++    private ImageView imView;
++    private VKApiPhoto wallpaper;
++    private Context context;
++
++    @Override
++    protected void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++        setContentView(R.layout.activity_wallpaper);
++        imView = (ImageView) findViewById(R.id.wallpaper_iview);
++        wallpaper = getIntent().getParcelableExtra(Constants.EXTRA_WALL);
++
++        Glide.with(this)
++                .load(wallpaper.photo_2560)
++                //.error(R.drawable.ic_ab_app)
++                .diskCacheStrategy(DiskCacheStrategy.NONE)
++                .skipMemoryCache(true)
++                .into(imView);
++        System.out.println(wallpaper.photo_2560);
++        context = this;
++    }
++
++    public void onDownload(View v) {
++        String url = new DocumentRequest(new CommentRequset(wallpaper.id).getComment()
++                .attachments.get(0).toAttachmentString()
++                .toString()).getAddress();
++        downloadFile(url);
++        System.out.println(url);
++    }
++
++    public void onBackClick(View v) {
++        onBackPressed();
++    }
++
++    private void downloadFile(String url) {
++        final ProgressDialog progressDialog = new ProgressDialog(this);
++
++        new AsyncTask<String, Integer, File>() {
++            private Exception m_error = null;
++
++            @Override
++            protected void onPreExecute() {
++                progressDialog.setMessage("Downloading ...");
++                progressDialog.setCancelable(false);
++                progressDialog.setMax(100);
++                progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
++                progressDialog.show();
++            }
++
++            @Override
++            protected File doInBackground(String... params) {
++
++                int totalSize;
++                int downloadedSize;
++                byte[] buffer;
++                int bufferLength;
++
++                URL url;
++                HttpURLConnection urlConnection;
++                InputStream inputStream;
++                File file;
++                FileOutputStream fos;
++                try {
++                    url = new URL(params[0]);
++                    urlConnection = (HttpURLConnection) url.openConnection();
++                    urlConnection.setRequestMethod("GET");
++                    urlConnection.setDoOutput(true);
++                    urlConnection.connect();
++                    File folder = new File(Environment.getExternalStorageDirectory(),
++                            Constants.FOLDER_NAME);
++                    if (!folder.exists())
++                        folder.mkdirs();
++                    file = new File(folder,
++                            URLDecoder.decode(url.getFile(),
++                                    "UTF-8").replaceAll("[^A-Za-z0-9_/\\.]", "").substring(17, 21) + "_hdWalls.jpg");
++                    System.out.println(file.getAbsolutePath());
++                    file.createNewFile();
++                    fos = new FileOutputStream(file);
++                    inputStream = urlConnection.getInputStream();
++                    totalSize = urlConnection.getContentLength();
++                    downloadedSize = 0;
++                    buffer = new byte[1024];
++                    while ((bufferLength = inputStream.read(buffer)) > 0) {
++                        fos.write(buffer, 0, bufferLength);
++                        downloadedSize += bufferLength;
++                        publishProgress(downloadedSize, totalSize);
++                    }
++                    fos.close();
++                    inputStream.close();
++                    return file;
++                } catch (MalformedURLException e) {
++                    e.printStackTrace();
++                    m_error = e;
++                } catch (IOException e) {
++                    e.printStackTrace();
++                    m_error = e;
++                }
++                return null;
++            }
++
++            protected void onProgressUpdate(Integer... values) {
++                progressDialog.setProgress((int) ((values[0] / (float) values[1]) * 100));
++            }
++
++            @Override
++            protected void onPostExecute(File file) {
++                if (m_error != null) {
++                    m_error.printStackTrace();
++                    return;
++                }
++                progressDialog.hide();
++            }
++        }.execute(url);
++    }
++
++}
+\ No newline at end of file
+Index: gradle.properties
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- gradle.properties	(revision )
++++ gradle.properties	(revision )
+@@ -0,0 +1,13 @@
++# Project-wide Gradle settings.
++# IDE (e.g. Android Studio) users:
++# Gradle settings configured through the IDE *will override*
++# any settings specified in this file.
++# For more details on how to configure your build environment visit
++# http://www.gradle.org/docs/current/userguide/build_environment.html
++# Specifies the JVM arguments used for the daemon process.
++# The setting is particularly useful for tweaking memory settings.
++org.gradle.jvmargs=-Xmx1536m
++# When configured, Gradle will run in incubating parallel mode.
++# This option should only be used with decoupled projects. More details, visit
++# http://www.gradle.org/docs/current/userguide/multi_project_builds.html#sec:decoupled_projects
++# org.gradle.parallel=true
+Index: app/build.gradle
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/build.gradle	(revision )
++++ app/build.gradle	(revision )
+@@ -0,0 +1,38 @@
++apply plugin: 'com.android.application'
++
++android {
++    compileSdkVersion 26
++    buildToolsVersion '26.0.2'
++    defaultConfig {
++        applicationId "com.shomazzapp.walls"
++        minSdkVersion 19
++        targetSdkVersion 26
++        versionCode 1
++        versionName "1.0"
++        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
++    }
++    buildTypes {
++        release {
++            minifyEnabled false
++            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
++        }
++    }
++}
++
++dependencies {
++    compile fileTree(dir: 'libs', include: ['*.jar'])
++    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
++        exclude group: 'com.android.support', module: 'support-annotations'
++    })
++    //    compilr 'com.android.supportv7.graphics'
++    compile 'com.android.support:appcompat-v7:26.+'
++    compile 'com.android.support.constraint:constraint-layout:1.0.2'
++    compile 'com.android.support:recyclerview-v7:26.+'
++    compile 'com.github.bumptech.glide:glide:3.7.0'
++    compile 'com.vk:androidsdk:1.6.5'
++    compile 'com.android.support:design:26.+'
++    compile 'com.android.support:support-v4:26.+'
++    testCompile 'junit:junit:4.12'
++    compile 'com.jakewharton:butterknife:8.6.0'
++    annotationProcessor 'com.jakewharton:butterknife-compiler:8.6.0'
++}
+Index: .idea/copyright/profiles_settings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/copyright/profiles_settings.xml	(revision )
++++ .idea/copyright/profiles_settings.xml	(revision )
+@@ -0,0 +1,3 @@
++<component name="CopyrightManager">
++  <settings default="" />
++</component>
+\ No newline at end of file
+Index: app/src/main/res/values/colors.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/values/colors.xml	(revision )
++++ app/src/main/res/values/colors.xml	(revision )
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="utf-8"?>
++<resources>
++    <color name="colorPrimary">#3F51B5</color>
++    <color name="colorPrimaryDark">#303F9F</color>
++    <color name="colorAccent">#FF4081</color>
++</resources>
+Index: app/src/main/java/com/shomazzapp/walls/Presenter/WallsListPresenter.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/shomazzapp/walls/Presenter/WallsListPresenter.java	(revision )
++++ app/src/main/java/com/shomazzapp/walls/Presenter/WallsListPresenter.java	(revision )
+@@ -0,0 +1,32 @@
++package com.shomazzapp.walls.Presenter;
++
++import com.shomazzapp.walls.Requests.PhotosRequest;
++import com.shomazzapp.walls.View.Fragments.WallsListFragment;
++import com.vk.sdk.api.model.VKApiPhoto;
++
++import java.util.ArrayList;
++
++public class WallsListPresenter {
++
++    private WallsListFragment fragment;
++
++    public WallsListPresenter(WallsListFragment fragment) {
++        this.fragment = fragment;
++    }
++
++    public void loadWallByCategory(int albumID) {
++        fragment.updateData(getWallsByAlbumID(albumID));
++    }
++
++    public ArrayList<VKApiPhoto> getWallsByAlbumID(int albumID) {
++        ArrayList<VKApiPhoto> walls = new PhotosRequest(albumID).getPhotos();
++        System.out.println("Album size : " + walls.size() + "  id: " + albumID);
++        return walls;
++    }
++
++  /*  public ArrayList<VKApiPhoto> getWalls() {
++        ArrayList<VKApiPhoto> walls = new PhotosRequest(fragment.getAlbumID()).getPhotos();
++        System.out.println("Album size : " + walls.size() + "  id: " + fragment.getAlbumID());
++        return walls;
++    }*/
++}
+Index: app/src/main/res/layout/activity_wallpaper.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/activity_wallpaper.xml	(revision )
++++ app/src/main/res/layout/activity_wallpaper.xml	(revision )
+@@ -0,0 +1,56 @@
++<?xml version="1.0" encoding="utf-8"?>
++<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:tools="http://schemas.android.com/tools"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    tools:context="com.shomazzapp.walls.View.WallpaperActivity">
++
++    <ImageView
++        android:id="@+id/wallpaper_iview"
++        android:layout_width="match_parent"
++        android:layout_height="match_parent"
++        android:scaleType="centerCrop" />
++
++    <LinearLayout
++        android:layout_width="match_parent"
++        android:layout_height="50dp"
++        android:background="#9000"
++        android:weightSum="1">
++
++        <ImageView
++            android:layout_weight="0.10"
++            android:layout_width="0dp"
++            android:layout_height="match_parent"
++            android:scaleType="centerCrop"
++            android:src="@mipmap/ic_keyboard_arrow_left_white_24dp"
++            android:onClick="onBackClick" />
++
++    </LinearLayout>
++
++    <LinearLayout
++        android:layout_width="match_parent"
++        android:layout_height="50dp"
++        android:layout_alignParentBottom="true">
++
++        <Button
++            android:id="@+id/set_btn"
++            android:layout_width="0dp"
++            android:layout_height="match_parent"
++            android:layout_weight="0.5"
++            android:text="set"
++            android:background="#9000"
++            android:textColor="#ffff" />
++
++        <Button
++            android:id="@+id/download_btn"
++            android:layout_width="0dp"
++            android:layout_height="match_parent"
++            android:layout_weight="0.5"
++            android:text="download"
++            android:background="#9000"
++            android:textColor="#ffff"
++            android:onClick="onDownload" />
++
++    </LinearLayout>
++
++</RelativeLayout>
+Index: app/src/main/java/com/shomazzapp/walls/View/MainActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/shomazzapp/walls/View/MainActivity.java	(revision )
++++ app/src/main/java/com/shomazzapp/walls/View/MainActivity.java	(revision )
+@@ -0,0 +1,134 @@
++package com.shomazzapp.walls.View;
++
++import android.annotation.TargetApi;
++import android.app.FragmentTransaction;
++import android.content.pm.PackageManager;
++import android.os.Build;
++import android.os.Bundle;
++import android.support.v4.widget.DrawerLayout;
++import android.support.v7.app.ActionBarDrawerToggle;
++import android.support.v7.app.AppCompatActivity;
++import android.support.v7.widget.Toolbar;
++import android.view.View;
++import android.widget.AdapterView;
++import android.widget.ListView;
++import android.widget.TextView;
++
++import com.shomazzapp.walls.R;
++import com.shomazzapp.walls.Requests.AlbumsRequest;
++import com.shomazzapp.walls.Utils.Constants;
++import com.shomazzapp.walls.View.Adapters.CategoriesAdapter;
++import com.shomazzapp.walls.View.Fragments.WallsListFragment;
++import com.vk.sdk.api.model.VKApiPhotoAlbum;
++
++import java.util.ArrayList;
++
++import butterknife.BindView;
++import butterknife.ButterKnife;
++
++public class MainActivity extends AppCompatActivity {
++
++    private WallsListFragment wallsListFragment = new WallsListFragment();
++
++    @BindView(R.id.toolbar_title)
++    TextView toolbar_title;
++    @BindView(R.id.main_activity_drawer)
++    DrawerLayout drawer;
++    @BindView(R.id.toolbar)
++    Toolbar toolbar;
++
++    private ArrayList<VKApiPhotoAlbum> albums;
++    private String CURRENT_CATEGORY = "Newest";
++
++    @Override
++    protected void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++        setContentView(R.layout.activity_main);
++        ButterKnife.bind(this);
++        requestPermissionIfNeed();
++        albums = new AlbumsRequest().getAlbums();
++        setUpNavigationView();
++
++        wallsListFragment.setAlbumID(albums.get(Constants.ALBUM_POSITION).id);
++        loadCurrentFragment();
++        CURRENT_CATEGORY = albums.get(Constants.ALBUM_POSITION).title;
++        setToolbarTitle();
++    }
++
++
++    private void setUpNavigationView() {
++        setSupportActionBar(toolbar);
++        ListView l = (ListView) findViewById(R.id.list_vieww);
++        l.setOnItemClickListener(new DrawerItemClickListener());
++        l.setAdapter(new CategoriesAdapter(this, getCategoriesArray()));
++        ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawer, toolbar, 0, 0) {
++            @Override
++            public void onDrawerClosed(View drawerView) {
++                super.onDrawerClosed(drawerView);
++            }
++
++            @Override
++            public void onDrawerOpened(View drawerView) {
++                super.onDrawerOpened(drawerView);
++            }
++        };
++        drawer.setDrawerListener(actionBarDrawerToggle);
++        actionBarDrawerToggle.syncState();
++    }
++
++    public ArrayList<String> getCategoriesArray() {
++        ArrayList<String> arr = new ArrayList<>();
++        for (int i = 0; i < albums.size(); i++)
++            arr.add(i, albums.get(i).title);
++        return arr;
++    }
++
++    public void loadCategoryToFragment(int position) {
++        CURRENT_CATEGORY = albums.get(position).title;
++        setToolbarTitle();
++        wallsListFragment.loadAlbum(albums.get(position).id);
++        drawer.closeDrawers();
++    }
++
++    public void loadCurrentFragment() {
++        final android.support.v4.app.FragmentTransaction transaction
++                = getSupportFragmentManager().beginTransaction();
++        transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
++        transaction.replace(R.id.frame, wallsListFragment);
++        transaction.commit();
++    }
++
++    public void setToolbarTitle() {
++        toolbar_title.setText(CURRENT_CATEGORY);
++    }
++
++    private class DrawerItemClickListener implements ListView.OnItemClickListener {
++        @Override
++        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
++            loadCategoryToFragment(position);
++        }
++    }
++
++    // Permission settings
++
++    private boolean canMakeSmores() {
++        return (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1);
++    }
++
++    @TargetApi(23)
++    private void requestPermissionIfNeed() {
++        if (!hasPermission(Constants.WRITE_STORAGE_PERMISSION))
++            requestPermissions(Constants.PERMISSIONS, 200);
++    }
++
++    @TargetApi(23)
++    private boolean hasPermission(String permission) {
++        if (canMakeSmores()) {
++            return (checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED);
++        }
++        return true;
++    }
++}
++
++// comment = new CommentRequset(photos.get(0).getId()).getComment();
++// address = new DocumentRequest(comment.attachments.get(0).toAttachmentString().toString()).getAddress();
+\ No newline at end of file
+Index: .idea/gradle.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/gradle.xml	(revision )
++++ .idea/gradle.xml	(revision )
+@@ -0,0 +1,18 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="GradleSettings">
++    <option name="linkedExternalProjectsSettings">
++      <GradleProjectSettings>
++        <option name="distributionType" value="DEFAULT_WRAPPED" />
++        <option name="externalProjectPath" value="$PROJECT_DIR$" />
++        <option name="modules">
++          <set>
++            <option value="$PROJECT_DIR$" />
++            <option value="$PROJECT_DIR$/app" />
++          </set>
++        </option>
++        <option name="resolveModulePerSourceSet" value="false" />
++      </GradleProjectSettings>
++    </option>
++  </component>
++</project>
+\ No newline at end of file
+Index: app/src/main/res/layout/fragment_walls_list.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/fragment_walls_list.xml	(revision )
++++ app/src/main/res/layout/fragment_walls_list.xml	(revision )
+@@ -0,0 +1,18 @@
++<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:tools="http://schemas.android.com/tools"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    tools:context=".View.Fragments.WallsListFragment">
++
++    <FrameLayout
++        android:layout_width="match_parent"
++        android:layout_height="match_parent">
++
++        <android.support.v7.widget.RecyclerView
++            android:id="@+id/walls_view"
++            android:layout_width="match_parent"
++            android:layout_height="match_parent" />
++
++    </FrameLayout>
++
++</FrameLayout>
+Index: app/src/main/res/drawable/bw_gradient_helper.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/drawable/bw_gradient_helper.xml	(revision )
++++ app/src/main/res/drawable/bw_gradient_helper.xml	(revision )
+@@ -0,0 +1,12 @@
++<?xml version="1.0" encoding="utf-8"?>
++<shape xmlns:android="http://schemas.android.com/apk/res/android"
++    android:layout_height="match_parent"
++    android:layout_width="match_parent">
++
++    <gradient
++        android:angle="-90.0"
++        android:startColor="#f000"
++        android:endColor="#0000"
++        android:type="linear" />
++
++</shape>
+\ No newline at end of file
+Index: gradlew
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- gradlew	(revision )
++++ gradlew	(revision )
+@@ -0,0 +1,160 @@
++#!/usr/bin/env bash
++
++##############################################################################
++##
++##  Gradle start up script for UN*X
++##
++##############################################################################
++
++# Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
++DEFAULT_JVM_OPTS=""
++
++APP_NAME="Gradle"
++APP_BASE_NAME=`basename "$0"`
++
++# Use the maximum available, or set MAX_FD != -1 to use that value.
++MAX_FD="maximum"
++
++warn ( ) {
++    echo "$*"
++}
++
++die ( ) {
++    echo
++    echo "$*"
++    echo
++    exit 1
++}
++
++# OS specific support (must be 'true' or 'false').
++cygwin=false
++msys=false
++darwin=false
++case "`uname`" in
++  CYGWIN* )
++    cygwin=true
++    ;;
++  Darwin* )
++    darwin=true
++    ;;
++  MINGW* )
++    msys=true
++    ;;
++esac
++
++# Attempt to set APP_HOME
++# Resolve links: $0 may be a link
++PRG="$0"
++# Need this for relative symlinks.
++while [ -h "$PRG" ] ; do
++    ls=`ls -ld "$PRG"`
++    link=`expr "$ls" : '.*-> \(.*\)$'`
++    if expr "$link" : '/.*' > /dev/null; then
++        PRG="$link"
++    else
++        PRG=`dirname "$PRG"`"/$link"
++    fi
++done
++SAVED="`pwd`"
++cd "`dirname \"$PRG\"`/" >/dev/null
++APP_HOME="`pwd -P`"
++cd "$SAVED" >/dev/null
++
++CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
++
++# Determine the Java command to use to start the JVM.
++if [ -n "$JAVA_HOME" ] ; then
++    if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
++        # IBM's JDK on AIX uses strange locations for the executables
++        JAVACMD="$JAVA_HOME/jre/sh/java"
++    else
++        JAVACMD="$JAVA_HOME/bin/java"
++    fi
++    if [ ! -x "$JAVACMD" ] ; then
++        die "ERROR: JAVA_HOME is set to an invalid directory: $JAVA_HOME
++
++Please set the JAVA_HOME variable in your environment to match the
++location of your Java installation."
++    fi
++else
++    JAVACMD="java"
++    which java >/dev/null 2>&1 || die "ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.
++
++Please set the JAVA_HOME variable in your environment to match the
++location of your Java installation."
++fi
++
++# Increase the maximum file descriptors if we can.
++if [ "$cygwin" = "false" -a "$darwin" = "false" ] ; then
++    MAX_FD_LIMIT=`ulimit -H -n`
++    if [ $? -eq 0 ] ; then
++        if [ "$MAX_FD" = "maximum" -o "$MAX_FD" = "max" ] ; then
++            MAX_FD="$MAX_FD_LIMIT"
++        fi
++        ulimit -n $MAX_FD
++        if [ $? -ne 0 ] ; then
++            warn "Could not set maximum file descriptor limit: $MAX_FD"
++        fi
++    else
++        warn "Could not query maximum file descriptor limit: $MAX_FD_LIMIT"
++    fi
++fi
++
++# For Darwin, add options to specify how the application appears in the dock
++if $darwin; then
++    GRADLE_OPTS="$GRADLE_OPTS \"-Xdock:name=$APP_NAME\" \"-Xdock:icon=$APP_HOME/media/gradle.icns\""
++fi
++
++# For Cygwin, switch paths to Windows format before running java
++if $cygwin ; then
++    APP_HOME=`cygpath --path --mixed "$APP_HOME"`
++    CLASSPATH=`cygpath --path --mixed "$CLASSPATH"`
++    JAVACMD=`cygpath --unix "$JAVACMD"`
++
++    # We build the pattern for arguments to be converted via cygpath
++    ROOTDIRSRAW=`find -L / -maxdepth 1 -mindepth 1 -type d 2>/dev/null`
++    SEP=""
++    for dir in $ROOTDIRSRAW ; do
++        ROOTDIRS="$ROOTDIRS$SEP$dir"
++        SEP="|"
++    done
++    OURCYGPATTERN="(^($ROOTDIRS))"
++    # Add a user-defined pattern to the cygpath arguments
++    if [ "$GRADLE_CYGPATTERN" != "" ] ; then
++        OURCYGPATTERN="$OURCYGPATTERN|($GRADLE_CYGPATTERN)"
++    fi
++    # Now convert the arguments - kludge to limit ourselves to /bin/sh
++    i=0
++    for arg in "$@" ; do
++        CHECK=`echo "$arg"|egrep -c "$OURCYGPATTERN" -`
++        CHECK2=`echo "$arg"|egrep -c "^-"`                                 ### Determine if an option
++
++        if [ $CHECK -ne 0 ] && [ $CHECK2 -eq 0 ] ; then                    ### Added a condition
++            eval `echo args$i`=`cygpath --path --ignore --mixed "$arg"`
++        else
++            eval `echo args$i`="\"$arg\""
++        fi
++        i=$((i+1))
++    done
++    case $i in
++        (0) set -- ;;
++        (1) set -- "$args0" ;;
++        (2) set -- "$args0" "$args1" ;;
++        (3) set -- "$args0" "$args1" "$args2" ;;
++        (4) set -- "$args0" "$args1" "$args2" "$args3" ;;
++        (5) set -- "$args0" "$args1" "$args2" "$args3" "$args4" ;;
++        (6) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" ;;
++        (7) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" "$args6" ;;
++        (8) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" "$args6" "$args7" ;;
++        (9) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" "$args6" "$args7" "$args8" ;;
++    esac
++fi
++
++# Split up the JVM_OPTS And GRADLE_OPTS values into an array, following the shell quoting and substitution rules
++function splitJvmOpts() {
++    JVM_OPTS=("$@")
++}
++eval splitJvmOpts $DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS
++JVM_OPTS[${#JVM_OPTS[*]}]="-Dorg.gradle.appname=$APP_BASE_NAME"
++
++exec "$JAVACMD" "${JVM_OPTS[@]}" -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain "$@"
+Index: app/src/main/java/com/shomazzapp/walls/View/Fragments/WallsListFragment.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/shomazzapp/walls/View/Fragments/WallsListFragment.java	(revision )
++++ app/src/main/java/com/shomazzapp/walls/View/Fragments/WallsListFragment.java	(revision )
+@@ -0,0 +1,82 @@
++package com.shomazzapp.walls.View.Fragments;
++
++import android.content.Context;
++import android.os.Bundle;
++import android.support.v4.app.Fragment;
++import android.support.v7.widget.GridLayoutManager;
++import android.support.v7.widget.RecyclerView;
++import android.view.LayoutInflater;
++import android.view.View;
++import android.view.ViewGroup;
++
++import com.shomazzapp.walls.Presenter.WallsListPresenter;
++import com.shomazzapp.walls.R;
++import com.shomazzapp.walls.View.Adapters.WallsViewAdapter;
++import com.vk.sdk.api.model.VKApiPhoto;
++
++import java.util.ArrayList;
++
++import butterknife.BindView;
++import butterknife.ButterKnife;
++
++public class WallsListFragment extends Fragment {
++
++    private int albumID;
++
++    @BindView(R.id.walls_view)
++    RecyclerView recyclerView;
++    private WallsViewAdapter adapter;
++    private Context context;
++    private WallsListPresenter presenter;
++
++    @Override
++    public void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++        this.context = getContext();
++    }
++
++    @Override
++    public View onCreateView(LayoutInflater inflater, ViewGroup container,
++                             Bundle savedInstanceState) {
++        View view = inflater.inflate(R.layout.fragment_walls_list, container, false);
++        ButterKnife.bind(this, view);
++        init();
++        return view;
++    }
++
++    public void updateData(ArrayList<VKApiPhoto> walls) {
++        adapter.updateData(walls);
++        recyclerView.scrollToPosition(0);
++    }
++
++    public void loadAlbum(int albumID) {
++        presenter.loadWallByCategory(albumID);
++    }
++
++    public void init() {
++        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(context, 3);
++        recyclerView.setLayoutManager(layoutManager);
++        presenter = new WallsListPresenter(this);
++
++        adapter = new WallsViewAdapter(this.context, presenter.getWallsByAlbumID(albumID));
++        recyclerView.setAdapter(adapter);
++    }
++
++    @Override
++    public void onAttach(Context context) {
++        super.onAttach(context);
++    }
++
++    @Override
++    public void onDetach() {
++        super.onDetach();
++    }
++
++    public void setAlbumID(int id) {
++        this.albumID = id;
++    }
++
++    public int getAlbumID() {
++        return albumID;
++    }
++}
+Index: app/.gitignore
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/.gitignore	(revision )
++++ app/.gitignore	(revision )
+@@ -0,0 +1,1 @@
++/build

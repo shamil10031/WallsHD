@@ -56,17 +56,11 @@ public class WallsListPresenter {
         hidedWallsCount += req.getHidedWallsCount();
         while (req.getAllPhotosCount() - Constants.WALLS_LOAD_COUNT * repeats > 0
                 && walls.size() < Constants.WALLS_LOAD_COUNT) {
-            /*Log.d(log, "from getNewWalls START loop : \n repeats = "
-                    + repeats + "; \n offset == " + offset
-                    + ";\n hidedWallsCount = " + hidedWallsCount+";");*/
             req = new AllPhotosRequest(offset + walls.size() + hidedWallsCount,
                     Constants.WALLS_LOAD_COUNT, ids);
             walls.addAll(req.getPhotos());
             repeats++;
             hidedWallsCount += req.getHidedWallsCount();
-            /*Log.d(log, "from getNewWalls END loop : \n repeats = "
-                    + repeats + "; \n offset == " + offset
-                    + ";\n hidedWallsCount = " + hidedWallsCount+";");*/
         }
         return walls;
     }

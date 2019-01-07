@@ -6,6 +6,8 @@
     <string name="no_saved_walls">У вас нет скачанных обоев :(</string>
     <string name="no_connection">Что-то с интернет соединением :(</string>
     <string name="swipe_to_reload">Потяните, чтоб обновить</string>
+    <string name="access_denied_msg">Необходимо авторизоваться в вк</string>
+    <string name="auth_in_menu_msg">Авторизуйтесь в боковом меню слева</string>
 
     <string name="exit_confirmation_msg">Вы действительно хотите выйти?</string>
     <string name="error_network_msg">Необходимо интернет соединение!</string>
@@ -48,9 +50,15 @@
     <string name="share_text">В этом приложении собраны самые крутые обои:
     https://play.google.com/store/apps/details?id=com.shomazzapp.walls</string>
 
-    <string name="set">Установить</string>
+    <string name="set">Установить</string>к
     <string name="download">Скачать</string>
     <string name="delete">Удалить</string>
+    
+    <string name="vk_access_denied">К сожалению, с 16 марта Вконтакте закрыл доступ
+        неавторизованным пользователям к ресурсам соцсети.\n\nПоэтому,
+        для дальнейшего использования данного приложения необходимо авторизоваться.\n\nСделать
+        это вы можете в боковом меню приложения, нажав на кнопку "Войти в вк".\n\nПриносим
+        свои извинения :(</string>
 
     <string name="about_text">О приложении Vavilon Walls:\n\nVavilon Walls это отобранные вручную
         качественные обои с разрешением 1080x1920 пикселей с ежедневным обновлением.\n\nПри поиске
