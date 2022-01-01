@@ -10,8 +10,6 @@
 - Обои категории берутся из соответствующего альбома и отображаются в приложении
 - При открытии обой на весь экран, приложение подгружает фото в оригинальном разрешении из комментария к соответствующему фото в альбоме
 
-![image](https://user-images.githubusercontent.com/17685189/147379312-a5a1931b-df23-4f9c-9101-ed816fcd629d.png)
-![image](https://user-images.githubusercontent.com/17685189/147379318-96e0a30a-3f92-4689-9578-58a2774a8802.png)
-![image](https://user-images.githubusercontent.com/17685189/147379316-54c4a479-0212-4dd5-ba1c-0cbd4ada09e7.png)
-![image](https://user-images.githubusercontent.com/17685189/147379319-8961e8f7-f551-46b6-8900-bee7016b82c7.png)
-![image](https://user-images.githubusercontent.com/17685189/147379320-0a7451d3-a018-4969-94ff-d74257661e67.png)
+<img src="https://user-images.githubusercontent.com/17685189/147379312-a5a1931b-df23-4f9c-9101-ed816fcd629d.png" width="300"/>    <img src="https://user-images.githubusercontent.com/17685189/147379316-54c4a479-0212-4dd5-ba1c-0cbd4ada09e7.png" width="300"/>
+
+<img src="https://user-images.githubusercontent.com/17685189/147379319-8961e8f7-f551-46b6-8900-bee7016b82c7.png" width="300"/>    <img src="https://user-images.githubusercontent.com/17685189/147379320-0a7451d3-a018-4969-94ff-d74257661e67.png" width="300"/>
