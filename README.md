@@ -1,14 +1,15 @@
 # WallsHD-2018
-Приложение с обоями.
-Работает через VK-api по такому принципу:
-- В закрытой группе ВК создаются альбомы
-- Каждому альбому задается своя автарка и название
-- Каждый альбом наполняется фотографиями
-- К каждой фотографии в комментарии прикрепляется файл фотографии высокого разрешения
-- В приложении альбомы отобрадаются как категории обой
-- У каждой категории навзание и аватарка берутся из данных соответствующего альбома
-- Обои категории берутся из соответствующего альбома и отображаются в приложении
-- При открытии обой на весь экран, приложение подгружает фото в оригинальном разрешении из комментария к соответствующему фото в альбоме
+**Wallpaper App**
+
+The app works through the VK API based on the following principles:
+- Albums are created in a private VK group.
+- Each album is assigned a unique avatar and name.
+- Each album is filled with photos.
+- A high-resolution version of each photo is attached in the comments.
+- In the app, albums are displayed as wallpaper categories.
+- The name and avatar of each category are taken from the corresponding album data.
+- The wallpapers for each category are sourced from the respective album and displayed in the app.
+- When a wallpaper is opened in full-screen mode, the app loads the high-resolution photo from the comment attached to the corresponding album photo.
 
 <img src="https://user-images.githubusercontent.com/17685189/147379312-a5a1931b-df23-4f9c-9101-ed816fcd629d.png" width="300"/>    <img src="https://user-images.githubusercontent.com/17685189/147379316-54c4a479-0212-4dd5-ba1c-0cbd4ada09e7.png" width="300"/>
 
